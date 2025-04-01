@@ -5,7 +5,7 @@ class DioClient {
   Dio dio;
 
   DioClient()
-    : dio = Dio(BaseOptions(baseUrl: 'https://api.anilibria.tv/v3/')) {
+    : dio = Dio(BaseOptions(baseUrl: 'https://anilibria.top/api/v1/')) {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {

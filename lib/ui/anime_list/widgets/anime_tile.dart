@@ -10,9 +10,11 @@ class AnimeTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return ListTile(
-      leading: Image.network(anime.posters.original),
-      title: Text(anime.names.ru, style: theme.textTheme.bodyMedium),
-      subtitle: Text(anime.announce, style: theme.textTheme.labelSmall),
+      leading: Image.network(
+        'https://anilibria.top${anime.poster.optimized.src}',
+      ),
+      title: Text(anime.names.main, style: theme.textTheme.bodyMedium),
+      subtitle: Text(anime.description, style: theme.textTheme.labelSmall),
       trailing: const Icon(Icons.arrow_forward_ios),
       onTap: () {
         Navigator.of(context).pushNamed('/anime', arguments: anime);
