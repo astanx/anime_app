@@ -1,7 +1,6 @@
 import 'dart:developer';
-
-import 'package:anime_app/models/anime.dart';
-import 'package:anime_app/repositories/base_repository.dart';
+import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:dio/dio.dart';
 
 class AnimeRepository extends BaseRepository {
