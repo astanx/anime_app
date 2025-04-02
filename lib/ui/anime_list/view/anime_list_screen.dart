@@ -1,7 +1,7 @@
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
-import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
 
 class AnimeListScreen extends StatefulWidget {
   const AnimeListScreen({super.key});
@@ -15,7 +15,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
 
   @override
   void initState() {
-    _loadAnime();
+    _fetchAnime();
     super.initState();
   }
 
@@ -23,21 +23,17 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Anime List')),
-      body:
-          _animeList == null
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.separated(
-                itemCount: _animeList!.length,
-                separatorBuilder: (context, index) => const Divider(),
-                itemBuilder: (context, index) {
-                  final anime = _animeList![index];
-                  return AnimeTile(anime: anime);
-                },
-              ),
+      body: _animeList == null
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.separated(
+              itemCount: _animeList!.length,
+              separatorBuilder: (_, __) => const Divider(),
+              itemBuilder: (_, index) => AnimeCard(anime: _animeList![index]),
+            ),
     );
   }
 
-  Future<void> _loadAnime() async {
+  Future<void> _fetchAnime() async {
     _animeList = await AnimeRepository().getReleases(20);
     setState(() {});
   }

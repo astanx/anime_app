@@ -1,1 +1,1 @@
-export 'anime_tile.dart';
+export 'anime_card.dart';

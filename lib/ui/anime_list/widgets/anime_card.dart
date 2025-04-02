@@ -1,8 +1,8 @@
 import 'package:anime_app/data/models/anime.dart';
 import 'package:flutter/material.dart';
 
-class AnimeTile extends StatelessWidget {
-  const AnimeTile({super.key, required this.anime});
+class AnimeCard extends StatelessWidget {
+  const AnimeCard({super.key, required this.anime});
 
   final Anime anime;
 
