@@ -1,7 +1,7 @@
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
+import 'package:anime_app/ui/anime_list/widgets/anime_card.dart';
 
 class AnimeListScreen extends StatefulWidget {
   const AnimeListScreen({super.key});
@@ -21,14 +21,58 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    int crossAxisCount = 2; 
+    if (screenWidth >= 600) {
+      crossAxisCount = 3;
+    }
+    if (screenWidth >= 900) {
+      crossAxisCount = 4;
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Anime List')),
+      appBar: AppBar(title: const Text('Oshavotik')),
       body: _animeList == null
           ? const Center(child: CircularProgressIndicator())
-          : ListView.separated(
-              itemCount: _animeList!.length,
-              separatorBuilder: (_, __) => const Divider(),
-              itemBuilder: (_, index) => AnimeCard(anime: _animeList![index]),
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: const InputDecoration(
+                            labelText: 'Enter anime title',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.search),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 1,
+                      ),
+                      itemCount: _animeList!.length,
+                      itemBuilder: (context, index) {
+                        return AnimeCard(anime: _animeList![index]);
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }

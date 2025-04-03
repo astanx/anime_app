@@ -7,6 +7,11 @@ class AnimeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Anime List', theme: darkTheme, routes: routes);
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Anime List',
+      theme: darkTheme,
+      routes: routes,
+    );
   }
 }
