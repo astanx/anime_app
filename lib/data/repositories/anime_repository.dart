@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
 
@@ -8,7 +9,8 @@ class AnimeRepository extends BaseRepository {
 
   Future<Anime> getAnimeById(int id) async {
     try {
-      final response = await dio.get('title?$id');
+      log('$id');
+      final response = await dio.get('anime/releases/$id');
       final data = response.data;
 
       log(data.toString());
@@ -21,7 +23,7 @@ class AnimeRepository extends BaseRepository {
     }
   }
 
-  Future<List<Anime>> getReleases(int? limit) async {
+  Future<List<AnimeRelease>> getReleases(int? limit) async {
     try {
       limit ??= 10;
       final response = await dio.get('anime/releases/latest?limit$limit');
@@ -29,7 +31,7 @@ class AnimeRepository extends BaseRepository {
 
       log(data.toString());
 
-      final releases = data.map((json) => Anime.fromJson(json)).toList();
+      final releases = data.map((json) => AnimeRelease.fromJson(json)).toList();
 
       return releases;
     } catch (e) {

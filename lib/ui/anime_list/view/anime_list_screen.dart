@@ -1,4 +1,4 @@
-import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:anime_app/ui/anime_list/widgets/anime_card.dart';
@@ -11,7 +11,7 @@ class AnimeListScreen extends StatefulWidget {
 }
 
 class _AnimeListScreenState extends State<AnimeListScreen> {
-  List<Anime>? _animeList;
+  List<AnimeRelease>? _animeList;
 
   @override
   void initState() {
@@ -23,7 +23,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
-    int crossAxisCount = 2; 
+    int crossAxisCount = 2;
     if (screenWidth >= 600) {
       crossAxisCount = 3;
     }
@@ -33,47 +33,51 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Oshavotik')),
-      body: _animeList == null
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Row(
+      body:
+          _animeList == null
+              ? const Center(child: CircularProgressIndicator())
+              : SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: TextField(
-                          decoration: const InputDecoration(
-                            labelText: 'Enter anime title',
-                            border: OutlineInputBorder(),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              decoration: const InputDecoration(
+                                labelText: 'Enter anime title',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 10),
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.search),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 10),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.search),
+                      const SizedBox(height: 20),
+                      Expanded(
+                        child: GridView.builder(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: crossAxisCount,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                childAspectRatio: 2 / 5,
+                              ),
+                          itemCount: _animeList!.length,
+                          itemBuilder: (context, index) {
+                            return AnimeCard(anime: _animeList![index]);
+                          },
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 1,
-                      ),
-                      itemCount: _animeList!.length,
-                      itemBuilder: (context, index) {
-                        return AnimeCard(anime: _animeList![index]);
-                      },
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
     );
   }
 

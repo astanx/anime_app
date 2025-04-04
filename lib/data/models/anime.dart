@@ -1,323 +1,257 @@
+import 'package:anime_app/data/models/anime_release.dart';
+
 class Anime {
-  final int id;
-  final AnimeType type;
-  final int year;
-  final AnimeNames names;
-  final String alias;
-  final AnimeSeason season;
-  final Poster poster;
-  final DateTime freshAt;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final bool isOngoing;
-  final AgeRating ageRating;
-  final PublishDay publishDay;
-  final String description;
-  final int episodesTotal;
-  final bool isInProduction;
-  final bool isBlockedByGeo;
-  final bool isBlockedByCopyrights;
-  final int addedInUsersFavorites;
-  final int averageDurationOfEpisode;
-  final List<Genre> genres;
-  final LatestEpisode latestEpisode;
+  final AnimeRelease release;
+  final String? notification;
+  final String? externalPlayer;
+  final List<Member> members;
+  final List<Torrent> torrents;
+  final Sponsor? sponsor;
+  final List<LatestEpisode> episodes;
 
   Anime({
-    required this.id,
-    required this.type,
-    required this.year,
-    required this.names,
-    required this.alias,
-    required this.season,
-    required this.poster,
-    required this.freshAt,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.isOngoing,
-    required this.ageRating,
-    required this.publishDay,
-    required this.description,
-    required this.episodesTotal,
-    required this.isInProduction,
-    required this.isBlockedByGeo,
-    required this.isBlockedByCopyrights,
-    required this.addedInUsersFavorites,
-    required this.averageDurationOfEpisode,
-    required this.genres,
-    required this.latestEpisode,
+    required this.release,
+    required this.notification,
+    required this.externalPlayer,
+    required this.members,
+    required this.torrents,
+    required this.sponsor,
+    required this.episodes,
   });
 
   factory Anime.fromJson(Map<String, dynamic> json) => Anime(
-    id: json['id'] ?? 0,
-    type:
-        json['type'] != null
-            ? AnimeType.fromJson(json['type'])
-            : AnimeType(value: '', description: ''),
-    year: json['year'] ?? 0,
-    names: AnimeNames.fromJson(json['name'] ?? {}),
-    alias: json['alias'] ?? '',
-    season:
-        json['season'] != null
-            ? AnimeSeason.fromJson(json['season'])
-            : AnimeSeason(value: '', description: ''),
-    poster:
-        json['poster'] != null
-            ? Poster.fromJson(json['poster'])
-            : Poster(
-              src: '',
-              thumbnail: '',
-              optimized: PosterOptimized(src: '', thumbnail: ''),
+    release: AnimeRelease.fromJson(json),
+    notification: json['notification'],
+    externalPlayer: json['external_player'],
+    members:
+        (json['members'] as List<dynamic>? ?? [])
+            .map((e) => Member.fromJson(e))
+            .toList(),
+    torrents:
+        (json['torrents'] as List<dynamic>? ?? [])
+            .map((e) => Torrent.fromJson(e))
+            .toList(),
+    sponsor: json['sponsor'] != null ? Sponsor.fromJson(json['sponsor']) : null,
+    episodes:
+        (json['episodes'] as List<dynamic>? ?? [])
+            .map((e) => LatestEpisode.fromJson(e))
+            .toList(),
+  );
+}
+
+class Member {
+  final String id;
+  final MemberUser user;
+  final MemberRole role;
+  final String nickname;
+
+  Member({
+    required this.id,
+    required this.user,
+    required this.role,
+    required this.nickname,
+  });
+
+  factory Member.fromJson(Map<String, dynamic> json) => Member(
+    id: json['id'] ?? '',
+    user:
+        json['user'] != null
+            ? MemberUser.fromJson(json['user'])
+            : MemberUser(
+              id: 0,
+              nickname: '',
+              avatar: Avatar(
+                preview: '',
+                thumbnail: '',
+                optimized: AvatarOptimized(preview: '', thumbnail: ''),
+              ),
             ),
-    freshAt:
-        json['fresh_at'] != null
-            ? DateTime.parse(json['fresh_at'])
-            : DateTime.now(),
-    createdAt:
-        json['created_at'] != null
-            ? DateTime.parse(json['created_at'])
-            : DateTime.now(),
+    role:
+        json['role'] != null
+            ? MemberRole.fromJson(json['role'])
+            : MemberRole(value: '', description: ''),
+    nickname: json['nickname'] ?? '',
+  );
+}
+
+class MemberUser {
+  final int id;
+  final String nickname;
+  final Avatar avatar;
+
+  MemberUser({required this.id, required this.nickname, required this.avatar});
+
+  factory MemberUser.fromJson(Map<String, dynamic> json) => MemberUser(
+    id: json['id'],
+    nickname: json['nickname'],
+    avatar: Avatar.fromJson(json['avatar']),
+  );
+}
+
+class Avatar {
+  final String preview;
+  final String thumbnail;
+  final AvatarOptimized optimized;
+
+  Avatar({
+    required this.preview,
+    required this.thumbnail,
+    required this.optimized,
+  });
+
+  factory Avatar.fromJson(Map<String, dynamic> json) => Avatar(
+    preview: json['preview'] ?? '',
+    thumbnail: json['thumbnail'] ?? '',
+    optimized:
+        json['optimized'] != null
+            ? AvatarOptimized.fromJson(json['optimized'])
+            : AvatarOptimized(preview: '', thumbnail: ''),
+  );
+}
+
+class AvatarOptimized {
+  final String preview;
+  final String thumbnail;
+
+  AvatarOptimized({required this.preview, required this.thumbnail});
+
+  factory AvatarOptimized.fromJson(Map<String, dynamic> json) =>
+      AvatarOptimized(preview: json['preview'], thumbnail: json['thumbnail']);
+}
+
+class MemberRole {
+  final String value;
+  final String description;
+
+  MemberRole({required this.value, required this.description});
+
+  factory MemberRole.fromJson(Map<String, dynamic> json) =>
+      MemberRole(value: json['value'], description: json['description']);
+}
+
+class Torrent {
+  final int id;
+  final String hash;
+  final int size;
+  final TorrentType type;
+  final String label;
+  final String magnet;
+  final String filename;
+  final int seeders;
+  final TorrentQuality quality;
+  final TorrentCodec codec;
+  final TorrentColor color;
+  final int bitrate;
+  final int leechers;
+  final int sortOrder;
+  final DateTime updatedAt;
+  final String description;
+  final int completedTimes;
+
+  Torrent({
+    required this.id,
+    required this.hash,
+    required this.size,
+    required this.type,
+    required this.label,
+    required this.magnet,
+    required this.filename,
+    required this.seeders,
+    required this.quality,
+    required this.codec,
+    required this.color,
+    required this.bitrate,
+    required this.leechers,
+    required this.sortOrder,
+    required this.updatedAt,
+    required this.description,
+    required this.completedTimes,
+  });
+
+  factory Torrent.fromJson(Map<String, dynamic> json) => Torrent(
+    id: json['id'] ?? 0,
+    hash: json['hash'] ?? '',
+    size: json['size'] ?? 0,
+    type: TorrentType.fromJson(json['type'] ?? {}),
+    label: json['label'] ?? '',
+    magnet: json['magnet'] ?? '',
+    filename: json['filename'] ?? '',
+    seeders: json['seeders'] ?? 0,
+    quality: TorrentQuality.fromJson(json['quality'] ?? {}),
+    codec: TorrentCodec.fromJson(json['codec'] ?? {}),
+    color: TorrentColor.fromJson(json['color'] ?? {}),
+    bitrate: json['bitrate'] ?? 0,
+    leechers: json['leechers'] ?? 0,
+    sortOrder: json['sort_order'] ?? 0,
     updatedAt:
         json['updated_at'] != null
-            ? DateTime.parse(json['updated_at'])
+            ? DateTime.tryParse(json['updated_at']) ?? DateTime.now()
             : DateTime.now(),
-    isOngoing: json['is_ongoing'] ?? false,
-    ageRating:
-        json['age_rating'] != null
-            ? AgeRating.fromJson(json['age_rating'])
-            : AgeRating(value: '', label: '', isAdult: false, description: ''),
-    publishDay:
-        json['publish_day'] != null
-            ? PublishDay.fromJson(json['publish_day'])
-            : PublishDay(value: 0, description: ''),
     description: json['description'] ?? '',
-    episodesTotal: json['episodes_total'] ?? 0,
-    isInProduction: json['is_in_production'] ?? false,
-    isBlockedByGeo: json['is_blocked_by_geo'] ?? false,
-    isBlockedByCopyrights: json['is_blocked_by_copyrights'] ?? false,
-    addedInUsersFavorites: json['added_in_users_favorites'] ?? 0,
-    averageDurationOfEpisode: json['average_duration_of_episode'] ?? 0,
-    genres:
-        (json['genres'] as List<dynamic>? ?? [])
-            .map((e) => Genre.fromJson(e))
-            .toList(),
-    latestEpisode:
-        json['latest_episode'] != null
-            ? LatestEpisode.fromJson(json['latest_episode'])
-            : LatestEpisode(
-              id: '',
-              name: '',
-              ordinal: 0,
-              preview: EpisodePreview(
-                src: '',
-                thumbnail: '',
-                optimized: EpisodePreviewOptimized(src: '', thumbnail: ''),
-              ),
-              hls480: '',
-              hls720: '',
-              hls1080: '',
-              duration: 0,
-            ),
+    completedTimes: json['completed_times'] ?? 0,
   );
 }
 
-class AnimeType {
+class TorrentType {
   final String value;
   final String description;
 
-  AnimeType({required this.value, required this.description});
+  TorrentType({required this.value, required this.description});
 
-  factory AnimeType.fromJson(Map<String, dynamic> json) =>
-      AnimeType(value: json['value'], description: json['description']);
+  factory TorrentType.fromJson(Map<String, dynamic> json) =>
+      TorrentType(value: json['value'], description: json['description']);
 }
 
-class AnimeNames {
-  final String main;
-  final String english;
-  final String? alternative;
-
-  AnimeNames({required this.main, required this.english, this.alternative});
-
-  factory AnimeNames.fromJson(Map<String, dynamic> json) => AnimeNames(
-    main: json['main'],
-    english: json['english'],
-    alternative: json['alternative'],
-  );
-}
-
-class AnimeSeason {
+class TorrentQuality {
   final String value;
   final String description;
 
-  AnimeSeason({required this.value, required this.description});
+  TorrentQuality({required this.value, required this.description});
 
-  factory AnimeSeason.fromJson(Map<String, dynamic> json) =>
-      AnimeSeason(value: json['value'], description: json['description']);
+  factory TorrentQuality.fromJson(Map<String, dynamic> json) =>
+      TorrentQuality(value: json['value'], description: json['description']);
 }
 
-class Poster {
-  final String src;
-  final String thumbnail;
-  final PosterOptimized optimized;
-
-  Poster({required this.src, required this.thumbnail, required this.optimized});
-
-  factory Poster.fromJson(Map<String, dynamic> json) => Poster(
-    src: json['src'],
-    thumbnail: json['thumbnail'],
-    optimized: PosterOptimized.fromJson(json['optimized']),
-  );
-}
-
-class PosterOptimized {
-  final String src;
-  final String thumbnail;
-
-  PosterOptimized({required this.src, required this.thumbnail});
-
-  factory PosterOptimized.fromJson(Map<String, dynamic> json) =>
-      PosterOptimized(src: json['src'], thumbnail: json['thumbnail']);
-}
-
-class AgeRating {
+class TorrentCodec {
   final String value;
-  final String label;
-  final bool isAdult;
   final String description;
 
-  AgeRating({
-    required this.value,
-    required this.label,
-    required this.isAdult,
-    required this.description,
-  });
+  TorrentCodec({required this.value, required this.description});
 
-  factory AgeRating.fromJson(Map<String, dynamic> json) => AgeRating(
-    value: json['value'],
-    label: json['label'],
-    isAdult: json['is_adult'],
-    description: json['description'],
-  );
+  factory TorrentCodec.fromJson(Map<String, dynamic> json) =>
+      TorrentCodec(value: json['value'], description: json['description']);
 }
 
-class PublishDay {
-  final int value;
+class TorrentColor {
+  final String value;
   final String description;
 
-  PublishDay({required this.value, required this.description});
+  TorrentColor({required this.value, required this.description});
 
-  factory PublishDay.fromJson(Map<String, dynamic> json) =>
-      PublishDay(value: json['value'], description: json['description']);
+  factory TorrentColor.fromJson(Map<String, dynamic> json) =>
+      TorrentColor(value: json['value'], description: json['description']);
 }
 
-class Genre {
-  final int id;
-  final String name;
-  final GenreImage image;
-
-  Genre({required this.id, required this.name, required this.image});
-
-  factory Genre.fromJson(Map<String, dynamic> json) => Genre(
-    id: json['id'],
-    name: json['name'],
-    image: GenreImage.fromJson(json['image']),
-  );
-}
-
-class GenreImage {
-  final String preview;
-  final String thumbnail;
-  final GenreImageOptimized optimized;
-
-  GenreImage({
-    required this.preview,
-    required this.thumbnail,
-    required this.optimized,
-  });
-
-  factory GenreImage.fromJson(Map<String, dynamic> json) => GenreImage(
-    preview: json['preview'],
-    thumbnail: json['thumbnail'],
-    optimized: GenreImageOptimized.fromJson(json['optimized']),
-  );
-}
-
-class GenreImageOptimized {
-  final String preview;
-  final String thumbnail;
-
-  GenreImageOptimized({required this.preview, required this.thumbnail});
-
-  factory GenreImageOptimized.fromJson(Map<String, dynamic> json) =>
-      GenreImageOptimized(
-        preview: json['preview'],
-        thumbnail: json['thumbnail'],
-      );
-}
-
-class LatestEpisode {
+class Sponsor {
   final String id;
-  final String name;
-  final int ordinal;
-  final EpisodePreview preview;
-  final String hls480;
-  final String hls720;
-  final String hls1080;
-  final int duration;
+  final String title;
+  final String description;
+  final String urlTitle;
+  final String url;
 
-  LatestEpisode({
+  Sponsor({
     required this.id,
-    required this.name,
-    required this.ordinal,
-    required this.preview,
-    required this.hls480,
-    required this.hls720,
-    required this.hls1080,
-    required this.duration,
+    required this.title,
+    required this.description,
+    required this.urlTitle,
+    required this.url,
   });
 
-  factory LatestEpisode.fromJson(Map<String, dynamic> json) => LatestEpisode(
-    id: json['id'] ?? 0,
-    name: json['name'] ?? '',
-    ordinal: json['ordinal'] ?? 0,
-    preview:
-        json['preview'] != null
-            ? EpisodePreview.fromJson(json['preview'])
-            : EpisodePreview(
-              src: '',
-              thumbnail: '',
-              optimized: EpisodePreviewOptimized(src: '', thumbnail: ''),
-            ),
-    hls480: json['hlt_480'] ?? '',
-    hls720: json['hls_720'] ?? '',
-    hls1080: json['hls_1080'] ?? '',
-    duration: json['duration'] ?? 0,
+  factory Sponsor.fromJson(Map<String, dynamic> json) => Sponsor(
+    id: json['id'],
+    title: json['title'],
+    description: json['description'],
+    urlTitle: json['url_title'],
+    url: json['url'],
   );
-}
-
-class EpisodePreview {
-  final String src;
-  final String thumbnail;
-  final EpisodePreviewOptimized optimized;
-
-  EpisodePreview({
-    required this.src,
-    required this.thumbnail,
-    required this.optimized,
-  });
-
-  factory EpisodePreview.fromJson(Map<String, dynamic> json) => EpisodePreview(
-    src: json['src'],
-    thumbnail: json['thumbnail'],
-    optimized: EpisodePreviewOptimized.fromJson(json['optimized']),
-  );
-}
-
-class EpisodePreviewOptimized {
-  final String src;
-  final String thumbnail;
-
-  EpisodePreviewOptimized({required this.src, required this.thumbnail});
-
-  factory EpisodePreviewOptimized.fromJson(Map<String, dynamic> json) =>
-      EpisodePreviewOptimized(src: json['src'], thumbnail: json['thumbnail']);
 }
