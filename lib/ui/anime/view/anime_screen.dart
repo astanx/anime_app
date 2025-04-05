@@ -45,7 +45,7 @@ class _AnimeScreenState extends State<AnimeScreen> {
 
       setState(() {});
     } 
-  }
+  
 
   @override
   void didChangeDependencies() {
