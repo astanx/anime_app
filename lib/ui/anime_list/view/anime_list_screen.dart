@@ -12,11 +12,18 @@ class AnimeListScreen extends StatefulWidget {
 
 class _AnimeListScreenState extends State<AnimeListScreen> {
   List<AnimeRelease>? _animeList;
+  final _textController = TextEditingController();
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
-    _fetchAnime();
     super.initState();
+    _fetchAnime();
   }
 
   @override
@@ -45,6 +52,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                         children: [
                           Expanded(
                             child: TextField(
+                              controller: _textController,
                               decoration: const InputDecoration(
                                 labelText: 'Enter anime title',
                                 border: OutlineInputBorder(),
@@ -53,7 +61,17 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                           ),
                           const SizedBox(width: 10),
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () async {
+                              if (_textController.text == '') {
+                                _fetchAnime();
+                              } else {
+                                final anime = await AnimeRepository()
+                                    .searchAnime(_textController.text);
+
+                                _animeList = anime;
+                                setState(() {});
+                              }
+                            },
                             icon: const Icon(Icons.search),
                           ),
                         ],
@@ -82,7 +100,12 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   }
 
   Future<void> _fetchAnime() async {
-    _animeList = await AnimeRepository().getReleases(20);
-    setState(() {});
+    final animeList = await AnimeRepository().getReleases(20);
+
+    if (mounted) {
+      setState(() {
+        _animeList = animeList;
+      });
+    }
   }
 }

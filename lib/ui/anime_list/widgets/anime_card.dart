@@ -38,6 +38,8 @@ class AnimeCard extends StatelessWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 4,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),

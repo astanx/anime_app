@@ -228,8 +228,10 @@ class TorrentColor {
 
   TorrentColor({required this.value, required this.description});
 
-  factory TorrentColor.fromJson(Map<String, dynamic> json) =>
-      TorrentColor(value: json['value'], description: json['description']);
+  factory TorrentColor.fromJson(Map<String, dynamic> json) => TorrentColor(
+    value: json['value'] ?? '',
+    description: json['description'] ?? '',
+  );
 }
 
 class Sponsor {

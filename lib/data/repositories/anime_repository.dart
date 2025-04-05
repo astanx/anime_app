@@ -7,9 +7,24 @@ import 'package:anime_app/data/services/dio_client.dart';
 class AnimeRepository extends BaseRepository {
   AnimeRepository() : super(DioClient().dio);
 
+  Future<List<AnimeRelease>> searchAnime(String query) async {
+    try {
+      final response = await dio.get('app/search/releases?query=$query');
+      final data = response.data as List<dynamic>;
+
+      if (data.isNotEmpty) {
+        final anime = data.map((json) => AnimeRelease.fromJson(json)).toList();
+        return anime;
+      } else {
+        throw Exception('No anime found');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<Anime> getAnimeById(int id) async {
     try {
-      log('$id');
       final response = await dio.get('anime/releases/$id');
       final data = response.data;
 

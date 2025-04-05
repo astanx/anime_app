@@ -4,14 +4,36 @@ import 'package:video_player/video_player.dart';
 
 class AnimeScreen extends StatefulWidget {
   const AnimeScreen({super.key});
-
+  final episodeNumber = 0;
   @override
   State<AnimeScreen> createState() => _AnimeScreenState();
 }
 
 class _AnimeScreenState extends State<AnimeScreen> {
   late final Anime anime;
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
+  List<DropdownMenuEntry<int>> get animeEpisodes => List.unmodifiable(
+    List.generate(
+      anime.episodes.length,
+      (index) => DropdownMenuEntry(value: index, label: 'Episode ${index + 1}'),
+    ),
+  );
+
+  var episodeIndex = 0;
+
+  Future<void> loadEpisode(int index) async {
+    final episode = anime.episodes[index];
+    final videoUrl = Uri.parse(
+      episode.hls1080.isNotEmpty ? episode.hls1080 : episode.hls720,
+    );
+
+    await _controller?.dispose();
+
+    _controller = VideoPlayerController.networkUrl(videoUrl);
+    await _controller!.initialize();
+
+    setState(() {});
+  }
 
   @override
   void didChangeDependencies() {
@@ -23,21 +45,13 @@ class _AnimeScreenState extends State<AnimeScreen> {
     );
     anime = args as Anime;
 
-    final videoUrl =
-        anime.episodes.isNotEmpty ? Uri.parse(anime.episodes[0].hls1080) : null;
-
-    if (videoUrl != null) {
-      _controller = VideoPlayerController.networkUrl(videoUrl)
-        ..initialize().then((_) {
-          setState(() {});
-        });
-    }
+    loadEpisode(episodeIndex);
   }
 
   @override
   void dispose() {
     super.dispose();
-    _controller.dispose();
+    _controller?.dispose();
   }
 
   @override
@@ -45,79 +59,123 @@ class _AnimeScreenState extends State<AnimeScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(anime.release.names.main)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Card(
-          color: theme.cardTheme.color,
-          elevation: theme.cardTheme.elevation,
-          shadowColor: theme.cardTheme.shadowColor,
-          shape: theme.cardTheme.shape,
+      body: SafeArea(
+        child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                Image.network(
-                  'https://anilibria.top${anime.release.poster.optimized.src}',
-                  fit: BoxFit.cover,
-                  height: 10,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  anime.release.names.main,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${anime.release.episodesTotal} episodes  ${anime.release.isOngoing ? '| Ongoing' : ''}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    anime.release.description,
-                    style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 3,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Video Player
-                if (_controller.value.isInitialized)
-                  AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: VideoPlayer(_controller),
-                  )
-                else
-                  const Center(child: CircularProgressIndicator()),
-
-                // Play/Pause Button
-                if (_controller.value.isInitialized)
-                  IconButton(
-                    icon: Icon(
-                      _controller.value.isPlaying
-                          ? Icons.pause
-                          : Icons.play_arrow,
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              color: theme.cardTheme.color,
+              elevation: theme.cardTheme.elevation,
+              shadowColor: theme.cardTheme.shadowColor,
+              shape: theme.cardTheme.shape,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    Image.network(
+                      'https://anilibria.top${anime.release.poster.optimized.src}',
+                      fit: BoxFit.cover,
                     ),
-                    onPressed: () {
-                      setState(() {
-                        if (_controller.value.isPlaying) {
-                          _controller.pause();
-                        } else {
-                          _controller.play();
-                        }
-                      });
-                    },
-                  ),
-              ],
+                    const SizedBox(height: 8),
+                    Text(
+                      anime.release.names.main,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${anime.release.episodesTotal} episodes  ${anime.release.isOngoing ? '| Ongoing' : ''}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        anime.release.description,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 12,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: DropdownMenu(
+                            inputDecorationTheme: InputDecorationTheme(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              isDense: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                            ),
+                            textStyle: TextStyle(fontSize: 14),
+                            dropdownMenuEntries: animeEpisodes,
+                            initialSelection: episodeIndex,
+                            onSelected: (value) {
+                              if (value != null && value != episodeIndex) {
+                                episodeIndex = value;
+                                loadEpisode(episodeIndex);
+                              }
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          width: 140,
+                          child: Center(
+                            child: Text(
+                              anime.episodes[episodeIndex].name,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    if (_controller?.value.isInitialized ?? false)
+                      AspectRatio(
+                        aspectRatio: _controller!.value.aspectRatio,
+                        child: VideoPlayer(_controller!),
+                      )
+                    else
+                      const Center(child: CircularProgressIndicator()),
+                    if (_controller?.value.isInitialized ?? false)
+                      IconButton(
+                        icon: Icon(
+                          _controller!.value.isPlaying
+                              ? Icons.pause
+                              : Icons.play_arrow,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            if (_controller!.value.isPlaying) {
+                              _controller!.pause();
+                            } else {
+                              _controller!.play();
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

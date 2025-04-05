@@ -145,13 +145,15 @@ class AnimeNames {
 }
 
 class AnimeSeason {
-  final String value;
-  final String description;
+  final String? value;
+  final String? description;
 
   AnimeSeason({required this.value, required this.description});
 
-  factory AnimeSeason.fromJson(Map<String, dynamic> json) =>
-      AnimeSeason(value: json['value'], description: json['description']);
+  factory AnimeSeason.fromJson(Map<String, dynamic> json) => AnimeSeason(
+    value: json['value'] ?? '',
+    description: json['description'] ?? '',
+  );
 }
 
 class Poster {
@@ -276,9 +278,9 @@ class LatestEpisode {
   });
 
   factory LatestEpisode.fromJson(Map<String, dynamic> json) => LatestEpisode(
-    id: json['id'] ?? 0,
-    name: json['name'] ?? '',
-    ordinal: json['ordinal'] ?? 0,
+    id: json['id'] ?? '', // Ensure a non-null default value
+    name: json['name'] ?? '', // Default to an empty string if null
+    ordinal: json['ordinal'] ?? 0, // Default to 0 if null
     preview:
         json['preview'] != null
             ? EpisodePreview.fromJson(json['preview'])
@@ -286,11 +288,11 @@ class LatestEpisode {
               src: '',
               thumbnail: '',
               optimized: EpisodePreviewOptimized(src: '', thumbnail: ''),
-            ),
-    hls480: json['hlt_480'] ?? '',
-    hls720: json['hls_720'] ?? '',
-    hls1080: json['hls_1080'] ?? '',
-    duration: json['duration'] ?? 0,
+            ), // Default to empty if null
+    hls480: json['hls_480'] ?? '', // Default to an empty string if null
+    hls720: json['hls_720'] ?? '', // Default to an empty string if null
+    hls1080: json['hls_1080'] ?? '', // Default to an empty string if null
+    duration: json['duration'] ?? 0, // Default to 0 if null
   );
 }
 
@@ -306,9 +308,15 @@ class EpisodePreview {
   });
 
   factory EpisodePreview.fromJson(Map<String, dynamic> json) => EpisodePreview(
-    src: json['src'],
-    thumbnail: json['thumbnail'],
-    optimized: EpisodePreviewOptimized.fromJson(json['optimized']),
+    src: json['src'] ?? '', // Default to an empty string if null
+    thumbnail: json['thumbnail'] ?? '', // Default to an empty string if null
+    optimized:
+        json['optimized'] != null
+            ? EpisodePreviewOptimized.fromJson(json['optimized'])
+            : EpisodePreviewOptimized(
+              src: '',
+              thumbnail: '',
+            ), // Default to empty optimized data if null
   );
 }
 
@@ -319,5 +327,9 @@ class EpisodePreviewOptimized {
   EpisodePreviewOptimized({required this.src, required this.thumbnail});
 
   factory EpisodePreviewOptimized.fromJson(Map<String, dynamic> json) =>
-      EpisodePreviewOptimized(src: json['src'], thumbnail: json['thumbnail']);
+      EpisodePreviewOptimized(
+        src: json['src'] ?? '', // Default to an empty string if null
+        thumbnail:
+            json['thumbnail'] ?? '', // Default to an empty string if null
+      );
 }
