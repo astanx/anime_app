@@ -1,4 +1,5 @@
 import 'package:anime_app/data/models/anime.dart';
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -12,6 +13,8 @@ class AnimeScreen extends StatefulWidget {
 class _AnimeScreenState extends State<AnimeScreen> {
   late final Anime anime;
   VideoPlayerController? _controller;
+  ChewieController? _chewieController;
+
   List<DropdownMenuEntry<int>> get animeEpisodes => List.unmodifiable(
     List.generate(
       anime.episodes.length,
@@ -20,6 +23,7 @@ class _AnimeScreenState extends State<AnimeScreen> {
   );
 
   var episodeIndex = 0;
+  var fullscreen = false;
 
   Future<void> loadEpisode(int index) async {
     final episode = anime.episodes[index];
@@ -30,9 +34,17 @@ class _AnimeScreenState extends State<AnimeScreen> {
     await _controller?.dispose();
 
     _controller = VideoPlayerController.networkUrl(videoUrl);
-    await _controller!.initialize();
 
-    setState(() {});
+      await _controller!.initialize();
+
+      _chewieController = ChewieController(
+        videoPlayerController: _controller!,
+        allowFullScreen: true,
+        allowMuting: true,
+      );
+
+      setState(() {});
+    } 
   }
 
   @override
@@ -52,11 +64,13 @@ class _AnimeScreenState extends State<AnimeScreen> {
   void dispose() {
     super.dispose();
     _controller?.dispose();
+    _chewieController?.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(title: Text(anime.release.names.main)),
       body: SafeArea(
@@ -149,30 +163,14 @@ class _AnimeScreenState extends State<AnimeScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    if (_controller?.value.isInitialized ?? false)
-                      AspectRatio(
-                        aspectRatio: _controller!.value.aspectRatio,
-                        child: VideoPlayer(_controller!),
-                      )
-                    else
-                      const Center(child: CircularProgressIndicator()),
-                    if (_controller?.value.isInitialized ?? false)
-                      IconButton(
-                        icon: Icon(
-                          _controller!.value.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            if (_controller!.value.isPlaying) {
-                              _controller!.pause();
-                            } else {
-                              _controller!.play();
-                            }
-                          });
-                        },
-                      ),
+                    _chewieController == null
+                        ? Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : SizedBox(
+                            height: 200,
+                            child: Chewie(controller: _chewieController!),
+                          ),
                   ],
                 ),
               ),
