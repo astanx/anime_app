@@ -43,7 +43,6 @@ class AnimeCard extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
-              // Статус "Ongoing"
               Text(
                 '${anime.episodesTotal} episodes',
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -52,7 +51,6 @@ class AnimeCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              // Описание аниме
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(

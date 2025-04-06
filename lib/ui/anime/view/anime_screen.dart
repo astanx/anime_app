@@ -1,4 +1,4 @@
-import 'package:flutter/services.dart';
+import 'package:anime_app/ui/anime/widgets/fullscreen_player.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -13,14 +13,15 @@ class AnimeScreen extends StatefulWidget {
 class _AnimeScreenState extends State<AnimeScreen> {
   late final Anime anime;
   VideoPlayerController? _controller;
+  var episodeIndex = 0;
+  double _currentPosition = 0.0;
+
   List<DropdownMenuEntry<int>> get animeEpisodes => List.unmodifiable(
     List.generate(
       anime.episodes.length,
       (index) => DropdownMenuEntry(value: index, label: 'Episode ${index + 1}'),
     ),
   );
-
-  var episodeIndex = 0;
 
   Future<void> loadEpisode(int index) async {
     final episode = anime.episodes[index];
@@ -29,9 +30,17 @@ class _AnimeScreenState extends State<AnimeScreen> {
     );
 
     await _controller?.dispose();
-
     _controller = VideoPlayerController.networkUrl(videoUrl);
     await _controller!.initialize();
+
+    _controller!.addListener(() {
+      if (_controller!.value.isInitialized) {
+        setState(() {
+          _currentPosition =
+              _controller!.value.position.inMilliseconds.toDouble();
+        });
+      }
+    });
 
     setState(() {});
   }
@@ -102,8 +111,6 @@ class _AnimeScreenState extends State<AnimeScreen> {
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontSize: 12,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 3,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -111,7 +118,7 @@ class _AnimeScreenState extends State<AnimeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
-                          width: 140,
+                          width: 150,
                           child: DropdownMenu(
                             inputDecorationTheme: InputDecorationTheme(
                               contentPadding: EdgeInsets.symmetric(
@@ -158,75 +165,104 @@ class _AnimeScreenState extends State<AnimeScreen> {
                           children: [
                             VideoPlayer(_controller!),
                             Positioned(
-                              bottom: 16,
-                              left: 16,
-                              right: 16,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.replay_10,
-                                      color: Colors.white,
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0,
                                     ),
-                                    onPressed: () async {
-                                      final currentPosition =
-                                          await _controller!.position;
-                                      if (currentPosition != null) {
-                                        _controller!.seekTo(
-                                          currentPosition -
-                                              Duration(seconds: 10),
-                                        );
-                                      }
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      _controller!.value.isPlaying
-                                          ? Icons.pause
-                                          : Icons.play_arrow,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        _controller!.value.isPlaying
-                                            ? _controller!.pause()
-                                            : _controller!.play();
-                                      });
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.forward_10,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () async {
-                                      final currentPosition =
-                                          await _controller!.position;
-                                      if (currentPosition != null) {
-                                        _controller!.seekTo(
-                                          currentPosition +
-                                              Duration(seconds: 10),
-                                        );
-                                      }
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.fullscreen,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (_) => FullscreenPlayer(
-                                                controller: _controller!,
-                                              ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.replay_10,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed: () async {
+                                            final currentPosition =
+                                                await _controller!.position;
+                                            if (currentPosition != null) {
+                                              _controller!.seekTo(
+                                                currentPosition -
+                                                    Duration(seconds: 10),
+                                              );
+                                            }
+                                          },
                                         ),
-                                      );
+                                        IconButton(
+                                          icon: Icon(
+                                            _controller!.value.isPlaying
+                                                ? Icons.pause
+                                                : Icons.play_arrow,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              _controller!.value.isPlaying
+                                                  ? _controller!.pause()
+                                                  : _controller!.play();
+                                            });
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.forward_10,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed: () async {
+                                            final currentPosition =
+                                                await _controller!.position;
+                                            if (currentPosition != null) {
+                                              _controller!.seekTo(
+                                                currentPosition +
+                                                    Duration(seconds: 10),
+                                              );
+                                            }
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.fullscreen,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (_) => FullscreenPlayer(
+                                                      controller: _controller!,
+                                                    ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  Slider(
+                                    value: _currentPosition,
+                                    min: 0.0,
+                                    max:
+                                        _controller!
+                                            .value
+                                            .duration
+                                            .inMilliseconds
+                                            .toDouble(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _currentPosition = value;
+                                        _controller!.seekTo(
+                                          Duration(milliseconds: value.toInt()),
+                                        );
+                                      });
                                     },
                                   ),
                                 ],
@@ -237,104 +273,83 @@ class _AnimeScreenState extends State<AnimeScreen> {
                       )
                     else
                       const Center(child: CircularProgressIndicator()),
+
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        if (episodeIndex > 0)
+                          SizedBox(
+                            width: 150,
+                            height: 50,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    episodeIndex = episodeIndex - 1;
+                                    loadEpisode(episodeIndex);
+                                  });
+                                },
+                                icon: Icon(Icons.skip_previous),
+                              ),
+                            ),
+                          )
+                        else
+                          const SizedBox(width: 150, height: 50),
+
+                        if (episodeIndex < anime.episodes.length - 1)
+                          SizedBox(
+                            width: 150,
+                            height: 50,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Text(
+                                    anime.episodes[episodeIndex + 1].name,
+                                    style: TextStyle(
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        episodeIndex = episodeIndex + 1;
+                                        loadEpisode(episodeIndex);
+                                      });
+                                    },
+                                    icon: Icon(Icons.skip_next),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          const SizedBox(width: 150, height: 50),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class FullscreenPlayer extends StatefulWidget {
-  final VideoPlayerController controller;
-
-  const FullscreenPlayer({super.key, required this.controller});
-
-  @override
-  State<FullscreenPlayer> createState() => _FullscreenPlayerState();
-}
-
-class _FullscreenPlayerState extends State<FullscreenPlayer> {
-  @override
-  void initState() {
-    super.initState();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-  }
-
-  @override
-  void dispose() {
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = widget.controller;
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          Center(
-            child: AspectRatio(
-              aspectRatio: controller.value.aspectRatio,
-              child: VideoPlayer(controller),
-            ),
-          ),
-          Positioned(
-            bottom: 24,
-            left: 16,
-            right: 16,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.replay_10, color: Colors.white),
-                  onPressed: () async {
-                    final position = await controller.position;
-                    if (position != null) {
-                      controller.seekTo(position - Duration(seconds: 10));
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: Icon(
-                    controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      controller.value.isPlaying
-                          ? controller.pause()
-                          : controller.play();
-                    });
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.forward_10, color: Colors.white),
-                  onPressed: () async {
-                    final position = await controller.position;
-                    if (position != null) {
-                      controller.seekTo(position + Duration(seconds: 10));
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.fullscreen_exit, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
