@@ -95,6 +95,15 @@ class _AnimeScreenState extends State<AnimeScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
+
+                    const SizedBox(height: 4),
+                    Text(
+                      anime.release.genres.map((g) => g.name).join(' • '),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       '${anime.release.episodesTotal} episodes  ${anime.release.isOngoing ? '| Ongoing' : ''}',
