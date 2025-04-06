@@ -154,8 +154,6 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                         _startHideTimer();
                         setState(() {});
                       },
-                      activeColor: Colors.white,
-                      inactiveColor: Colors.white54,
                     ),
                   ],
                 ),

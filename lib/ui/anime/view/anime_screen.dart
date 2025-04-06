@@ -1,11 +1,11 @@
 import 'package:anime_app/ui/anime/widgets/fullscreen_player.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class AnimeScreen extends StatefulWidget {
   const AnimeScreen({super.key});
-  final episodeNumber = 0;
   @override
   State<AnimeScreen> createState() => _AnimeScreenState();
 }
@@ -343,6 +343,24 @@ class _AnimeScreenState extends State<AnimeScreen> {
                         else
                           const SizedBox(width: 150, height: 50),
                       ],
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final uri = Uri.parse(
+                          'https://anilibria.top/api/v1/anime/torrents/${anime.torrents[0].id}/file',
+                        );
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(
+                            uri,
+                            mode: LaunchMode.platformDefault,
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Could not launch the URL')),
+                          );
+                        }
+                      },
+                      child: Text('Download via Torrent'),
                     ),
                   ],
                 ),
