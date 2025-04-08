@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.anime_app"
+        applicationId = "com.animeapp"
         minSdk = 21
         targetSdk = 34
         versionCode = flutter.versionCode.toInt()

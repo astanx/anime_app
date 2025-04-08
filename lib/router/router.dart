@@ -4,6 +4,7 @@ import 'package:anime_app/ui/login/login.dart';
 
 final routes = {
   '/': (context) => const LoginScreen(),
+  '/login/anilibria': (context) => const AnilibriaLoginScreen(),
   '/animeList': (context) => const AnimeListScreen(),
   '/anime': (context) => const AnimeScreen(),
 };
