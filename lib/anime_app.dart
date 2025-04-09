@@ -12,6 +12,7 @@ class AnimeApp extends StatelessWidget {
       title: 'Anime List',
       theme: darkTheme,
       routes: routes,
+      initialRoute: '/splash',
     );
   }
 }

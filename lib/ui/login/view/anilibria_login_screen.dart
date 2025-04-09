@@ -57,14 +57,20 @@ class _AnilibriaLoginScreenState extends State<AnilibriaLoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState?.validate() ?? false) {
                         final login = _loginController.text;
                         final password = _passwordController.text;
 
-                        UserRepository().login(login, password);
+                        final isLogined = await UserRepository().login(
+                          login,
+                          password,
+                        );
+
+                        if (isLogined) {
+                          Navigator.of(context).pushNamed('/animeList');
+                        }
                       }
-                      ;
                     },
                     child: const Text('Submit'),
                   ),

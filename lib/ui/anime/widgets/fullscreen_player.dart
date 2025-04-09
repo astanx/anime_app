@@ -6,7 +6,6 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 class FullscreenPlayer extends StatefulWidget {
   final VideoPlayerController controller;
-
   const FullscreenPlayer({super.key, required this.controller});
 
   @override
@@ -32,9 +31,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
   void _startHideTimer() {
     _hideTimer?.cancel();
     _hideTimer = Timer(const Duration(seconds: 3), () {
-      if (mounted) {
-        setState(() => _showControls = false);
-      }
+      if (mounted) setState(() => _showControls = false);
     });
   }
 
@@ -86,16 +83,11 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         IconButton(
-                          icon: const Icon(
-                            Icons.replay_10,
-                            color: Colors.white,
-                          ),
+                          icon: const Icon(Icons.replay_10, color: Colors.white),
                           onPressed: () async {
                             final position = await controller.position;
                             if (position != null) {
-                              controller.seekTo(
-                                position - const Duration(seconds: 10),
-                              );
+                              controller.seekTo(position - const Duration(seconds: 10));
                             }
                             _startHideTimer();
                             setState(() {});
@@ -117,26 +109,18 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                           },
                         ),
                         IconButton(
-                          icon: const Icon(
-                            Icons.forward_10,
-                            color: Colors.white,
-                          ),
+                          icon: const Icon(Icons.forward_10, color: Colors.white),
                           onPressed: () async {
                             final position = await controller.position;
                             if (position != null) {
-                              controller.seekTo(
-                                position + const Duration(seconds: 10),
-                              );
+                              controller.seekTo(position + const Duration(seconds: 10));
                             }
                             setState(() {});
                             _startHideTimer();
                           },
                         ),
                         IconButton(
-                          icon: const Icon(
-                            Icons.fullscreen_exit,
-                            color: Colors.white,
-                          ),
+                          icon: const Icon(Icons.fullscreen_exit, color: Colors.white),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],
@@ -145,10 +129,9 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                     Slider(
                       value: controller.value.position.inSeconds.toDouble(),
                       min: 0,
-                      max:
-                          controller.value.duration.inSeconds > 0
-                              ? controller.value.duration.inSeconds.toDouble()
-                              : 1.0,
+                      max: controller.value.duration.inSeconds > 0
+                          ? controller.value.duration.inSeconds.toDouble()
+                          : 1.0,
                       onChanged: (value) {
                         controller.seekTo(Duration(seconds: value.toInt()));
                         _startHideTimer();

@@ -14,7 +14,6 @@ class _AnimeScreenState extends State<AnimeScreen> {
   late final Anime anime;
   VideoPlayerController? _controller;
   var episodeIndex = 0;
-  double _currentPosition = 0.0;
 
   List<DropdownMenuEntry<int>> get animeEpisodes => List.unmodifiable(
     List.generate(
@@ -35,26 +34,31 @@ class _AnimeScreenState extends State<AnimeScreen> {
 
     _controller!.addListener(() {
       if (_controller!.value.isInitialized) {
-        setState(() {
-          _currentPosition =
-              _controller!.value.position.inMilliseconds.toDouble();
-        });
+        setState(() {});
       }
     });
 
     setState(() {});
   }
 
+  String formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+    if (hours > 0) {
+      return '${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}';
+    } else {
+      return '${twoDigits(minutes)}:${twoDigits(seconds)}';
+    }
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)?.settings.arguments;
-    assert(
-      args != null && args is Anime,
-      'No valid Anime provided in arguments',
-    );
+    assert(args != null && args is Anime, 'No valid Anime provided');
     anime = args as Anime;
-
     loadEpisode(episodeIndex);
   }
 
@@ -67,6 +71,9 @@ class _AnimeScreenState extends State<AnimeScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final duration = _controller?.value.duration ?? Duration.zero;
+    final position = _controller?.value.position ?? Duration.zero;
+
     return Scaffold(
       appBar: AppBar(title: Text(anime.release.names.main)),
       body: SafeArea(
@@ -95,7 +102,6 @@ class _AnimeScreenState extends State<AnimeScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-
                     const SizedBox(height: 4),
                     Text(
                       anime.release.genres.map((g) => g.name).join(' • '),
@@ -244,10 +250,9 @@ class _AnimeScreenState extends State<AnimeScreen> {
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                builder:
-                                                    (_) => FullscreenPlayer(
-                                                      controller: _controller!,
-                                                    ),
+                                                builder: (_) => FullscreenPlayer(
+                                                  controller: _controller!,
+                                                ),
                                               ),
                                             );
                                           },
@@ -255,24 +260,46 @@ class _AnimeScreenState extends State<AnimeScreen> {
                                       ],
                                     ),
                                   ),
-
-                                  Slider(
-                                    value: _currentPosition,
-                                    min: 0.0,
-                                    max:
-                                        _controller!
-                                            .value
-                                            .duration
-                                            .inMilliseconds
-                                            .toDouble(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _currentPosition = value;
-                                        _controller!.seekTo(
-                                          Duration(milliseconds: value.toInt()),
-                                        );
-                                      });
-                                    },
+                                  Column(
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 16.0,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              formatDuration(position),
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w300,
+                                              ),
+                                            ),
+                                            Text(
+                                              formatDuration(duration),
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w300,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Slider(
+                                        value: position.inSeconds.toDouble(),
+                                        min: 0,
+                                        max: duration.inSeconds > 0
+                                            ? duration.inSeconds.toDouble()
+                                            : 1.0,
+                                        onChanged: (value) {
+                                          _controller?.seekTo(
+                                            Duration(seconds: value.toInt()),
+                                          );
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -282,7 +309,6 @@ class _AnimeScreenState extends State<AnimeScreen> {
                       )
                     else
                       const Center(child: CircularProgressIndicator()),
-
                     SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -312,7 +338,6 @@ class _AnimeScreenState extends State<AnimeScreen> {
                           )
                         else
                           const SizedBox(width: 150, height: 50),
-
                         if (episodeIndex < anime.episodes.length - 1)
                           SizedBox(
                             width: 150,
@@ -365,7 +390,7 @@ class _AnimeScreenState extends State<AnimeScreen> {
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Could not launch the URL')),
+                            SnackBar(content: Text('Could not launch URL')),
                           );
                         }
                       },
