@@ -25,6 +25,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
       DeviceOrientation.landscapeRight,
     ]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    widget.controller.addListener(_updateState);
     _startHideTimer();
   }
 
@@ -35,11 +36,29 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
     });
   }
 
+  void _updateState() {
+    if (mounted) setState(() {});
+  }
+
+  String formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+    if (hours > 0) {
+      return '${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}';
+    } else {
+      return '${twoDigits(minutes)}:${twoDigits(seconds)}';
+    }
+  }
+
   @override
   void dispose() {
+    widget.controller.removeListener(_updateState);
     _hideTimer?.cancel();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    WakelockPlus.disable();
     super.dispose();
   }
 
@@ -90,7 +109,6 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                               controller.seekTo(position - const Duration(seconds: 10));
                             }
                             _startHideTimer();
-                            setState(() {});
                           },
                         ),
                         IconButton(
@@ -105,7 +123,6 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                 ? controller.pause()
                                 : controller.play();
                             _startHideTimer();
-                            setState(() {});
                           },
                         ),
                         IconButton(
@@ -115,7 +132,6 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                             if (position != null) {
                               controller.seekTo(position + const Duration(seconds: 10));
                             }
-                            setState(() {});
                             _startHideTimer();
                           },
                         ),
@@ -126,6 +142,30 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                       ],
                     ),
                     const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            formatDuration(controller.value.position),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w300,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            formatDuration(controller.value.duration),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w300,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     Slider(
                       value: controller.value.position.inSeconds.toDouble(),
                       min: 0,
@@ -135,7 +175,6 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                       onChanged: (value) {
                         controller.seekTo(Duration(seconds: value.toInt()));
                         _startHideTimer();
-                        setState(() {});
                       },
                     ),
                   ],
