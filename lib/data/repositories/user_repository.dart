@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:anime_app/data/models/login.dart';
+import 'package:anime_app/data/models/timecode.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
 import 'package:anime_app/data/storage/token_storage.dart';
@@ -25,6 +26,23 @@ class UserRepository extends BaseRepository {
         return true;
       }
       return false;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> updateTimecode(List<Timecode> timecodes) async {
+    try {
+      final body = timecodes.map((t) => t.toJson()).toList();
+
+      final response = await dio.post(
+        'accounts/users/me/views/timecodes',
+        data: body,
+      );
+
+      final List<dynamic> data = response.data;
+
+      log(data.toString());
     } catch (e) {
       rethrow;
     }

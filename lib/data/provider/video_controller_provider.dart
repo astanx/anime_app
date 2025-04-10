@@ -1,4 +1,6 @@
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/timecode.dart';
+import 'package:anime_app/data/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -46,7 +48,21 @@ class VideoControllerProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _saveTimecode();
     _controller?.dispose();
     super.dispose();
+  }
+
+  void _saveTimecode() {
+    if (_controller == null || _anime == null) return;
+
+    final time = _controller!.value.position;
+    UserRepository().updateTimecode([
+      Timecode(
+        time: time.inSeconds,
+        releaseEpisodeId: _anime!.episodes[_episodeIndex].id,
+        isWatched: true,
+      ),
+    ]);
   }
 }
