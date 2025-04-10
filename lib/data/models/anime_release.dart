@@ -48,29 +48,29 @@ class AnimeRelease {
   });
 
   factory AnimeRelease.fromJson(Map<String, dynamic> json) => AnimeRelease(
-        id: json['id'] ?? 0,
-        type: AnimeType.fromJson(json['type'] ?? {}),
-        year: json['year'] ?? 0,
-        names: AnimeNames.fromJson(json['name'] ?? {}),
-        alias: json['alias'] ?? '',
-        season: AnimeSeason.fromJson(json['season'] ?? {}),
-        poster: Poster.fromJson(json['poster'] ?? {}),
-        freshAt: DateTime.tryParse(json['fresh_at'] ?? '') ?? DateTime.now(),
-        createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
-        updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
-        isOngoing: json['is_ongoing'] ?? false,
-        ageRating: AgeRating.fromJson(json['age_rating'] ?? {}),
-        publishDay: PublishDay.fromJson(json['publish_day'] ?? {}),
-        description: json['description'] ?? '',
-        episodesTotal: json['episodes_total'] ?? 0,
-        isInProduction: json['is_in_production'] ?? false,
-        isBlockedByGeo: json['is_blocked_by_geo'] ?? false,
-        isBlockedByCopyrights: json['is_blocked_by_copyrights'] ?? false,
-        addedInUsersFavorites: json['added_in_users_favorites'] ?? 0,
-        averageDurationOfEpisode: json['average_duration_of_episode'] ?? 0,
-        genres: (json['genres'] as List? ?? []).map((e) => Genre.fromJson(e)).toList(),
-        latestEpisode: LatestEpisode.fromJson(json['latest_episode'] ?? {}),
-      );
+    id: json['id'] ?? 0,
+    type: AnimeType.fromJson(json['type'] ?? {}),
+    year: json['year'] ?? 0,
+    names: AnimeNames.fromJson(json['name'] ?? {}),
+    alias: json['alias'] ?? '',
+    season: AnimeSeason.fromJson(json['season'] ?? {}),
+    poster: Poster.fromJson(json['poster'] ?? {}),
+    freshAt: DateTime.tryParse(json['fresh_at'] ?? '') ?? DateTime.now(),
+    createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+    updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
+    isOngoing: json['is_ongoing'] ?? false,
+    ageRating: AgeRating.fromJson(json['age_rating'] ?? {}),
+    publishDay: PublishDay.fromJson(json['publish_day'] ?? {}),
+    description: json['description'] ?? '',
+    episodesTotal: json['episodes_total'] ?? 0,
+    isInProduction: json['is_in_production'] ?? false,
+    isBlockedByGeo: json['is_blocked_by_geo'] ?? false,
+    isBlockedByCopyrights: json['is_blocked_by_copyrights'] ?? false,
+    addedInUsersFavorites: json['added_in_users_favorites'] ?? 0,
+    averageDurationOfEpisode: json['average_duration_of_episode'] ?? 0,
+    genres: (json['genres'] as List? ?? []).map((e) => Genre.fromJson(e)).toList(),
+    latestEpisode: LatestEpisode.fromJson(json['latest_episode'] ?? {}),
+  );
 }
 
 class AnimeType {
@@ -80,9 +80,9 @@ class AnimeType {
   AnimeType({required this.value, required this.description});
 
   factory AnimeType.fromJson(Map<String, dynamic> json) => AnimeType(
-        value: json['value'] ?? '',
-        description: json['description'] ?? '',
-      );
+    value: json['value'] ?? '',
+    description: json['description'] ?? '',
+  );
 }
 
 class AnimeNames {
@@ -93,10 +93,10 @@ class AnimeNames {
   AnimeNames({required this.main, required this.english, this.alternative});
 
   factory AnimeNames.fromJson(Map<String, dynamic> json) => AnimeNames(
-        main: json['main'] ?? '',
-        english: json['english'] ?? '',
-        alternative: json['alternative'],
-      );
+    main: json['main'] ?? '',
+    english: json['english'] ?? '',
+    alternative: json['alternative'],
+  );
 }
 
 class AnimeSeason {
@@ -106,9 +106,9 @@ class AnimeSeason {
   AnimeSeason({required this.value, required this.description});
 
   factory AnimeSeason.fromJson(Map<String, dynamic> json) => AnimeSeason(
-        value: json['value'] ?? '',
-        description: json['description'] ?? '',
-      );
+    value: json['value'] ?? '',
+    description: json['description'] ?? '',
+  );
 }
 
 class Poster {
@@ -119,10 +119,10 @@ class Poster {
   Poster({required this.src, required this.thumbnail, required this.optimized});
 
   factory Poster.fromJson(Map<String, dynamic> json) => Poster(
-        src: json['src'] ?? '',
-        thumbnail: json['thumbnail'] ?? '',
-        optimized: PosterOptimized.fromJson(json['optimized'] ?? {}),
-      );
+    src: json['src'] ?? '',
+    thumbnail: json['thumbnail'] ?? '',
+    optimized: PosterOptimized.fromJson(json['optimized'] ?? {}),
+  );
 }
 
 class PosterOptimized {
@@ -132,9 +132,9 @@ class PosterOptimized {
   PosterOptimized({required this.src, required this.thumbnail});
 
   factory PosterOptimized.fromJson(Map<String, dynamic> json) => PosterOptimized(
-        src: json['src'] ?? '',
-        thumbnail: json['thumbnail'] ?? '',
-      );
+    src: json['src'] ?? '',
+    thumbnail: json['thumbnail'] ?? '',
+  );
 }
 
 class AgeRating {
@@ -151,11 +151,11 @@ class AgeRating {
   });
 
   factory AgeRating.fromJson(Map<String, dynamic> json) => AgeRating(
-        value: json['value'] ?? '',
-        label: json['label'] ?? '',
-        isAdult: json['is_adult'] ?? false,
-        description: json['description'] ?? '',
-      );
+    value: json['value'] ?? '',
+    label: json['label'] ?? '',
+    isAdult: json['is_adult'] ?? false,
+    description: json['description'] ?? '',
+  );
 }
 
 class PublishDay {
@@ -165,9 +165,9 @@ class PublishDay {
   PublishDay({required this.value, required this.description});
 
   factory PublishDay.fromJson(Map<String, dynamic> json) => PublishDay(
-        value: json['value'] ?? 0,
-        description: json['description'] ?? '',
-      );
+    value: json['value'] ?? 0,
+    description: json['description'] ?? '',
+  );
 }
 
 class Genre {
@@ -178,10 +178,10 @@ class Genre {
   Genre({required this.id, required this.name, required this.image});
 
   factory Genre.fromJson(Map<String, dynamic> json) => Genre(
-        id: json['id'] ?? 0,
-        name: json['name'] ?? '',
-        image: GenreImage.fromJson(json['image'] ?? {}),
-      );
+    id: json['id'] ?? 0,
+    name: json['name'] ?? '',
+    image: GenreImage.fromJson(json['image'] ?? {}),
+  );
 }
 
 class GenreImage {
@@ -196,10 +196,10 @@ class GenreImage {
   });
 
   factory GenreImage.fromJson(Map<String, dynamic> json) => GenreImage(
-        preview: json['preview'] ?? '',
-        thumbnail: json['thumbnail'] ?? '',
-        optimized: GenreImageOptimized.fromJson(json['optimized'] ?? {}),
-      );
+    preview: json['preview'] ?? '',
+    thumbnail: json['thumbnail'] ?? '',
+    optimized: GenreImageOptimized.fromJson(json['optimized'] ?? {}),
+  );
 }
 
 class GenreImageOptimized {
@@ -209,9 +209,9 @@ class GenreImageOptimized {
   GenreImageOptimized({required this.preview, required this.thumbnail});
 
   factory GenreImageOptimized.fromJson(Map<String, dynamic> json) => GenreImageOptimized(
-        preview: json['preview'] ?? '',
-        thumbnail: json['thumbnail'] ?? '',
-      );
+    preview: json['preview'] ?? '',
+    thumbnail: json['thumbnail'] ?? '',
+  );
 }
 
 class LatestEpisode {
@@ -236,15 +236,15 @@ class LatestEpisode {
   });
 
   factory LatestEpisode.fromJson(Map<String, dynamic> json) => LatestEpisode(
-        id: json['id'] ?? '',
-        name: json['name'] ?? '',
-        ordinal: json['ordinal'] ?? 0,
-        preview: EpisodePreview.fromJson(json['preview'] ?? {}),
-        hls480: json['hls_480'] ?? '',
-        hls720: json['hls_720'] ?? '',
-        hls1080: json['hls_1080'] ?? '',
-        duration: json['duration'] ?? 0,
-      );
+    id: json['id'] ?? '',
+    name: json['name'] ?? '',
+    ordinal: json['ordinal'] ?? 0,
+    preview: EpisodePreview.fromJson(json['preview'] ?? {}),
+    hls480: json['hls_480'] ?? '',
+    hls720: json['hls_720'] ?? '',
+    hls1080: json['hls_1080'] ?? '',
+    duration: json['duration'] ?? 0,
+  );
 }
 
 class EpisodePreview {
@@ -259,10 +259,10 @@ class EpisodePreview {
   });
 
   factory EpisodePreview.fromJson(Map<String, dynamic> json) => EpisodePreview(
-        src: json['src'] ?? '',
-        thumbnail: json['thumbnail'] ?? '',
-        optimized: EpisodePreviewOptimized.fromJson(json['optimized'] ?? {}),
-      );
+    src: json['src'] ?? '',
+    thumbnail: json['thumbnail'] ?? '',
+    optimized: EpisodePreviewOptimized.fromJson(json['optimized'] ?? {}),
+  );
 }
 
 class EpisodePreviewOptimized {
@@ -272,7 +272,7 @@ class EpisodePreviewOptimized {
   EpisodePreviewOptimized({required this.src, required this.thumbnail});
 
   factory EpisodePreviewOptimized.fromJson(Map<String, dynamic> json) => EpisodePreviewOptimized(
-        src: json['src'] ?? '',
-        thumbnail: json['thumbnail'] ?? '',
-      );
+    src: json['src'] ?? '',
+    thumbnail: json['thumbnail'] ?? '',
+  );
 }

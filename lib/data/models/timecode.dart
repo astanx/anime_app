@@ -9,11 +9,8 @@ class Timecode {
     required this.releaseEpisodeId,
   });
 
-  factory Timecode.fromJson(Map<String, dynamic> json) => Timecode(
-    releaseEpisodeId: json['release_episode_id'],
-    time: json['time'],
-    isWatched: json['is_watched'],
-  );
+  factory Timecode.fromJson(List<dynamic> json) =>
+      Timecode(releaseEpisodeId: json[0], time: json[1], isWatched: json[2]);
   Map<String, dynamic> toJson() => {
     'release_episode_id': releaseEpisodeId,
     'time': time,

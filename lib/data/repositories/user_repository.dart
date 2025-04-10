@@ -40,9 +40,21 @@ class UserRepository extends BaseRepository {
         data: body,
       );
 
-      final List<dynamic> data = response.data;
+      final data = response.data as List<dynamic>;
 
       log(data.toString());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Timecode>> getTimecodes() async {
+    try {
+      final response = await dio.get('accounts/users/me/views/timecodes');
+      final data = response.data as List<dynamic>;
+
+      final timecodes = data.map((t) => Timecode.fromJson(t as List)).toList();
+      return timecodes;
     } catch (e) {
       rethrow;
     }

@@ -11,32 +11,34 @@ class Anime {
 
   Anime({
     required this.release,
-    required this.notification,
-    required this.externalPlayer,
+    this.notification,
+    this.externalPlayer,
     required this.members,
     required this.torrents,
-    required this.sponsor,
+    this.sponsor,
     required this.episodes,
   });
 
   factory Anime.fromJson(Map<String, dynamic> json) => Anime(
-    release: AnimeRelease.fromJson(json),
-    notification: json['notification'],
-    externalPlayer: json['external_player'],
-    members:
-        (json['members'] as List<dynamic>? ?? [])
-            .map((e) => Member.fromJson(e))
-            .toList(),
-    torrents:
-        (json['torrents'] as List<dynamic>? ?? [])
-            .map((e) => Torrent.fromJson(e))
-            .toList(),
-    sponsor: json['sponsor'] != null ? Sponsor.fromJson(json['sponsor']) : null,
-    episodes:
-        (json['episodes'] as List<dynamic>? ?? [])
-            .map((e) => LatestEpisode.fromJson(e))
-            .toList(),
-  );
+        release: AnimeRelease.fromJson(json),
+        notification: json['notification'] as String?,
+        externalPlayer: json['external_player'] as String?,
+        members: (json['members'] as List<dynamic>?)
+                ?.map((e) => Member.fromJson(e))
+                .toList() ??
+            [],
+        torrents: (json['torrents'] as List<dynamic>?)
+                ?.map((e) => Torrent.fromJson(e))
+                .toList() ??
+            [],
+        sponsor: json['sponsor'] != null
+            ? Sponsor.fromJson(json['sponsor'])
+            : null,
+        episodes: (json['episodes'] as List<dynamic>?)
+                ?.map((e) => LatestEpisode.fromJson(e))
+                .toList() ??
+            [],
+      );
 }
 
 class Member {
@@ -53,25 +55,24 @@ class Member {
   });
 
   factory Member.fromJson(Map<String, dynamic> json) => Member(
-    id: json['id'] ?? '',
-    user:
-        json['user'] != null
+        id: json['id'] as String? ?? '',
+        user: json['user'] != null
             ? MemberUser.fromJson(json['user'])
             : MemberUser(
-              id: 0,
-              nickname: '',
-              avatar: Avatar(
-                preview: '',
-                thumbnail: '',
-                optimized: AvatarOptimized(preview: '', thumbnail: ''),
+                id: 0,
+                nickname: '',
+                avatar: Avatar(
+                  preview: '',
+                  thumbnail: '',
+                  optimized:
+                      AvatarOptimized(preview: '', thumbnail: ''),
+                ),
               ),
-            ),
-    role:
-        json['role'] != null
+        role: json['role'] != null
             ? MemberRole.fromJson(json['role'])
             : MemberRole(value: '', description: ''),
-    nickname: json['nickname'] ?? '',
-  );
+        nickname: json['nickname'] as String? ?? '',
+      );
 }
 
 class MemberUser {
@@ -79,13 +80,24 @@ class MemberUser {
   final String nickname;
   final Avatar avatar;
 
-  MemberUser({required this.id, required this.nickname, required this.avatar});
+  MemberUser({
+    required this.id,
+    required this.nickname,
+    required this.avatar,
+  });
 
   factory MemberUser.fromJson(Map<String, dynamic> json) => MemberUser(
-    id: json['id'],
-    nickname: json['nickname'],
-    avatar: Avatar.fromJson(json['avatar']),
-  );
+        id: json['id'] as int? ?? 0,
+        nickname: json['nickname'] as String? ?? '',
+        avatar: json['avatar'] != null
+            ? Avatar.fromJson(json['avatar'])
+            : Avatar(
+                preview: '',
+                thumbnail: '',
+                optimized:
+                    AvatarOptimized(preview: '', thumbnail: ''),
+              ),
+      );
 }
 
 class Avatar {
@@ -100,33 +112,43 @@ class Avatar {
   });
 
   factory Avatar.fromJson(Map<String, dynamic> json) => Avatar(
-    preview: json['preview'] ?? '',
-    thumbnail: json['thumbnail'] ?? '',
-    optimized:
-        json['optimized'] != null
+        preview: json['preview'] as String? ?? '',
+        thumbnail: json['thumbnail'] as String? ?? '',
+        optimized: json['optimized'] != null
             ? AvatarOptimized.fromJson(json['optimized'])
             : AvatarOptimized(preview: '', thumbnail: ''),
-  );
+      );
 }
 
 class AvatarOptimized {
   final String preview;
   final String thumbnail;
 
-  AvatarOptimized({required this.preview, required this.thumbnail});
+  AvatarOptimized({
+    required this.preview,
+    required this.thumbnail,
+  });
 
   factory AvatarOptimized.fromJson(Map<String, dynamic> json) =>
-      AvatarOptimized(preview: json['preview'], thumbnail: json['thumbnail']);
+      AvatarOptimized(
+        preview: json['preview'] as String? ?? '',
+        thumbnail: json['thumbnail'] as String? ?? '',
+      );
 }
 
 class MemberRole {
   final String value;
   final String description;
 
-  MemberRole({required this.value, required this.description});
+  MemberRole({
+    required this.value,
+    required this.description,
+  });
 
-  factory MemberRole.fromJson(Map<String, dynamic> json) =>
-      MemberRole(value: json['value'], description: json['description']);
+  factory MemberRole.fromJson(Map<String, dynamic> json) => MemberRole(
+        value: json['value'] as String? ?? '',
+        description: json['description'] as String? ?? '',
+      );
 }
 
 class Torrent {
@@ -169,69 +191,87 @@ class Torrent {
   });
 
   factory Torrent.fromJson(Map<String, dynamic> json) => Torrent(
-    id: json['id'] ?? 0,
-    hash: json['hash'] ?? '',
-    size: json['size'] ?? 0,
-    type: TorrentType.fromJson(json['type'] ?? {}),
-    label: json['label'] ?? '',
-    magnet: json['magnet'] ?? '',
-    filename: json['filename'] ?? '',
-    seeders: json['seeders'] ?? 0,
-    quality: TorrentQuality.fromJson(json['quality'] ?? {}),
-    codec: TorrentCodec.fromJson(json['codec'] ?? {}),
-    color: TorrentColor.fromJson(json['color'] ?? {}),
-    bitrate: json['bitrate'] ?? 0,
-    leechers: json['leechers'] ?? 0,
-    sortOrder: json['sort_order'] ?? 0,
-    updatedAt:
-        json['updated_at'] != null
+        id: json['id'] as int? ?? 0,
+        hash: json['hash'] as String? ?? '',
+        size: json['size'] as int? ?? 0,
+        type: TorrentType.fromJson(json['type'] ?? {}),
+        label: json['label'] as String? ?? '',
+        magnet: json['magnet'] as String? ?? '',
+        filename: json['filename'] as String? ?? '',
+        seeders: json['seeders'] as int? ?? 0,
+        quality: TorrentQuality.fromJson(json['quality'] ?? {}),
+        codec: TorrentCodec.fromJson(json['codec'] ?? {}),
+        color: TorrentColor.fromJson(json['color'] ?? {}),
+        bitrate: json['bitrate'] as int? ?? 0,
+        leechers: json['leechers'] as int? ?? 0,
+        sortOrder: json['sort_order'] as int? ?? 0,
+        updatedAt: json['updated_at'] != null
             ? DateTime.tryParse(json['updated_at']) ?? DateTime.now()
             : DateTime.now(),
-    description: json['description'] ?? '',
-    completedTimes: json['completed_times'] ?? 0,
-  );
+        description: json['description'] as String? ?? '',
+        completedTimes: json['completed_times'] as int? ?? 0,
+      );
 }
 
 class TorrentType {
   final String value;
   final String description;
 
-  TorrentType({required this.value, required this.description});
+  TorrentType({
+    required this.value,
+    required this.description,
+  });
 
-  factory TorrentType.fromJson(Map<String, dynamic> json) =>
-      TorrentType(value: json['value'], description: json['description']);
+  factory TorrentType.fromJson(Map<String, dynamic> json) => TorrentType(
+        value: json['value'] as String? ?? '',
+        description: json['description'] as String? ?? '',
+      );
 }
 
 class TorrentQuality {
   final String value;
   final String description;
 
-  TorrentQuality({required this.value, required this.description});
+  TorrentQuality({
+    required this.value,
+    required this.description,
+  });
 
   factory TorrentQuality.fromJson(Map<String, dynamic> json) =>
-      TorrentQuality(value: json['value'], description: json['description']);
+      TorrentQuality(
+        value: json['value'] as String? ?? '',
+        description: json['description'] as String? ?? '',
+      );
 }
 
 class TorrentCodec {
   final String value;
   final String description;
 
-  TorrentCodec({required this.value, required this.description});
+  TorrentCodec({
+    required this.value,
+    required this.description,
+  });
 
-  factory TorrentCodec.fromJson(Map<String, dynamic> json) =>
-      TorrentCodec(value: json['value'], description: json['description']);
+  factory TorrentCodec.fromJson(Map<String, dynamic> json) => TorrentCodec(
+        value: json['value'] as String? ?? '',
+        description: json['description'] as String? ?? '',
+      );
 }
 
 class TorrentColor {
   final String value;
   final String description;
 
-  TorrentColor({required this.value, required this.description});
+  TorrentColor({
+    required this.value,
+    required this.description,
+  });
 
   factory TorrentColor.fromJson(Map<String, dynamic> json) => TorrentColor(
-    value: json['value'] ?? '',
-    description: json['description'] ?? '',
-  );
+        value: json['value'] as String? ?? '',
+        description: json['description'] as String? ?? '',
+      );
 }
 
 class Sponsor {
@@ -250,10 +290,10 @@ class Sponsor {
   });
 
   factory Sponsor.fromJson(Map<String, dynamic> json) => Sponsor(
-    id: json['id'],
-    title: json['title'],
-    description: json['description'],
-    urlTitle: json['url_title'],
-    url: json['url'],
-  );
+        id: json['id'] as String? ?? '',
+        title: json['title'] as String? ?? '',
+        description: json['description'] as String? ?? '',
+        urlTitle: json['url_title'] as String? ?? '',
+        url: json['url'] as String? ?? '',
+      );
 }

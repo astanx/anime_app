@@ -43,11 +43,15 @@ class AnimeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, VideoControllerProvider provider, Anime anime, ThemeData theme) {
+  Widget _buildBody(
+    BuildContext context,
+    VideoControllerProvider provider,
+    Anime anime,
+    ThemeData theme,
+  ) {
     final controller = provider.controller;
     final position = controller?.value.position ?? Duration.zero;
     final duration = controller?.value.duration ?? Duration.zero;
-
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -91,9 +95,7 @@ class AnimeScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     anime.release.description,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 12,
-                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -111,9 +113,7 @@ class AnimeScreen extends StatelessWidget {
                           isDense: true,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: Colors.grey.shade300,
-                            ),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                         ),
                         textStyle: const TextStyle(fontSize: 14),
@@ -167,16 +167,18 @@ class AnimeScreen extends StatelessWidget {
                                   horizontal: 16.0,
                                 ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     IconButton(
                                       icon: const Icon(
                                         Icons.replay_10,
                                         color: Colors.white,
                                       ),
-                                      onPressed: () => provider.seek(
-                                        position - Duration(seconds: 10),
-                                      ),
+                                      onPressed:
+                                          () => provider.seek(
+                                            position - Duration(seconds: 10),
+                                          ),
                                     ),
                                     IconButton(
                                       icon: Icon(
@@ -192,21 +194,26 @@ class AnimeScreen extends StatelessWidget {
                                         Icons.forward_10,
                                         color: Colors.white,
                                       ),
-                                      onPressed: () => provider.seek(
-                                        position + Duration(seconds: 10),
-                                      ),
+                                      onPressed:
+                                          () => provider.seek(
+                                            position + Duration(seconds: 10),
+                                          ),
                                     ),
                                     IconButton(
                                       icon: const Icon(
                                         Icons.fullscreen,
                                         color: Colors.white,
                                       ),
-                                      onPressed: () => Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => FullscreenPlayer(provider: provider),
-                                        ),
-                                      ),
+                                      onPressed:
+                                          () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (_) => FullscreenPlayer(
+                                                    provider: provider,
+                                                  ),
+                                            ),
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -216,7 +223,8 @@ class AnimeScreen extends StatelessWidget {
                                   horizontal: 16.0,
                                 ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       formatDuration(position),
@@ -239,9 +247,10 @@ class AnimeScreen extends StatelessWidget {
                                 value: position.inSeconds.toDouble(),
                                 min: 0,
                                 max: duration.inSeconds.toDouble(),
-                                onChanged: (value) => provider.seek(
-                                  Duration(seconds: value.toInt()),
-                                ),
+                                onChanged:
+                                    (value) => provider.seek(
+                                      Duration(seconds: value.toInt()),
+                                    ),
                               ),
                             ],
                           ),
@@ -259,20 +268,32 @@ class AnimeScreen extends StatelessWidget {
                       SizedBox(
                         width: 150,
                         height: 50,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.grey,
-                              width: 2,
+                        child: InkWell(
+                          onTap:
+                              () => provider.loadEpisode(
+                                anime,
+                                provider.episodeIndex - 1,
+                              ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey, width: 2),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: IconButton(
-                            onPressed: () => provider.loadEpisode(
-                              anime,
-                              provider.episodeIndex - 1,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                const Icon(Icons.skip_previous),
+                                Text(
+                                  anime
+                                      .episodes[provider.episodeIndex - 1]
+                                      .name,
+                                  style: const TextStyle(
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
                             ),
-                            icon: const Icon(Icons.skip_previous),
                           ),
                         ),
                       )
@@ -282,32 +303,32 @@ class AnimeScreen extends StatelessWidget {
                       SizedBox(
                         width: 150,
                         height: 50,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.grey,
-                              width: 2,
+                        child: InkWell(
+                          onTap:
+                              () => provider.loadEpisode(
+                                anime,
+                                provider.episodeIndex + 1,
+                              ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey, width: 2),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Text(
-                                anime.episodes[provider.episodeIndex + 1].name,
-                                style: const TextStyle(
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.w400,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Text(
+                                  anime
+                                      .episodes[provider.episodeIndex + 1]
+                                      .name,
+                                  style: const TextStyle(
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
-                              ),
-                              IconButton(
-                                onPressed: () => provider.loadEpisode(
-                                  anime,
-                                  provider.episodeIndex + 1,
-                                ),
-                                icon: const Icon(Icons.skip_next),
-                              ),
-                            ],
+                                const Icon(Icons.skip_next),
+                              ],
+                            ),
                           ),
                         ),
                       )
