@@ -1,26 +1,34 @@
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/timecode.dart';
-import 'package:anime_app/data/repositories/user_repository.dart';
+import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoControllerProvider extends ChangeNotifier {
   VideoPlayerController? _controller;
   int _episodeIndex = 0;
   Anime? _anime;
-  List<Timecode> _timecodes = [];
-  Duration animeTimecode = Duration(seconds: 0);
+  BuildContext? _context;
 
   VideoPlayerController? get controller => _controller;
   int get episodeIndex => _episodeIndex;
   Anime? get anime => _anime;
 
-  Future<void> loadEpisode(Anime anime, int index) async {
+  Future<void> loadEpisode(Anime anime, int index, BuildContext context) async {
     _anime = anime;
     _episodeIndex = index;
-    await fetchTimecodes();
+    _context = context;
 
+    final timecodeProvider = Provider.of<TimecodeProvider>(
+      context,
+      listen: false,
+    );
     final episode = anime.episodes[index];
+    final timecode = timecodeProvider.getTimecodeForEpisode(episode.id);
+
+    await timecodeProvider.fetchTimecodes();
+
     final videoUrl = Uri.parse(
       episode.hls1080.isNotEmpty ? episode.hls1080 : episode.hls720,
     );
@@ -29,9 +37,8 @@ class VideoControllerProvider extends ChangeNotifier {
     _controller = VideoPlayerController.networkUrl(videoUrl);
     await _controller!.initialize();
 
-    animeTimecode = Duration(seconds: getTimecode());
-    if (animeTimecode.inSeconds > 0) {
-      await _controller!.seekTo(animeTimecode);
+    if (timecode > 0) {
+      await _controller!.seekTo(Duration(seconds: timecode));
     }
 
     _controller!.addListener(_notify);
@@ -52,9 +59,7 @@ class VideoControllerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _notify() {
-    notifyListeners();
-  }
+  void _notify() => notifyListeners();
 
   @override
   void dispose() {
@@ -63,37 +68,20 @@ class VideoControllerProvider extends ChangeNotifier {
     super.dispose();
   }
 
-  int getTimecode() {
-    return _timecodes
-        .firstWhere(
-          (t) => t.releaseEpisodeId == _anime!.episodes[_episodeIndex].id,
-          orElse:
-              () => Timecode(
-                time: 0,
-                isWatched: false,
-                releaseEpisodeId: _anime!.episodes[_episodeIndex].id,
-              ),
-        )
-        .time;
-  }
-
-  Future<void> fetchTimecodes() async {
-    if (_timecodes.isEmpty) {
-      _timecodes = await UserRepository().getTimecodes();
-    }
-  }
-
   void _saveTimecode() {
-    if (_controller == null || _anime == null) return;
+    if (_controller == null || _anime == null || _context == null) return;
 
     final time = _controller!.value.position;
+    final episodeId = _anime!.episodes[_episodeIndex].id;
     final timecode = Timecode(
       time: time.inSeconds,
-      releaseEpisodeId: _anime!.episodes[_episodeIndex].id,
+      releaseEpisodeId: episodeId,
       isWatched: true,
     );
-    UserRepository().updateTimecode([timecode]);
 
-    _timecodes.add(timecode);
+    Provider.of<TimecodeProvider>(
+      _context!,
+      listen: false,
+    ).updateTimecode(timecode);
   }
 }

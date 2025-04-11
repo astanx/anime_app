@@ -27,7 +27,9 @@ class AnimeScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) {
         final provider = VideoControllerProvider();
-        provider.loadEpisode(anime, 0);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          provider.loadEpisode(anime, 0, context);
+        });
         return provider;
       },
       child: Scaffold(
@@ -127,7 +129,7 @@ class AnimeScreen extends StatelessWidget {
                         initialSelection: provider.episodeIndex,
                         onSelected: (value) {
                           if (value != null && value != provider.episodeIndex) {
-                            provider.loadEpisode(anime, value);
+                            provider.loadEpisode(anime, value, context);
                           }
                         },
                       ),
@@ -273,6 +275,7 @@ class AnimeScreen extends StatelessWidget {
                               () => provider.loadEpisode(
                                 anime,
                                 provider.episodeIndex - 1,
+                                context,
                               ),
                           child: Container(
                             decoration: BoxDecoration(
@@ -308,6 +311,7 @@ class AnimeScreen extends StatelessWidget {
                               () => provider.loadEpisode(
                                 anime,
                                 provider.episodeIndex + 1,
+                                context,
                               ),
                           child: Container(
                             decoration: BoxDecoration(
