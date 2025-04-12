@@ -63,7 +63,10 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
       value: widget.provider,
       child: Consumer<VideoControllerProvider>(
         builder: (context, provider, _) {
-          final timecodeProvider = Provider.of<TimecodeProvider>(context, listen: false);
+          final timecodeProvider = Provider.of<TimecodeProvider>(
+            context,
+            listen: false,
+          );
           final controller = provider.controller;
           final position = controller?.value.position ?? Duration.zero;
           final duration = controller?.value.duration ?? Duration.zero;
@@ -105,8 +108,14 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.replay_10, color: Colors.white),
-                                onPressed: () => provider.seek(position - Duration(seconds: 10)),
+                                icon: const Icon(
+                                  Icons.replay_10,
+                                  color: Colors.white,
+                                ),
+                                onPressed:
+                                    () => provider.seek(
+                                      position - Duration(seconds: 10),
+                                    ),
                               ),
                               IconButton(
                                 icon: Icon(
@@ -118,18 +127,29 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                 onPressed: provider.togglePlayPause,
                               ),
                               IconButton(
-                                icon: const Icon(Icons.forward_10, color: Colors.white),
-                                onPressed: () => provider.seek(position + Duration(seconds: 10)),
+                                icon: const Icon(
+                                  Icons.forward_10,
+                                  color: Colors.white,
+                                ),
+                                onPressed:
+                                    () => provider.seek(
+                                      position + Duration(seconds: 10),
+                                    ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.fullscreen_exit, color: Colors.white),
+                                icon: const Icon(
+                                  Icons.fullscreen_exit,
+                                  color: Colors.white,
+                                ),
                                 onPressed: () => Navigator.pop(context),
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [

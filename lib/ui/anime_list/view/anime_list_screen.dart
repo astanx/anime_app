@@ -1,5 +1,6 @@
 import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:anime_app/ui/anime_list/widgets/anime_card.dart';
 
@@ -39,7 +40,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Oshavotik')),
+      appBar: AnimeAppBar(title: 'Oshavotik'),
       body:
           _animeList == null
               ? const Center(child: CircularProgressIndicator())
