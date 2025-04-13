@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +16,8 @@ class FullscreenPlayer extends StatefulWidget {
 
 class _FullscreenPlayerState extends State<FullscreenPlayer> {
   bool _showControls = true;
+  bool _showSeekIcon = false;
+  IconData _seekIcon = Icons.replay_10;
   Timer? _hideTimer;
 
   @override
@@ -48,6 +49,29 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
         : '${twoDigits(minutes)}:${twoDigits(seconds)}';
   }
 
+  void _handleDoubleTap(double xPosition, VideoControllerProvider provider) {
+    final position = provider.controller?.value.position ?? Duration.zero;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    if (xPosition < screenWidth / 2) {
+      provider.seek(position - const Duration(seconds: 10));
+      setState(() {
+        _seekIcon = Icons.replay_10;
+        _showSeekIcon = true;
+      });
+    } else {
+      provider.seek(position + const Duration(seconds: 10));
+      setState(() {
+        _seekIcon = Icons.forward_10;
+        _showSeekIcon = true;
+      });
+    }
+
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) setState(() => _showSeekIcon = false);
+    });
+  }
+
   @override
   void dispose() {
     _hideTimer?.cancel();
@@ -63,34 +87,91 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
       value: widget.provider,
       child: Consumer<VideoControllerProvider>(
         builder: (context, provider, _) {
-          final timecodeProvider = Provider.of<TimecodeProvider>(
-            context,
-            listen: false,
-          );
           final controller = provider.controller;
           final position = controller?.value.position ?? Duration.zero;
           final duration = controller?.value.duration ?? Duration.zero;
+          final buffered = controller?.value.buffered ?? [];
+
+          double bufferedEnd = buffered.fold<double>(
+            0.0,
+            (max, range) =>
+                range.end.inMilliseconds > max
+                    ? range.end.inMilliseconds.toDouble()
+                    : max,
+          );
+          double bufferedValue =
+              duration.inMilliseconds > 0
+                  ? bufferedEnd / duration.inMilliseconds.toDouble()
+                  : 0.0;
 
           return Scaffold(
             backgroundColor: Colors.black,
             body: Stack(
               alignment: Alignment.center,
               children: [
-                if (controller != null)
+                if (controller != null && controller.value.isInitialized)
                   Center(
                     child: AspectRatio(
                       aspectRatio: controller.value.aspectRatio,
                       child: VideoPlayer(controller),
                     ),
                   ),
+
+                if (controller == null || !controller.value.isInitialized)
+                  const Center(child: CircularProgressIndicator()),
+
                 Positioned.fill(
                   child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: () {
-                      setState(() => _showControls = true);
+                      setState(() => _showControls = !_showControls);
                       _startHideTimer();
                     },
+                    onDoubleTapDown:
+                        (details) => _handleDoubleTap(
+                          details.globalPosition.dx,
+                          provider,
+                        ),
                   ),
                 ),
+
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: AnimatedOpacity(
+                    opacity: _showControls ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.black54, Colors.transparent],
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
                 Positioned(
                   bottom: 24,
                   left: 16,
@@ -102,50 +183,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                       ignoring: !_showControls,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.replay_10,
-                                  color: Colors.white,
-                                ),
-                                onPressed:
-                                    () => provider.seek(
-                                      position - Duration(seconds: 10),
-                                    ),
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  controller?.value.isPlaying ?? false
-                                      ? Icons.pause
-                                      : Icons.play_arrow,
-                                  color: Colors.white,
-                                ),
-                                onPressed: provider.togglePlayPause,
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.forward_10,
-                                  color: Colors.white,
-                                ),
-                                onPressed:
-                                    () => provider.seek(
-                                      position + Duration(seconds: 10),
-                                    ),
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.fullscreen_exit,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16.0,
@@ -156,36 +194,126 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                 Text(
                                   _formatDuration(position),
                                   style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w300,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
                                     color: Colors.white,
                                   ),
                                 ),
                                 Text(
                                   _formatDuration(duration),
                                   style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w300,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
                                     color: Colors.white,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          Slider(
-                            value: position.inSeconds.toDouble(),
-                            min: 0,
-                            max: duration.inSeconds.toDouble(),
-                            onChanged: (value) {
-                              provider.seek(Duration(seconds: value.toInt()));
-                              _startHideTimer();
-                            },
+                          const SizedBox(height: 8),
+                          Container(
+                            height: 24,
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                LinearProgressIndicator(
+                                  value: bufferedValue,
+                                  backgroundColor: Colors.grey[800],
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.grey[600]!,
+                                  ),
+                                  minHeight: 3,
+                                ),
+                                SliderTheme(
+                                  data: SliderThemeData(
+                                    trackHeight: 3,
+                                    thumbShape: const RoundSliderThumbShape(
+                                      enabledThumbRadius: 8,
+                                    ),
+                                    overlayShape: const RoundSliderOverlayShape(
+                                      overlayRadius: 12,
+                                    ),
+                                    activeTrackColor: Colors.redAccent,
+                                    inactiveTrackColor: Colors.transparent,
+                                    thumbColor: Colors.redAccent,
+                                  ),
+                                  child: Slider(
+                                    value: position.inSeconds.toDouble().clamp(
+                                      0,
+                                      duration.inSeconds.toDouble(),
+                                    ),
+                                    min: 0,
+                                    max: duration.inSeconds.toDouble(),
+                                    onChanged: (value) {
+                                      provider.seek(
+                                        Duration(seconds: value.toInt()),
+                                      );
+                                      _startHideTimer();
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                          const SizedBox(height: 16),
                         ],
                       ),
                     ),
                   ),
                 ),
+
+                if (_showSeekIcon)
+                  Center(
+                    child: Icon(
+                      _seekIcon,
+                      color: Colors.white.withOpacity(0.8),
+                      size: 50,
+                    ),
+                  ),
+
+                if (_showControls)
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.replay_10, size: 40),
+                          color: Colors.white,
+                          onPressed:
+                              () => provider.seek(
+                                position - const Duration(seconds: 10),
+                              ),
+                        ),
+                        const SizedBox(width: 48),
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              controller?.value.isPlaying ?? false
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
+                              size: 44,
+                            ),
+                            color: Colors.white,
+                            onPressed: provider.togglePlayPause,
+                          ),
+                        ),
+                        const SizedBox(width: 48),
+                        IconButton(
+                          icon: const Icon(Icons.forward_10, size: 40),
+                          color: Colors.white,
+                          onPressed:
+                              () => provider.seek(
+                                position + const Duration(seconds: 10),
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           );

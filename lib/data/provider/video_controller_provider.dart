@@ -14,6 +14,15 @@ class VideoControllerProvider extends ChangeNotifier {
   VideoPlayerController? get controller => _controller;
   int get episodeIndex => _episodeIndex;
   Anime? get anime => _anime;
+  double _playbackSpeed = 1.0;
+
+  double get playbackSpeed => _playbackSpeed;
+
+  void setPlaybackSpeed(double speed) {
+    _playbackSpeed = speed;
+    _controller?.setPlaybackSpeed(speed);
+    notifyListeners();
+  }
 
   Future<void> loadEpisode(Anime anime, int index, BuildContext context) async {
     _anime = anime;
@@ -36,6 +45,7 @@ class VideoControllerProvider extends ChangeNotifier {
     await _controller?.dispose();
     _controller = VideoPlayerController.networkUrl(videoUrl);
     await _controller!.initialize();
+    _controller!.setPlaybackSpeed(_playbackSpeed);
 
     if (timecode > 0) {
       await _controller!.seekTo(Duration(seconds: timecode));
