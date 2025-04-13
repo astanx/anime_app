@@ -1,6 +1,8 @@
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/history.dart';
 import 'package:anime_app/data/models/timecode.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
+import 'package:anime_app/data/storage/history_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
@@ -53,6 +55,13 @@ class VideoControllerProvider extends ChangeNotifier {
 
     _controller!.addListener(_notify);
     notifyListeners();
+
+    final history = History(
+      animeId: anime.release.id,
+      lastWatchedEpisode: index,
+    );
+
+    HistoryStorage.updateHistory(history);
   }
 
   void togglePlayPause() {
