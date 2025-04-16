@@ -285,17 +285,21 @@ class AnimeScreen extends StatelessWidget {
                               border: Border.all(color: Colors.grey, width: 2),
                               borderRadius: BorderRadius.circular(12),
                             ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Icon(Icons.skip_previous),
-                                Text(
-                                  anime
-                                      .episodes[provider.episodeIndex - 1]
-                                      .name,
-                                  style: const TextStyle(
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.w400,
+                                Flexible(
+                                  child: Text(
+                                    anime
+                                        .episodes[provider.episodeIndex - 1]
+                                        .name,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.w400,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -321,16 +325,20 @@ class AnimeScreen extends StatelessWidget {
                               border: Border.all(color: Colors.grey, width: 2),
                               borderRadius: BorderRadius.circular(12),
                             ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  anime
-                                      .episodes[provider.episodeIndex + 1]
-                                      .name,
-                                  style: const TextStyle(
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.w400,
+                                Flexible(
+                                  child: Text(
+                                    anime
+                                        .episodes[provider.episodeIndex + 1]
+                                        .name,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.w400,
+                                    ),
                                   ),
                                 ),
                                 const Icon(Icons.skip_next),
