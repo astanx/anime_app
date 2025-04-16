@@ -14,7 +14,9 @@ class AnimeCard extends StatelessWidget {
     return InkWell(
       onTap: () async {
         final animeTitle = await AnimeRepository().getAnimeById(anime.id);
-        Navigator.of(context).pushNamed('/anime', arguments: animeTitle);
+        Navigator.of(
+          context,
+        ).pushNamed('/anime', arguments: {'anime': animeTitle});
       },
       child: Card(
         color: theme.cardTheme.color,

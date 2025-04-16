@@ -8,7 +8,6 @@ import 'package:video_player/video_player.dart';
 
 class AnimeScreen extends StatelessWidget {
   const AnimeScreen({super.key});
-
   String formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     final hours = duration.inHours;
@@ -21,14 +20,18 @@ class AnimeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final anime = ModalRoute.of(context)!.settings.arguments as Anime;
+    final arguments =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final Anime anime = arguments['anime'] as Anime;
+    final int? episodeIndex = arguments['episodeIndex'] as int?;
+
     final theme = Theme.of(context);
 
     return ChangeNotifierProvider(
       create: (context) {
         final provider = VideoControllerProvider();
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          provider.loadEpisode(anime, 0, context);
+          provider.loadEpisode(anime, episodeIndex ?? 0, context);
         });
         return provider;
       },
