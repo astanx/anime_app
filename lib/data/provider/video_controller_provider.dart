@@ -12,19 +12,14 @@ class VideoControllerProvider extends ChangeNotifier {
   int _episodeIndex = 0;
   Anime? _anime;
   BuildContext? _context;
+  Duration? openingStart;
+  Duration? openingEnd;
+  Duration? endingStart;
+  Duration? endingEnd;
 
   VideoPlayerController? get controller => _controller;
   int get episodeIndex => _episodeIndex;
   Anime? get anime => _anime;
-  double _playbackSpeed = 1.0;
-
-  double get playbackSpeed => _playbackSpeed;
-
-  void setPlaybackSpeed(double speed) {
-    _playbackSpeed = speed;
-    _controller?.setPlaybackSpeed(speed);
-    notifyListeners();
-  }
 
   Future<void> loadEpisode(Anime anime, int index, BuildContext context) async {
     _anime = anime;
@@ -35,10 +30,10 @@ class VideoControllerProvider extends ChangeNotifier {
       context,
       listen: false,
     );
-    final episode = anime.episodes[index];
-    final timecode = timecodeProvider.getTimecodeForEpisode(episode.id);
 
     await timecodeProvider.fetchTimecodes();
+    final episode = anime.episodes[index];
+    final timecode = timecodeProvider.getTimecodeForEpisode(episode.id);
 
     final videoUrl = Uri.parse(
       episode.hls1080.isNotEmpty ? episode.hls1080 : episode.hls720,
@@ -47,11 +42,28 @@ class VideoControllerProvider extends ChangeNotifier {
     await _controller?.dispose();
     _controller = VideoPlayerController.networkUrl(videoUrl);
     await _controller!.initialize();
-    _controller!.setPlaybackSpeed(_playbackSpeed);
 
     if (timecode > 0) {
       await _controller!.seekTo(Duration(seconds: timecode));
     }
+
+    openingStart =
+        episode.opening?.start != null
+            ? Duration(seconds: episode.opening!.start!)
+            : null;
+    endingStart =
+        episode.ending?.start != null
+            ? Duration(seconds: episode.ending!.start!)
+            : null;
+
+    openingEnd =
+        episode.opening?.stop != null
+            ? Duration(seconds: episode.opening!.stop!)
+            : null;
+    endingEnd =
+        episode.ending?.stop != null
+            ? Duration(seconds: episode.ending!.stop!)
+            : null;
 
     _controller!.addListener(_notify);
     notifyListeners();
@@ -83,6 +95,7 @@ class VideoControllerProvider extends ChangeNotifier {
   @override
   void dispose() {
     _saveTimecode();
+    _controller?.removeListener(_notify);
     _controller?.dispose();
     super.dispose();
   }

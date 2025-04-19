@@ -20,23 +20,28 @@ class TimecodeProvider extends ChangeNotifier {
     return _timecodes
         .firstWhere(
           (t) => t.releaseEpisodeId == episodeId,
-          orElse: () => Timecode(
-            time: 0,
-            isWatched: false,
-            releaseEpisodeId: episodeId,
-          ),
+          orElse:
+              () => Timecode(
+                time: 0,
+                isWatched: false,
+                releaseEpisodeId: episodeId,
+              ),
         )
         .time;
   }
 
   Future<void> updateTimecode(Timecode timecode) async {
-    await UserRepository().updateTimecode([timecode]);
-    final index = _timecodes.indexWhere((t) => t.releaseEpisodeId == timecode.releaseEpisodeId);
-    if (index != -1) {
-      _timecodes[index] = timecode;
-    } else {
-      _timecodes.add(timecode);
+    if (timecode.time > 0) {
+      UserRepository().updateTimecode([timecode]);
+      final index = _timecodes.indexWhere(
+        (t) => t.releaseEpisodeId == timecode.releaseEpisodeId,
+      );
+      if (index != -1) {
+        _timecodes[index] = timecode;
+      } else {
+        _timecodes.add(timecode);
+      }
+      notifyListeners();
     }
-    notifyListeners();
   }
 }

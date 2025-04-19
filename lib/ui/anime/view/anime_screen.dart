@@ -216,6 +216,7 @@ class AnimeScreen extends StatelessWidget {
                                               builder:
                                                   (_) => FullscreenPlayer(
                                                     provider: provider,
+                                                    anime: anime,
                                                   ),
                                             ),
                                           ),

@@ -68,7 +68,8 @@ class AnimeRelease {
     isBlockedByCopyrights: json['is_blocked_by_copyrights'] ?? false,
     addedInUsersFavorites: json['added_in_users_favorites'] ?? 0,
     averageDurationOfEpisode: json['average_duration_of_episode'] ?? 0,
-    genres: (json['genres'] as List? ?? []).map((e) => Genre.fromJson(e)).toList(),
+    genres:
+        (json['genres'] as List? ?? []).map((e) => Genre.fromJson(e)).toList(),
     latestEpisode: LatestEpisode.fromJson(json['latest_episode'] ?? {}),
   );
 }
@@ -131,10 +132,11 @@ class PosterOptimized {
 
   PosterOptimized({required this.src, required this.thumbnail});
 
-  factory PosterOptimized.fromJson(Map<String, dynamic> json) => PosterOptimized(
-    src: json['src'] ?? '',
-    thumbnail: json['thumbnail'] ?? '',
-  );
+  factory PosterOptimized.fromJson(Map<String, dynamic> json) =>
+      PosterOptimized(
+        src: json['src'] ?? '',
+        thumbnail: json['thumbnail'] ?? '',
+      );
 }
 
 class AgeRating {
@@ -208,10 +210,11 @@ class GenreImageOptimized {
 
   GenreImageOptimized({required this.preview, required this.thumbnail});
 
-  factory GenreImageOptimized.fromJson(Map<String, dynamic> json) => GenreImageOptimized(
-    preview: json['preview'] ?? '',
-    thumbnail: json['thumbnail'] ?? '',
-  );
+  factory GenreImageOptimized.fromJson(Map<String, dynamic> json) =>
+      GenreImageOptimized(
+        preview: json['preview'] ?? '',
+        thumbnail: json['thumbnail'] ?? '',
+      );
 }
 
 class LatestEpisode {
@@ -223,6 +226,8 @@ class LatestEpisode {
   final String hls720;
   final String hls1080;
   final int duration;
+  final Opening? opening;
+  final Ending? ending;
 
   LatestEpisode({
     required this.id,
@@ -233,6 +238,8 @@ class LatestEpisode {
     required this.hls720,
     required this.hls1080,
     required this.duration,
+    this.opening,
+    this.ending,
   });
 
   factory LatestEpisode.fromJson(Map<String, dynamic> json) => LatestEpisode(
@@ -244,7 +251,29 @@ class LatestEpisode {
     hls720: json['hls_720'] ?? '',
     hls1080: json['hls_1080'] ?? '',
     duration: json['duration'] ?? 0,
+    opening: json['opening'] != null ? Opening.fromJson(json['opening']) : null,
+    ending: json['ending'] != null ? Ending.fromJson(json['ending']) : null,
   );
+}
+
+class Opening {
+  final int? start;
+  final int? stop;
+
+  Opening({required this.start, required this.stop});
+
+  factory Opening.fromJson(Map<String, dynamic> json) =>
+      Opening(start: json['start'], stop: json['stop']);
+}
+
+class Ending {
+  final int? start;
+  final int? stop;
+
+  Ending({required this.start, required this.stop});
+
+  factory Ending.fromJson(Map<String, dynamic> json) =>
+      Ending(start: json['start'], stop: json['stop']);
 }
 
 class EpisodePreview {
@@ -271,8 +300,9 @@ class EpisodePreviewOptimized {
 
   EpisodePreviewOptimized({required this.src, required this.thumbnail});
 
-  factory EpisodePreviewOptimized.fromJson(Map<String, dynamic> json) => EpisodePreviewOptimized(
-    src: json['src'] ?? '',
-    thumbnail: json['thumbnail'] ?? '',
-  );
+  factory EpisodePreviewOptimized.fromJson(Map<String, dynamic> json) =>
+      EpisodePreviewOptimized(
+        src: json['src'] ?? '',
+        thumbnail: json['thumbnail'] ?? '',
+      );
 }
