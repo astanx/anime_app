@@ -44,4 +44,8 @@ class TimecodeProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  bool isWatched(String episodeId) {
+    return _timecodes.any((el) => el.releaseEpisodeId == episodeId);
+  }
 }

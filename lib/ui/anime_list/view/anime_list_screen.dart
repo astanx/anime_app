@@ -1,4 +1,5 @@
 import 'package:anime_app/data/models/anime_release.dart';
+import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   void initState() {
     super.initState();
     _fetchAnime();
+    TimecodeProvider().fetchTimecodes();
   }
 
   @override

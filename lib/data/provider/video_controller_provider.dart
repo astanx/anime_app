@@ -11,7 +11,7 @@ class VideoControllerProvider extends ChangeNotifier {
   VideoPlayerController? _controller;
   int _episodeIndex = 0;
   Anime? _anime;
-  BuildContext? _context;
+  TimecodeProvider? _timecodeProvider;
   Duration? openingStart;
   Duration? openingEnd;
   Duration? endingStart;
@@ -24,16 +24,11 @@ class VideoControllerProvider extends ChangeNotifier {
   Future<void> loadEpisode(Anime anime, int index, BuildContext context) async {
     _anime = anime;
     _episodeIndex = index;
-    _context = context;
+    _timecodeProvider = Provider.of<TimecodeProvider>(context, listen: false);
 
-    final timecodeProvider = Provider.of<TimecodeProvider>(
-      context,
-      listen: false,
-    );
-
-    await timecodeProvider.fetchTimecodes();
+    await _timecodeProvider!.fetchTimecodes();
     final episode = anime.episodes[index];
-    final timecode = timecodeProvider.getTimecodeForEpisode(episode.id);
+    final timecode = _timecodeProvider!.getTimecodeForEpisode(episode.id);
 
     final videoUrl = Uri.parse(
       episode.hls1080.isNotEmpty ? episode.hls1080 : episode.hls720,
@@ -82,6 +77,7 @@ class VideoControllerProvider extends ChangeNotifier {
     } else {
       _controller?.play();
     }
+    _saveTimecode();
     notifyListeners();
   }
 
@@ -101,7 +97,8 @@ class VideoControllerProvider extends ChangeNotifier {
   }
 
   void _saveTimecode() {
-    if (_controller == null || _anime == null || _context == null) return;
+    if (_controller == null || _anime == null || _timecodeProvider == null)
+      return;
 
     final time = _controller!.value.position;
     final episodeId = _anime!.episodes[_episodeIndex].id;
@@ -111,9 +108,6 @@ class VideoControllerProvider extends ChangeNotifier {
       isWatched: true,
     );
 
-    Provider.of<TimecodeProvider>(
-      _context!,
-      listen: false,
-    ).updateTimecode(timecode);
+    _timecodeProvider!.updateTimecode(timecode);
   }
 }

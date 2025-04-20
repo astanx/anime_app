@@ -1,7 +1,9 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/ui/anime_episodes/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AnimeEpisodesScreen extends StatelessWidget {
@@ -19,6 +21,10 @@ class AnimeEpisodesScreen extends StatelessWidget {
     if (screenWidth >= 600) crossAxisCount = 3;
     if (screenWidth >= 900) crossAxisCount = 4;
 
+    final timecodeProvider = Provider.of<TimecodeProvider>(
+      context,
+      listen: false,
+    );
     return Scaffold(
       appBar: AppBar(title: Text(anime.release.names.main)),
       body: SafeArea(
@@ -96,8 +102,9 @@ class AnimeEpisodesScreen extends StatelessWidget {
                       ),
                       itemBuilder: (context, index) {
                         return EpisodeCard(
-                          anime: anime.release,
+                          anime: anime,
                           episodeIndex: index,
+                          timecodeProvider: timecodeProvider,
                         );
                       },
                     ),
