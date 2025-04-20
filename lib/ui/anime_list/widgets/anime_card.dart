@@ -1,3 +1,4 @@
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class AnimeCard extends StatelessWidget {
         final animeTitle = await AnimeRepository().getAnimeById(anime.id);
         Navigator.of(
           context,
-        ).pushNamed('/anime', arguments: {'anime': animeTitle});
+        ).pushNamed('/anime/episodes', arguments: {'anime': animeTitle});
       },
       child: Card(
         color: theme.cardTheme.color,
@@ -28,7 +29,7 @@ class AnimeCard extends StatelessWidget {
           child: Column(
             children: [
               Image.network(
-                'https://anilibria.top${anime.poster.optimized.src}',
+                '$baseUrl${anime.poster.optimized.src}',
                 width: 150,
                 height: 200,
                 fit: BoxFit.cover,

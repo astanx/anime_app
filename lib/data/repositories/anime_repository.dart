@@ -41,7 +41,7 @@ class AnimeRepository extends BaseRepository {
   Future<List<AnimeRelease>> getReleases(int? limit) async {
     try {
       limit ??= 10;
-      final response = await dio.get('anime/releases/latest?limit$limit');
+      final response = await dio.get('anime/releases/latest?limit=$limit');
       final data = response.data as List<dynamic>;
 
       log(data.toString());

@@ -1,9 +1,9 @@
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
 import 'package:anime_app/ui/anime/widgets/fullscreen_player.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
 class AnimeScreen extends StatelessWidget {
@@ -67,7 +67,7 @@ class AnimeScreen extends StatelessWidget {
             child: Column(
               children: [
                 Image.network(
-                  'https://anilibria.top${anime.release.poster.optimized.src}',
+                  '$baseUrl${anime.release.poster.optimized.src}',
                   fit: BoxFit.cover,
                 ),
                 const SizedBox(height: 8),
@@ -79,22 +79,6 @@ class AnimeScreen extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  anime.release.genres.map((g) => g.name).join(' • '),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${anime.release.episodesTotal} episodes  ${anime.release.isOngoing ? '| Ongoing' : ''}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
                 const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -104,50 +88,13 @@ class AnimeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 150,
-                      child: DropdownMenu(
-                        inputDecorationTheme: InputDecorationTheme(
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          isDense: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                        ),
-                        textStyle: const TextStyle(fontSize: 14),
-                        dropdownMenuEntries: List.generate(
-                          anime.episodes.length,
-                          (index) => DropdownMenuEntry(
-                            value: index,
-                            label: 'Episode ${index + 1}',
-                          ),
-                        ),
-                        initialSelection: provider.episodeIndex,
-                        onSelected: (value) {
-                          if (value != null && value != provider.episodeIndex) {
-                            provider.loadEpisode(anime, value, context);
-                          }
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      width: 140,
-                      child: Center(
-                        child: Text(
-                          anime.episodes[provider.episodeIndex].name,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ),
-                  ],
+                Text(
+                  anime.episodes[provider.episodeIndex].name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 if (controller?.value.isInitialized ?? false)
@@ -299,7 +246,7 @@ class AnimeScreen extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: 8,
-                                      fontWeight: FontWeight.w400,
+                                      fontWeight: FontWeight.w900,
                                     ),
                                   ),
                                 ),
@@ -338,7 +285,7 @@ class AnimeScreen extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: 8,
-                                      fontWeight: FontWeight.w400,
+                                      fontWeight: FontWeight.w900,
                                     ),
                                   ),
                                 ),
@@ -351,21 +298,6 @@ class AnimeScreen extends StatelessWidget {
                     else
                       const SizedBox(width: 150, height: 50),
                   ],
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final uri = Uri.parse(
-                      'https://anilibria.top/api/v1/anime/torrents/${anime.torrents[0].id}/file',
-                    );
-                    if (await canLaunchUrl(uri)) {
-                      await launchUrl(uri);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Could not launch URL')),
-                      );
-                    }
-                  },
-                  child: const Text('Download via Torrent'),
                 ),
               ],
             ),

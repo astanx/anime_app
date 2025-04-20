@@ -1,12 +1,12 @@
 import 'dart:developer';
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/storage/token_storage.dart';
 import 'package:dio/dio.dart';
 
 class DioClient {
   Dio dio;
 
-  DioClient()
-    : dio = Dio(BaseOptions(baseUrl: 'https://anilibria.top/api/v1/')) {
+  DioClient() : dio = Dio(BaseOptions(baseUrl: '$baseUrl/api/v1/')) {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
