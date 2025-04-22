@@ -62,13 +62,6 @@ class VideoControllerProvider extends ChangeNotifier {
 
     _controller!.addListener(_notify);
     notifyListeners();
-
-    final history = History(
-      animeId: anime.release.id,
-      lastWatchedEpisode: index,
-    );
-
-    HistoryStorage.updateHistory(history);
   }
 
   void togglePlayPause() {
@@ -101,13 +94,22 @@ class VideoControllerProvider extends ChangeNotifier {
       return;
 
     final time = _controller!.value.position;
-    final episodeId = _anime!.episodes[_episodeIndex].id;
-    final timecode = Timecode(
-      time: time.inSeconds,
-      releaseEpisodeId: episodeId,
-      isWatched: true,
-    );
+    if (time > Duration(seconds: 0)) {
+      final episodeId = _anime!.episodes[_episodeIndex].id;
+      final timecode = Timecode(
+        time: time.inSeconds,
+        releaseEpisodeId: episodeId,
+        isWatched: true,
+      );
 
-    _timecodeProvider!.updateTimecode(timecode);
+      _timecodeProvider!.updateTimecode(timecode);
+
+      final history = History(
+        animeId: _anime!.release.id,
+        lastWatchedEpisode: _episodeIndex,
+      );
+
+      HistoryStorage.updateHistory(history);
+    }
   }
 }

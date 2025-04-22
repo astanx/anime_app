@@ -50,8 +50,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('History', style: TextStyle(fontSize: 24)),
-                      const SizedBox(height: 16),
                       Expanded(
                         child: ListView.builder(
                           itemCount: _historyList!.length,

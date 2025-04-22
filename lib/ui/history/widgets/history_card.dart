@@ -1,3 +1,4 @@
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/history.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +31,7 @@ class HistoryCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
-                  'https://anilibria.top${anime.anime.release.poster.optimized.src}',
+                  '$baseUrl${anime.anime.release.poster.optimized.src}',
                   width: 80,
                   height: 100,
                   fit: BoxFit.cover,

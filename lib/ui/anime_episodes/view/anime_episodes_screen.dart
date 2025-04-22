@@ -38,12 +38,9 @@ class AnimeEpisodesScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Image.network(
-                        '$baseUrl${anime.release.poster.optimized.src}',
-                        fit: BoxFit.cover,
-                      ),
+                    Image.network(
+                      '$baseUrl${anime.release.poster.optimized.src}',
+                      fit: BoxFit.cover,
                     ),
                     const SizedBox(height: 12),
                     Text(
