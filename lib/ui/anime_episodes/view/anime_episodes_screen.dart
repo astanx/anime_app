@@ -1,5 +1,6 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/ui/anime_episodes/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -20,13 +21,34 @@ class AnimeEpisodesScreen extends StatelessWidget {
     int crossAxisCount = 2;
     if (screenWidth >= 600) crossAxisCount = 3;
     if (screenWidth >= 900) crossAxisCount = 4;
-
+    final favouritesProvider = Provider.of<FavouritesProvider>(context);
     final timecodeProvider = Provider.of<TimecodeProvider>(
       context,
       listen: false,
     );
+    final isFavourite = favouritesProvider.isFavourite(anime.release.id);
     return Scaffold(
-      appBar: AppBar(title: Text(anime.release.names.main)),
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                anime.release.names.main,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+              ),
+            ),
+            IconButton(
+              icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
+              tooltip: 'Favourite',
+              onPressed: () {
+                favouritesProvider.toggleFavourite(anime.release);
+              },
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),

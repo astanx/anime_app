@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/models/login.dart';
 import 'package:anime_app/data/models/timecode.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
@@ -55,6 +56,59 @@ class UserRepository extends BaseRepository {
 
       final timecodes = data.map((t) => Timecode.fromJson(t as List)).toList();
       return timecodes;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> addToFavourite(int animeId) async {
+    try {
+      final body = [
+        {'release_id': animeId},
+      ];
+      final response = await dio.post(
+        'accounts/users/me/favorites',
+        data: body,
+      );
+      if (response.statusCode == 200) {
+        return;
+      }
+      throw Error();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<AnimeRelease>> getFavourites() async {
+    try {
+      final response = await dio.get('accounts/users/me/favorites/releases');
+      final data = response.data as Map<String, dynamic>;
+      final favouritesData = data['data'] as List<dynamic>;
+
+      final favourites =
+          favouritesData
+              .map((f) => AnimeRelease.fromJson(f as Map<String, dynamic>))
+              .toList();
+
+      return favourites;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> removeFromFavourites(int animeId) async {
+    try {
+      final body = [
+        {'release_id': animeId},
+      ];
+      final response = await dio.delete(
+        'accounts/users/me/favorites',
+        data: body,
+      );
+      if (response.statusCode == 200) {
+        return;
+      }
+      throw Error();
     } catch (e) {
       rethrow;
     }

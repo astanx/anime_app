@@ -90,8 +90,9 @@ class VideoControllerProvider extends ChangeNotifier {
   }
 
   void _saveTimecode() {
-    if (_controller == null || _anime == null || _timecodeProvider == null)
+    if (_controller == null || _anime == null || _timecodeProvider == null) {
       return;
+    }
 
     final time = _controller!.value.position;
     if (time > Duration(seconds: 0)) {

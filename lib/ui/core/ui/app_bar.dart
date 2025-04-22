@@ -11,10 +11,15 @@ class AnimeAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(title),
       actions: [
         IconButton(
+          icon: const Icon(Icons.star),
+          tooltip: 'Favourite',
+          onPressed: () {},
+        ),
+        IconButton(
           icon: const Icon(Icons.history),
           tooltip: 'History',
           onPressed: () {
-        Navigator.of(context).pushNamed('/history');
+            Navigator.of(context).pushNamed('/history');
           },
         ),
       ],
