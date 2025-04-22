@@ -43,7 +43,7 @@ class AnimeEpisodesScreen extends StatelessWidget {
               icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
               tooltip: 'Favourite',
               onPressed: () {
-                favouritesProvider.toggleFavourite(anime.release);
+                favouritesProvider.toggleFavourite(anime);
               },
             ),
           ],

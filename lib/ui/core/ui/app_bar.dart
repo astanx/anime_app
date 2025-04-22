@@ -13,7 +13,9 @@ class AnimeAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.star),
           tooltip: 'Favourite',
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pushNamed('/favourites');
+          },
         ),
         IconButton(
           icon: const Icon(Icons.history),

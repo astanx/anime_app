@@ -1,13 +1,13 @@
-import 'package:anime_app/data/models/anime_release.dart';
+import 'package:anime_app/data/models/anime.dart';
 import 'package:flutter/material.dart';
 import 'package:anime_app/data/repositories/user_repository.dart';
 
 class FavouritesProvider extends ChangeNotifier {
   final UserRepository _repository = UserRepository();
-  List<AnimeRelease> _favourites = [];
+  List<Anime> _favourites = [];
   bool _hasFetched = false;
 
-  List<AnimeRelease> get favourites => _favourites;
+  List<Anime> get favourites => _favourites;
 
   Future<void> fetchFavourites() async {
     if (!_hasFetched) {
@@ -18,24 +18,24 @@ class FavouritesProvider extends ChangeNotifier {
   }
 
   bool isFavourite(int animeId) {
-    return _favourites.any((anime) => anime.id == animeId);
+    return _favourites.any((anime) => anime.release.id == animeId);
   }
 
-  Future<void> addToFavourites(AnimeRelease anime) async {
-    await _repository.addToFavourite(anime.id);
+  Future<void> addToFavourites(Anime anime) async {
+    await _repository.addToFavourite(anime.release.id);
     _favourites.add(anime);
     notifyListeners();
   }
 
   Future<void> removeFromFavourites(int animeId) async {
     await _repository.removeFromFavourites(animeId);
-    _favourites.removeWhere((anime) => anime.id == animeId);
+    _favourites.removeWhere((anime) => anime.release.id == animeId);
     notifyListeners();
   }
 
-  Future<void> toggleFavourite(AnimeRelease anime) async {
-    if (isFavourite(anime.id)) {
-      await removeFromFavourites(anime.id);
+  Future<void> toggleFavourite(Anime anime) async {
+    if (isFavourite(anime.release.id)) {
+      await removeFromFavourites(anime.release.id);
     } else {
       await addToFavourites(anime);
     }

@@ -1,5 +1,5 @@
 import 'dart:developer';
-import 'package:anime_app/data/models/anime_release.dart';
+import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/login.dart';
 import 'package:anime_app/data/models/timecode.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
@@ -79,7 +79,7 @@ class UserRepository extends BaseRepository {
     }
   }
 
-  Future<List<AnimeRelease>> getFavourites() async {
+  Future<List<Anime>> getFavourites() async {
     try {
       final response = await dio.get('accounts/users/me/favorites/releases');
       final data = response.data as Map<String, dynamic>;
@@ -87,7 +87,7 @@ class UserRepository extends BaseRepository {
 
       final favourites =
           favouritesData
-              .map((f) => AnimeRelease.fromJson(f as Map<String, dynamic>))
+              .map((f) => Anime.fromJson(f as Map<String, dynamic>))
               .toList();
 
       return favourites;
