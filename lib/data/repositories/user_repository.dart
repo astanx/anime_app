@@ -32,6 +32,20 @@ class UserRepository extends BaseRepository {
     }
   }
 
+  Future<void> logout() async {
+    try {
+      final response = await dio.post('accounts/users/auth/logout');
+
+      final data = response.data;
+
+      log(data.toString());
+
+      await TokenStorage.clearToken();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> updateTimecode(List<Timecode> timecodes) async {
     try {
       final body = timecodes.map((t) => t.toJson()).toList();

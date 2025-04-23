@@ -1,3 +1,4 @@
+import 'package:anime_app/data/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
 
 class AnimeAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -22,6 +23,26 @@ class AnimeAppBar extends StatelessWidget implements PreferredSizeWidget {
           tooltip: 'History',
           onPressed: () {
             Navigator.of(context).pushNamed('/history');
+          },
+        ),
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.person),
+          offset: const Offset(0, kToolbarHeight),
+          itemBuilder:
+              (BuildContext context) => [
+                const PopupMenuItem<String>(
+                  value: 'exit',
+                  child: ListTile(
+                    leading: Icon(Icons.exit_to_app),
+                    title: Text('Exit'),
+                  ),
+                ),
+              ],
+          onSelected: (String value) {
+            if (value == 'exit') {
+              UserRepository().logout();
+              Navigator.of(context).pushNamed('/');
+            }
           },
         ),
       ],
