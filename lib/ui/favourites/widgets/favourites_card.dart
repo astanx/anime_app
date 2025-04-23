@@ -13,7 +13,7 @@ class FavouritesCard extends StatelessWidget {
           () => {
             Navigator.of(
               context,
-            ).pushNamed('/anime', arguments: {'anime': anime}),
+            ).pushNamed('/anime/episodes', arguments: {'anime': anime}),
           },
       child: Card(
         elevation: 4,

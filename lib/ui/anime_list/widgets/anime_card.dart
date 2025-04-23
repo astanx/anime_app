@@ -47,7 +47,7 @@ class AnimeCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${anime.episodesTotal} episodes',
+                '${anime.year}',
                 style: theme.textTheme.bodySmall?.copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
