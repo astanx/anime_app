@@ -26,6 +26,7 @@ class AnimeAppBar extends StatelessWidget implements PreferredSizeWidget {
             Navigator.of(context).pushNamed('/history');
           },
         ),
+
         PopupMenuButton<String>(
           icon: const Icon(Icons.person),
           offset: const Offset(0, kToolbarHeight),
@@ -44,6 +45,13 @@ class AnimeAppBar extends StatelessWidget implements PreferredSizeWidget {
               UserRepository().logout();
               Navigator.of(context).pushNamed('/');
             }
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.house),
+          tooltip: 'Home',
+          onPressed: () {
+            Navigator.of(context).pushNamed('/anime/list');
           },
         ),
       ],

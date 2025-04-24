@@ -24,7 +24,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 _buildLoginButton('Continue without login', Icons.person, () {
-                  Navigator.of(context).pushNamed('/animeList');
+                  Navigator.of(context).pushNamed('/anime/list');
                 }),
               ],
             ),

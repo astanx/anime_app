@@ -1,5 +1,6 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime_release.dart';
+import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
@@ -21,7 +22,20 @@ class ReleasesCarousel extends StatelessWidget {
               builder: (BuildContext context) {
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: Image.network('$baseUrl${anime.poster.optimized.src}'),
+                  child: InkWell(
+                    child: Image.network(
+                      '$baseUrl${anime.poster.optimized.src}',
+                    ),
+                    onTap: () async {
+                      final animeTitle = await AnimeRepository().getAnimeById(
+                        anime.id,
+                      );
+                      Navigator.of(context).pushNamed(
+                        '/anime/episodes',
+                        arguments: {'anime': animeTitle},
+                      );
+                    },
+                  ),
                 );
               },
             );

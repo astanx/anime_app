@@ -81,11 +81,13 @@ class AnimeRepository extends BaseRepository {
       final response = await dio.get(
         'anime/genres/$genreId/releases?page=$page&limit=$limit',
       );
-      final data = response.data as List<dynamic>;
+      final data = response.data as Map<String, dynamic>;
+      final releasesData = data['data'] as List<dynamic>;
 
       log(data.toString());
 
-      final releases = data.map((r) => AnimeRelease.fromJson(r)).toList();
+      final releases =
+          releasesData.map((r) => AnimeRelease.fromJson(r)).toList();
 
       return releases;
     } catch (e) {

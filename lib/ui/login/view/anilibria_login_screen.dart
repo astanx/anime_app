@@ -68,7 +68,7 @@ class _AnilibriaLoginScreenState extends State<AnilibriaLoginScreen> {
                         );
 
                         if (isLogined) {
-                          Navigator.of(context).pushNamed('/animeList');
+                          Navigator.of(context).pushNamed('/anime/list');
                         }
                       }
                     },

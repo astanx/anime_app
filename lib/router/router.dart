@@ -9,10 +9,11 @@ import 'package:anime_app/ui/splash/view/splash_screen.dart';
 final routes = {
   '/': (context) => const LoginScreen(),
   '/login/anilibria': (context) => const AnilibriaLoginScreen(),
-  '/animeList': (context) => const AnimeListScreen(),
+  '/anime/list': (context) => const AnimeListScreen(),
   '/anime': (context) => const AnimeScreen(),
   '/anime/episodes': (context) => const AnimeEpisodesScreen(),
   '/splash': (context) => const SplashScreen(),
   '/history': (context) => const HistoryScreen(),
   '/favourites': (context) => const FavouritesScreen(),
+  '/genre/releases': (context) => const GenreReleasesScreen(),
 };

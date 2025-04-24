@@ -1,22 +1,19 @@
 import 'package:anime_app/data/models/anime_release.dart';
-import 'package:anime_app/data/provider/favourites_provider.dart';
-import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-class AnimeListScreen extends StatefulWidget {
-  const AnimeListScreen({super.key});
+class GenreReleasesScreen extends StatefulWidget {
+  const GenreReleasesScreen({super.key});
 
   @override
-  State<AnimeListScreen> createState() => _AnimeListScreenState();
+  State<GenreReleasesScreen> createState() => _GenreReleasesScreenState();
 }
 
-class _AnimeListScreenState extends State<AnimeListScreen> {
-  List<AnimeRelease>? _animeList;
-  List<Genre>? _genres;
+class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
+  List<AnimeRelease>? _genreReleases;
+
   final _textController = TextEditingController();
 
   @override
@@ -28,36 +25,19 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchAnime();
-    _fetchGenres();
-    Provider.of<TimecodeProvider>(context, listen: false).fetchTimecodes();
-    Provider.of<FavouritesProvider>(context, listen: false).fetchFavourites();
-  }
-
-  Future<void> _fetchAnime() async {
-    final animeList = await AnimeRepository().getReleases(20);
-
-    if (mounted) {
-      setState(() {
-        _animeList = animeList;
-      });
-    }
-  }
-
-  Future<void> _fetchGenres() async {
-    final genres = await AnimeRepository().getGenres(8);
-
-    if (mounted) {
-      setState(() {
-        _genres = genres;
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
+    final arguments =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final List<AnimeRelease> releases =
+        arguments['genreReleases'] as List<AnimeRelease>;
+    setState(() {
+      _genreReleases = releases;
+    });
     int crossAxisCount = 2;
     if (screenWidth >= 600) {
       crossAxisCount = 3;
@@ -69,7 +49,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
     return Scaffold(
       appBar: AnimeAppBar(title: 'Oshavotik'),
       body:
-          _animeList == null
+          _genreReleases == null
               ? const Center(child: CircularProgressIndicator())
               : SafeArea(
                 child: Padding(
@@ -90,23 +70,17 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                           const SizedBox(width: 10),
                           IconButton(
                             onPressed: () async {
-                              if (_textController.text == '') {
-                                _fetchAnime();
-                              } else {
-                                final anime = await AnimeRepository()
-                                    .searchAnime(_textController.text);
-                                Navigator.of(context).pushNamed(
-                                  '/genre/releases',
-                                  arguments: {'genreReleases': anime},
-                                );
-                              }
+                              final anime = await AnimeRepository().searchAnime(
+                                _textController.text,
+                              );
+
+                              _genreReleases = anime;
+                              setState(() {});
                             },
                             icon: const Icon(Icons.search),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      ReleasesCarousel(releases: _animeList!),
                       Expanded(
                         child: GridView.builder(
                           gridDelegate:
@@ -114,10 +88,11 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                                 crossAxisCount: crossAxisCount,
                                 crossAxisSpacing: 16,
                                 mainAxisSpacing: 16,
+                                childAspectRatio: 2 / 5,
                               ),
-                          itemCount: _genres!.length,
+                          itemCount: _genreReleases!.length,
                           itemBuilder: (context, index) {
-                            return GenreCard(genre: _genres![index]);
+                            return AnimeCard(anime: _genreReleases![index]);
                           },
                         ),
                       ),
