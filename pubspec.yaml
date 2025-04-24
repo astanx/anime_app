@@ -16,6 +16,7 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   shared_preferences: ^2.5.3
   provider: ^6.1.4
+  carousel_slider: ^5.0.0
 
 dev_dependencies:
   flutter_test:

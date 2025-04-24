@@ -53,4 +53,43 @@ class AnimeRepository extends BaseRepository {
       rethrow;
     }
   }
+
+  Future<List<Genre>> getGenres(int? limit) async {
+    try {
+      limit ??= 8;
+      final response = await dio.get('anime/genres/random?limit=$limit');
+      final data = response.data as List<dynamic>;
+
+      log(data.toString());
+
+      final genres = data.map((g) => Genre.fromJson(g)).toList();
+
+      return genres;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<AnimeRelease>> getGenresReleases(
+    int genreId,
+    int? page,
+    int? limit,
+  ) async {
+    try {
+      page ??= 1;
+      limit ??= 16;
+      final response = await dio.get(
+        'anime/genres/$genreId/releases?page=$page&limit=$limit',
+      );
+      final data = response.data as List<dynamic>;
+
+      log(data.toString());
+
+      final releases = data.map((r) => AnimeRelease.fromJson(r)).toList();
+
+      return releases;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

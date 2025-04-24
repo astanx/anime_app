@@ -2,6 +2,7 @@ import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:anime_app/ui/anime_list/widgets/anime_card.dart';
@@ -83,6 +84,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                         ],
                       ),
                       const SizedBox(height: 20),
+                      ReleasesCarousel(releases: _animeList!),
                       Expanded(
                         child: GridView.builder(
                           gridDelegate:
