@@ -48,7 +48,7 @@ class AnimeAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
         ),
         IconButton(
-          icon: const Icon(Icons.house),
+          icon: const Icon(Icons.home),
           tooltip: 'Home',
           onPressed: () {
             Navigator.of(context).pushNamed('/anime/list');
