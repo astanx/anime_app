@@ -219,7 +219,7 @@ class GenreImageOptimized {
 
 class LatestEpisode {
   final String id;
-  final String name;
+  final String? name;
   final int ordinal;
   final EpisodePreview preview;
   final String hls480;
@@ -244,7 +244,7 @@ class LatestEpisode {
 
   factory LatestEpisode.fromJson(Map<String, dynamic> json) => LatestEpisode(
     id: json['id'] ?? '',
-    name: json['name'] ?? '',
+    name: json['name'],
     ordinal: json['ordinal'] ?? 0,
     preview: EpisodePreview.fromJson(json['preview'] ?? {}),
     hls480: json['hls_480'] ?? '',

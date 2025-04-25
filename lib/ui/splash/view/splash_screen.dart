@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(
         context,
-        token != null ? '/animeList' : '/',
+        token != null ? '/anime/list' : '/',
         (route) => false,
       );
     }

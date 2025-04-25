@@ -183,177 +183,157 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                   bottom: 24,
                   left: 16,
                   right: 16,
-                  child: AnimatedOpacity(
-                    opacity: _showControls ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 300),
-                    child: IgnorePointer(
-                      ignoring: !_showControls,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _formatDuration(position),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            provider.openingStart != null &&
+                                    position >= provider.openingStart! &&
+                                    position <=
+                                        provider.openingStart! +
+                                            Duration(seconds: 20)
+                                ? TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: const Color.fromARGB(
+                                      179,
+                                      158,
+                                      158,
+                                      158,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 10,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  _formatDuration(duration),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
+                                  onPressed: () {
+                                    provider.seek(provider.openingEnd!);
+                                  },
+                                  child: const Text(
+                                    'Skip opening',
+                                    style: TextStyle(color: Colors.black),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                provider.openingStart != null &&
-                                        position >= provider.openingStart! &&
+                                )
+                                : const SizedBox.shrink(),
+                            (provider.endingStart != null &&
+                                        provider.episodeIndex <
+                                            anime.episodes.length &&
+                                        position >= provider.endingStart! &&
                                         position <=
-                                            provider.openingStart! +
-                                                Duration(seconds: 20)
-                                    ? TextButton(
-                                      style: TextButton.styleFrom(
-                                        backgroundColor: Color.fromARGB(
-                                          (0.7 * 255).toInt(),
-                                          158,
-                                          158,
-                                          158,
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 10,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        provider.seek(provider.openingEnd!);
-                                      },
-                                      child: const Text(
-                                        'Skip opening',
-                                        style: TextStyle(color: Colors.black),
-                                      ),
-                                    )
-                                    : const SizedBox.shrink(),
-                                (provider.endingStart != null &&
-                                            provider.episodeIndex <
-                                                anime.episodes.length &&
-                                            position >= provider.endingStart! &&
-                                            position <=
-                                                provider.endingStart! +
-                                                    Duration(seconds: 20)) ||
-                                        position == duration
-                                    ? TextButton(
-                                      style: TextButton.styleFrom(
-                                        backgroundColor: Color.fromARGB(
-                                          (0.7 * 255).toInt(),
-                                          158,
-                                          158,
-                                          158,
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 10,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        provider.loadEpisode(
-                                          anime,
-                                          provider.episodeIndex + 1,
-                                          context,
-                                        );
-                                      },
-                                      child: const Text(
-                                        'Next episode',
-                                        style: TextStyle(color: Colors.black),
-                                      ),
-                                    )
-                                    : const SizedBox.shrink(),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          Container(
-                            height: 24,
-                            margin: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                LinearProgressIndicator(
-                                  value: bufferedValue,
-                                  backgroundColor: Colors.grey[800],
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.grey[600]!,
-                                  ),
-                                  minHeight: 3,
-                                ),
-                                SliderTheme(
-                                  data: SliderThemeData(
-                                    trackHeight: 3,
-                                    thumbShape: const RoundSliderThumbShape(
-                                      enabledThumbRadius: 8,
+                                            provider.endingStart! +
+                                                Duration(seconds: 20)) ||
+                                    position == duration
+                                ? TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: const Color.fromARGB(
+                                      179,
+                                      158,
+                                      158,
+                                      158,
                                     ),
-                                    overlayShape: const RoundSliderOverlayShape(
-                                      overlayRadius: 12,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 10,
                                     ),
-                                    activeTrackColor: Colors.redAccent,
-                                    inactiveTrackColor: Colors.transparent,
-                                    thumbColor: Colors.redAccent,
-                                  ),
-                                  child: Slider(
-                                    value: position.inSeconds.toDouble().clamp(
-                                      0,
-                                      duration.inSeconds.toDouble(),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                    min: 0,
-                                    max: duration.inSeconds.toDouble(),
-                                    onChanged: (value) {
-                                      provider.seek(
-                                        Duration(seconds: value.toInt()),
-                                      );
-                                      _startHideTimer();
-                                    },
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-                        ],
+                                  onPressed: () {
+                                    provider.loadEpisode(
+                                      anime,
+                                      provider.episodeIndex + 1,
+                                      context,
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Next episode',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                )
+                                : const SizedBox.shrink(),
+                          ],
+                        ),
                       ),
-                    ),
+
+                      const SizedBox(height: 12),
+
+                      AnimatedOpacity(
+                        opacity: _showControls ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: IgnorePointer(
+                          ignoring: !_showControls,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      _formatDuration(position),
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(
+                                      _formatDuration(duration),
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Container(
+                                height: 24,
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    LinearProgressIndicator(
+                                      value: bufferedValue,
+                                      backgroundColor: Colors.grey[800],
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.grey[600]!,
+                                      ),
+                                      minHeight: 3,
+                                    ),
+                                    Slider(
+                                      value: position.inSeconds.toDouble(),
+                                      min: 0,
+                                      max: duration.inSeconds.toDouble(),
+                                      onChanged:
+                                          (value) => provider.seek(
+                                            Duration(seconds: value.toInt()),
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
 

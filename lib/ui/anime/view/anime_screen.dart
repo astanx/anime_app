@@ -89,10 +89,10 @@ class AnimeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  anime.episodes[provider.episodeIndex].name,
+                  anime.episodes[provider.episodeIndex].name ?? '',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 16,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -241,8 +241,9 @@ class AnimeScreen extends StatelessWidget {
                                 Flexible(
                                   child: Text(
                                     anime
-                                        .episodes[provider.episodeIndex - 1]
-                                        .name,
+                                            .episodes[provider.episodeIndex - 1]
+                                            .name ??
+                                        'Previous episode',
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: 8,
@@ -280,8 +281,9 @@ class AnimeScreen extends StatelessWidget {
                                 Flexible(
                                   child: Text(
                                     anime
-                                        .episodes[provider.episodeIndex + 1]
-                                        .name,
+                                            .episodes[provider.episodeIndex + 1]
+                                            .name ??
+                                        'Next episode',
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: 8,

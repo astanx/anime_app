@@ -74,8 +74,10 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                                 _textController.text,
                               );
 
-                              _genreReleases = anime;
-                              setState(() {});
+                              Navigator.of(context).pushNamed(
+                                '/genre/releases',
+                                arguments: {'genreReleases': anime},
+                              );
                             },
                             icon: const Icon(Icons.search),
                           ),
