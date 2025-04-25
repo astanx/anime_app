@@ -100,7 +100,9 @@ class VideoControllerProvider extends ChangeNotifier {
       final timecode = Timecode(
         time: time.inSeconds,
         releaseEpisodeId: episodeId,
-        isWatched: true,
+        isWatched:
+            time >=
+            Duration(seconds: _anime!.episodes[_episodeIndex].duration - 360),
       );
 
       _timecodeProvider!.updateTimecode(timecode);
@@ -108,6 +110,9 @@ class VideoControllerProvider extends ChangeNotifier {
       final history = History(
         animeId: _anime!.release.id,
         lastWatchedEpisode: _episodeIndex,
+        isWatched:
+            time >=
+            Duration(seconds: _anime!.episodes[_episodeIndex].duration - 360),
       );
 
       HistoryStorage.updateHistory(history);

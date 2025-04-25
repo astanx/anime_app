@@ -11,7 +11,10 @@ class HistoryCard extends StatelessWidget {
       '/anime',
       arguments: {
         'anime': anime.anime,
-        'episodeIndex': anime.lastWatchedEpisode + 1,
+        'episodeIndex':
+            anime.isWatched
+                ? anime.lastWatchedEpisode + 1
+                : anime.lastWatchedEpisode,
       },
     );
   }
@@ -35,13 +38,6 @@ class HistoryCard extends StatelessWidget {
                   width: 80,
                   height: 100,
                   fit: BoxFit.cover,
-                  errorBuilder:
-                      (context, error, stackTrace) => Container(
-                        width: 80,
-                        height: 100,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.broken_image, size: 40),
-                      ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -67,7 +63,9 @@ class HistoryCard extends StatelessWidget {
                     if (anime.anime.episodes.length >
                         anime.lastWatchedEpisode + 1)
                       Text(
-                        'Continue with episode ${anime.lastWatchedEpisode + 2} →',
+                        anime.isWatched
+                            ? 'Continue with episode ${anime.lastWatchedEpisode + 2} →'
+                            : 'Continue watching episode ${anime.lastWatchedEpisode + 1}',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.blue,

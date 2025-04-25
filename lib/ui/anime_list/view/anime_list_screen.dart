@@ -74,7 +74,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
               : SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Column(
+                  child: ListView(
                     children: [
                       Row(
                         children: [
@@ -107,19 +107,19 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                       ),
                       const SizedBox(height: 20),
                       ReleasesCarousel(releases: _animeList!),
-                      Expanded(
-                        child: GridView.builder(
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: crossAxisCount,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 16,
-                              ),
-                          itemCount: _genres!.length,
-                          itemBuilder: (context, index) {
-                            return GenreCard(genre: _genres![index]);
-                          },
+                      const SizedBox(height: 20),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
                         ),
+                        itemCount: _genres!.length,
+                        itemBuilder: (context, index) {
+                          return GenreCard(genre: _genres![index]);
+                        },
                       ),
                     ],
                   ),

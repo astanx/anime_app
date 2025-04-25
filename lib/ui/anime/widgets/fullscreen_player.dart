@@ -246,6 +246,15 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                     ),
                                   ),
                                   onPressed: () {
+                                    provider.seek(
+                                      Duration(
+                                        seconds:
+                                            provider
+                                                .anime!
+                                                .episodes[provider.episodeIndex]
+                                                .duration,
+                                      ),
+                                    );
                                     provider.loadEpisode(
                                       anime,
                                       provider.episodeIndex + 1,

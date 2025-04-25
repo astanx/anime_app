@@ -89,7 +89,9 @@ class AnimeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  anime.episodes[provider.episodeIndex].name ?? '',
+                  anime.episodes[provider.episodeIndex].name != null
+                      ? 'Episode ${provider.episodeIndex + 1}: ${anime.episodes[provider.episodeIndex].name}'
+                      : 'Episode ${provider.episodeIndex + 1}',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 16,
