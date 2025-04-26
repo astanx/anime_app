@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class ReleasesCarousel extends StatelessWidget {
-  const ReleasesCarousel({super.key, required this.releases});
+  ReleasesCarousel({super.key, required this.releases});
   final List<AnimeRelease> releases;
+  final repository = AnimeRepository();
   @override
   Widget build(BuildContext context) {
     return CarouselSlider(
@@ -27,7 +28,7 @@ class ReleasesCarousel extends StatelessWidget {
                       '$baseUrl${anime.poster.optimized.src}',
                     ),
                     onTap: () async {
-                      final animeTitle = await AnimeRepository().getAnimeById(
+                      final animeTitle = await repository.getAnimeById(
                         anime.id,
                       );
                       Navigator.of(context).pushNamed(

@@ -17,6 +17,7 @@ class AnimeListScreen extends StatefulWidget {
 class _AnimeListScreenState extends State<AnimeListScreen> {
   List<AnimeRelease>? _animeList;
   List<Genre>? _genres;
+  final repository = AnimeRepository();
   final _textController = TextEditingController();
 
   @override
@@ -35,7 +36,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   }
 
   Future<void> _fetchAnime() async {
-    final animeList = await AnimeRepository().getReleases(20);
+    final animeList = await repository.getReleases(20);
 
     if (mounted) {
       setState(() {
@@ -45,7 +46,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   }
 
   Future<void> _fetchGenres() async {
-    final genres = await AnimeRepository().getGenres(8);
+    final genres = await repository.getGenres(8);
 
     if (mounted) {
       setState(() {

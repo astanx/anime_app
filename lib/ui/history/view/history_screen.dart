@@ -13,7 +13,7 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   List<AnimeWithHistory>? _historyList;
-
+  final repository = AnimeRepository();
   @override
   void initState() {
     super.initState();
@@ -25,7 +25,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     final futures =
         history.map((h) async {
-          final anime = await AnimeRepository().getAnimeById(h.animeId);
+          final anime = await repository.getAnimeById(h.animeId);
           return AnimeWithHistory.combineWithHistory(anime: anime, history: h);
         }).toList();
 

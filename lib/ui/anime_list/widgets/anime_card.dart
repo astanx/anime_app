@@ -4,9 +4,10 @@ import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:flutter/material.dart';
 
 class AnimeCard extends StatelessWidget {
-  const AnimeCard({super.key, required this.anime});
+  AnimeCard({super.key, required this.anime});
 
   final AnimeRelease anime;
+  final repository = AnimeRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +15,7 @@ class AnimeCard extends StatelessWidget {
 
     return InkWell(
       onTap: () async {
-        final animeTitle = await AnimeRepository().getAnimeById(anime.id);
+        final animeTitle = await repository.getAnimeById(anime.id);
         Navigator.of(
           context,
         ).pushNamed('/anime/episodes', arguments: {'anime': animeTitle});

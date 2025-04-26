@@ -11,6 +11,7 @@ class AnilibriaLoginScreen extends StatefulWidget {
 class _AnilibriaLoginScreenState extends State<AnilibriaLoginScreen> {
   final TextEditingController _loginController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final repository = UserRepository();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -62,7 +63,7 @@ class _AnilibriaLoginScreenState extends State<AnilibriaLoginScreen> {
                         final login = _loginController.text;
                         final password = _passwordController.text;
 
-                        final isLogined = await UserRepository().login(
+                        final isLogined = await repository.login(
                           login,
                           password,
                         );

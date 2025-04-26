@@ -28,6 +28,7 @@ class AnimeEpisodesScreen extends StatelessWidget {
       listen: false,
     );
     final isFavourite = favouritesProvider.isFavourite(anime.release.id);
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -38,10 +39,12 @@ class AnimeEpisodesScreen extends StatelessWidget {
                 anime.release.names.main,
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
+                style: theme.textTheme.titleLarge,
               ),
             ),
             IconButton(
               icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
+              color: isFavourite ? theme.colorScheme.secondary : null,
               tooltip: 'Favourite',
               onPressed: () {
                 favouritesProvider.toggleFavourite(anime);
@@ -61,9 +64,13 @@ class AnimeEpisodesScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Image.network(
-                      '$baseUrl${anime.release.poster.optimized.src}',
-                      fit: BoxFit.cover,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        '$baseUrl${anime.release.poster.optimized.src}',
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -75,13 +82,19 @@ class AnimeEpisodesScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 6),
-                    Text(
-                      anime.release.genres.map((g) => g.name).join(' • '),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children:
+                          anime.release.genres
+                              .map(
+                                (g) => Chip(
+                                  label: Text(g.name),
+                                  backgroundColor: theme.colorScheme.surface,
+                                  labelStyle: theme.textTheme.labelSmall,
+                                ),
+                              )
+                              .toList(),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -92,53 +105,107 @@ class AnimeEpisodesScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final franchise = await AnimeRepository()
-                            .getFranchiseById(anime.release.id);
-                        Navigator.of(context).pushNamed(
-                          '/anime/franchise',
-                          arguments: {'franchise': franchise},
-                        );
-                      },
-                      child: Text('View whole franchise'),
-                    ),
-                    const SizedBox(height: 12),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final uri = Uri.parse(
-                          '$baseUrl/api/v1/anime/torrents/${anime.torrents.first.id}/file',
-                        );
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(uri);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Could not launch URL'),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 30.0,
+                      children: [
+                        Column(
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: theme.colorScheme.primary,
+                                foregroundColor: theme.colorScheme.onPrimary,
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(16),
+                              ),
+                              onPressed: () async {
+                                final franchise = await AnimeRepository()
+                                    .getFranchiseById(anime.release.id);
+                                Navigator.of(context).pushNamed(
+                                  '/anime/franchise',
+                                  arguments: {'franchise': franchise},
+                                );
+                              },
+                              child: Icon(Icons.movie_filter_rounded, size: 28),
                             ),
-                          );
-                        }
-                      },
-                      child: const Text('Download via Torrent'),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Franchise',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: theme.colorScheme.secondary,
+                                foregroundColor: theme.colorScheme.onSecondary,
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(16),
+                              ),
+                              onPressed: () async {
+                                final uri = Uri.parse(
+                                  '$baseUrl/api/v1/anime/torrents/${anime.torrents.first.id}/file',
+                                );
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(uri);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text(
+                                        'Could not launch URL',
+                                      ),
+                                      backgroundColor: theme.colorScheme.error,
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Icon(Icons.download_rounded, size: 28),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Torrent',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 24),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: anime.episodes.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 3 / 1,
+                    Center(
+                      child: Text(
+                        'Episodes',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      itemBuilder: (context, index) {
-                        return EpisodeCard(
-                          anime: anime,
-                          episodeIndex: index,
-                          timecodeProvider: timecodeProvider,
-                        );
-                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: anime.episodes.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 3 / 1,
+                        ),
+                        itemBuilder: (context, index) {
+                          return EpisodeCard(
+                            anime: anime,
+                            episodeIndex: index,
+                            timecodeProvider: timecodeProvider,
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),

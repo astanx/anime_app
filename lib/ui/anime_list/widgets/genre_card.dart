@@ -4,15 +4,16 @@ import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:flutter/material.dart';
 
 class GenreCard extends StatelessWidget {
-  const GenreCard({super.key, required this.genre});
+  GenreCard({super.key, required this.genre});
 
   final Genre genre;
+  final repository = AnimeRepository();
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        final genreReleases = await AnimeRepository().getGenresReleases(
+        final genreReleases = await repository.getGenresReleases(
           genre.id,
           1,
           20,

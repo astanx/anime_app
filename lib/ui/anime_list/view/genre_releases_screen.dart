@@ -13,6 +13,7 @@ class GenreReleasesScreen extends StatefulWidget {
 
 class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
   List<AnimeRelease>? _genreReleases;
+  final repository = AnimeRepository();
 
   final _textController = TextEditingController();
 
@@ -70,7 +71,7 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                           const SizedBox(width: 10),
                           IconButton(
                             onPressed: () async {
-                              final anime = await AnimeRepository().searchAnime(
+                              final anime = await repository.searchAnime(
                                 _textController.text,
                               );
 
