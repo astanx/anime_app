@@ -131,7 +131,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () {
-                      setState(() => _showControls = !_showControls);
+                      setState(() => _showControls = true);
                       _startHideTimer();
                     },
                     onDoubleTapDown:
@@ -329,10 +329,12 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                       value: position.inSeconds.toDouble(),
                                       min: 0,
                                       max: duration.inSeconds.toDouble(),
-                                      onChanged:
-                                          (value) => provider.seek(
-                                            Duration(seconds: value.toInt()),
-                                          ),
+                                      onChanged: (value) {
+                                        provider.seek(
+                                          Duration(seconds: value.toInt()),
+                                        );
+                                        _startHideTimer();
+                                      },
                                     ),
                                   ],
                                 ),
@@ -355,18 +357,25 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                     ),
                   ),
 
-                if (_showControls)
-                  Center(
+                AnimatedOpacity(
+                  opacity: _showControls ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.replay_10, size: 40),
-                          color: Colors.white,
-                          onPressed:
-                              () => provider.seek(
+                        IgnorePointer(
+                          ignoring: !_showControls,
+                          child: IconButton(
+                            icon: const Icon(Icons.replay_10, size: 40),
+                            color: Colors.white,
+                            onPressed: () {
+                              provider.seek(
                                 position - const Duration(seconds: 10),
-                              ),
+                              );
+                              _startHideTimer();
+                            },
+                          ),
                         ),
                         const SizedBox(width: 48),
                         Container(
@@ -382,21 +391,33 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                               size: 44,
                             ),
                             color: Colors.white,
-                            onPressed: provider.togglePlayPause,
+                            onPressed: () {
+                              provider.togglePlayPause();
+                              setState(() {
+                                _showControls = true;
+                              });
+                              _startHideTimer();
+                            },
                           ),
                         ),
                         const SizedBox(width: 48),
-                        IconButton(
-                          icon: const Icon(Icons.forward_10, size: 40),
-                          color: Colors.white,
-                          onPressed:
-                              () => provider.seek(
+                        IgnorePointer(
+                          ignoring: !_showControls,
+                          child: IconButton(
+                            icon: const Icon(Icons.forward_10, size: 40),
+                            color: Colors.white,
+                            onPressed: () {
+                              provider.seek(
                                 position + const Duration(seconds: 10),
-                              ),
+                              );
+                              _startHideTimer();
+                            },
+                          ),
                         ),
                       ],
                     ),
                   ),
+                ),
               ],
             ),
           );
