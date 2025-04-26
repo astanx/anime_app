@@ -2,6 +2,7 @@ import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
+import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/ui/anime_episodes/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -89,6 +90,18 @@ class AnimeEpisodesScreen extends StatelessWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final franchise = await AnimeRepository()
+                            .getFranchiseById(anime.release.id);
+                        Navigator.of(context).pushNamed(
+                          '/anime/franchise',
+                          arguments: {'franchise': franchise},
+                        );
+                      },
+                      child: Text('View whole franchise'),
                     ),
                     const SizedBox(height: 12),
                     ElevatedButton(

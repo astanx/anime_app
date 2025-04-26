@@ -96,14 +96,14 @@ class AnimeRepository extends BaseRepository {
     }
   }
 
-  Future<List<Franchise>> getFranchiseById(String releaseId) async {
+  Future<Franchise> getFranchiseById(int releaseId) async {
     try {
       final response = await dio.get('anime/franchises/release/$releaseId');
       final data = response.data as List<dynamic>;
 
       log(data.toString());
 
-      final franchise = data.map((f) => Franchise.fromJson(f)).toList();
+      final franchise = Franchise.fromJson(data[0]);
 
       return franchise;
     } catch (e) {
