@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';

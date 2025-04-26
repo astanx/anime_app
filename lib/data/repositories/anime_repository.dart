@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/anime_release.dart';
+import 'package:anime_app/data/models/franchise.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
 
@@ -90,6 +91,21 @@ class AnimeRepository extends BaseRepository {
           releasesData.map((r) => AnimeRelease.fromJson(r)).toList();
 
       return releases;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Franchise>> getFranchiseById(String releaseId) async {
+    try {
+      final response = await dio.get('anime/franchises/release/$releaseId');
+      final data = response.data as List<dynamic>;
+
+      log(data.toString());
+
+      final franchise = data.map((f) => Franchise.fromJson(f)).toList();
+
+      return franchise;
     } catch (e) {
       rethrow;
     }
