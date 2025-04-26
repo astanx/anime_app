@@ -12,6 +12,7 @@ class VideoControllerProvider extends ChangeNotifier {
   int _episodeIndex = 0;
   Anime? _anime;
   TimecodeProvider? _timecodeProvider;
+  bool _isDisposing = false;
   Duration? openingStart;
   Duration? openingEnd;
   Duration? endingStart;
@@ -83,6 +84,7 @@ class VideoControllerProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposing = true;
     _saveTimecode();
     _controller?.removeListener(_notify);
     _controller?.dispose();
@@ -95,7 +97,7 @@ class VideoControllerProvider extends ChangeNotifier {
     }
 
     final time = _controller!.value.position;
-    if (time > Duration(seconds: 0)) {
+    if (time > Duration.zero) {
       final episodeId = _anime!.episodes[_episodeIndex].id;
       final timecode = Timecode(
         time: time.inSeconds,
@@ -105,7 +107,7 @@ class VideoControllerProvider extends ChangeNotifier {
             Duration(seconds: _anime!.episodes[_episodeIndex].duration - 360),
       );
 
-      _timecodeProvider!.updateTimecode(timecode);
+      _timecodeProvider!.updateTimecode(timecode, notify: !_isDisposing);
 
       final history = History(
         animeId: _anime!.release.id,

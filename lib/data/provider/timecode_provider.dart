@@ -30,7 +30,7 @@ class TimecodeProvider extends ChangeNotifier {
         .time;
   }
 
-  Future<void> updateTimecode(Timecode timecode) async {
+  Future<void> updateTimecode(Timecode timecode, {bool notify = true}) async {
     if (timecode.time > 0) {
       UserRepository().updateTimecode([timecode]);
       final index = _timecodes.indexWhere(
@@ -41,7 +41,9 @@ class TimecodeProvider extends ChangeNotifier {
       } else {
         _timecodes.add(timecode);
       }
-      notifyListeners();
+      if (notify) {
+        notifyListeners();
+      }
     }
   }
 

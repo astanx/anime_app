@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
@@ -23,15 +25,15 @@ class AnimeScreen extends StatelessWidget {
     final arguments =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final Anime anime = arguments['anime'] as Anime;
-    final int? episodeIndex = arguments['episodeIndex'] as int?;
+    final int episodeIndex = arguments['episodeIndex'] as int;
 
     final theme = Theme.of(context);
 
     return ChangeNotifierProvider(
       create: (context) {
         final provider = VideoControllerProvider();
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          provider.loadEpisode(anime, episodeIndex ?? 0, context);
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await provider.loadEpisode(anime, episodeIndex, context);
         });
         return provider;
       },
@@ -40,7 +42,7 @@ class AnimeScreen extends StatelessWidget {
         body: SafeArea(
           child: Consumer<VideoControllerProvider>(
             builder: (context, provider, _) {
-              return _buildBody(context, provider, anime, theme);
+              return _buildBody(context, provider, anime, episodeIndex, theme);
             },
           ),
         ),
@@ -52,6 +54,7 @@ class AnimeScreen extends StatelessWidget {
     BuildContext context,
     VideoControllerProvider provider,
     Anime anime,
+    int episodeIndex,
     ThemeData theme,
   ) {
     final controller = provider.controller;
@@ -89,9 +92,9 @@ class AnimeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  anime.episodes[provider.episodeIndex].name != null
-                      ? 'Episode ${provider.episodeIndex + 1}: ${anime.episodes[provider.episodeIndex].name}'
-                      : 'Episode ${provider.episodeIndex + 1}',
+                  anime.episodes[episodeIndex].name != null
+                      ? 'Episode ${episodeIndex + 1}: ${anime.episodes[episodeIndex].name}'
+                      : 'Episode ${episodeIndex + 1}',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 16,
@@ -219,7 +222,7 @@ class AnimeScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    if (provider.episodeIndex > 0)
+                    if (episodeIndex > 0)
                       SizedBox(
                         width: 150,
                         height: 50,
@@ -227,7 +230,7 @@ class AnimeScreen extends StatelessWidget {
                           onTap:
                               () => provider.loadEpisode(
                                 anime,
-                                provider.episodeIndex - 1,
+                                episodeIndex - 1,
                                 context,
                               ),
                           child: Container(
@@ -242,9 +245,7 @@ class AnimeScreen extends StatelessWidget {
                                 const Icon(Icons.skip_previous),
                                 Flexible(
                                   child: Text(
-                                    anime
-                                            .episodes[provider.episodeIndex - 1]
-                                            .name ??
+                                    anime.episodes[episodeIndex - 1].name ??
                                         'Previous episode',
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
@@ -260,7 +261,7 @@ class AnimeScreen extends StatelessWidget {
                       )
                     else
                       const SizedBox(width: 150, height: 50),
-                    if (provider.episodeIndex < anime.episodes.length - 1)
+                    if (episodeIndex < anime.episodes.length - 1)
                       SizedBox(
                         width: 150,
                         height: 50,
@@ -268,7 +269,7 @@ class AnimeScreen extends StatelessWidget {
                           onTap:
                               () => provider.loadEpisode(
                                 anime,
-                                provider.episodeIndex + 1,
+                                episodeIndex + 1,
                                 context,
                               ),
                           child: Container(
@@ -282,9 +283,7 @@ class AnimeScreen extends StatelessWidget {
                               children: [
                                 Flexible(
                                   child: Text(
-                                    anime
-                                            .episodes[provider.episodeIndex + 1]
-                                            .name ??
+                                    anime.episodes[episodeIndex + 1].name ??
                                         'Next episode',
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
