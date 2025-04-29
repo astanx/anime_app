@@ -40,7 +40,7 @@ class AnimeScreen extends StatelessWidget {
         body: SafeArea(
           child: Consumer<VideoControllerProvider>(
             builder: (context, provider, _) {
-              return _buildBody(context, provider, anime, episodeIndex, theme);
+              return _buildBody(context, provider, anime, theme);
             },
           ),
         ),
@@ -52,259 +52,281 @@ class AnimeScreen extends StatelessWidget {
     BuildContext context,
     VideoControllerProvider provider,
     Anime anime,
-    int episodeIndex,
     ThemeData theme,
   ) {
     final controller = provider.controller;
+    final episodeIndex = provider.episodeIndex;
     final position = controller?.value.position ?? Duration.zero;
     final duration = controller?.value.duration ?? Duration.zero;
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Card(
-          color: theme.cardTheme.color,
+    return episodeIndex == null
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                Image.network(
-                  '$baseUrl${anime.release.poster.optimized.src}',
-                  fit: BoxFit.cover,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  anime.release.names.main,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    anime.release.description,
-                    style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  anime.episodes[episodeIndex].name != null
-                      ? 'Episode ${episodeIndex + 1}: ${anime.episodes[episodeIndex].name}'
-                      : 'Episode ${episodeIndex + 1}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (controller?.value.isInitialized ?? false)
-                  AspectRatio(
-                    aspectRatio: controller!.value.aspectRatio,
-                    child: Stack(
-                      alignment: Alignment.center,
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              color: theme.cardTheme.color,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    Image.network(
+                      '$baseUrl${anime.release.poster.optimized.src}',
+                      fit: BoxFit.cover,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      anime.release.names.main,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        anime.release.description,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      anime.episodes[episodeIndex].name != null
+                          ? 'Episode ${episodeIndex + 1}: ${anime.episodes[episodeIndex].name}'
+                          : 'Episode ${episodeIndex + 1}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (controller?.value.isInitialized ?? false)
+                      AspectRatio(
+                        aspectRatio: controller!.value.aspectRatio,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            AspectRatio(
+                              aspectRatio: controller.value.aspectRatio,
+                              child: VideoPlayer(controller),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.replay_10,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed:
+                                              () => provider.seek(
+                                                position -
+                                                    Duration(seconds: 10),
+                                              ),
+                                        ),
+                                        IconButton(
+                                          icon: Icon(
+                                            controller.value.isPlaying
+                                                ? Icons.pause
+                                                : Icons.play_arrow,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed: provider.togglePlayPause,
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.forward_10,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed:
+                                              () => provider.seek(
+                                                position +
+                                                    Duration(seconds: 10),
+                                              ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.fullscreen,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed:
+                                              () => Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (_) => FullscreenPlayer(
+                                                        provider: provider,
+                                                        anime: anime,
+                                                      ),
+                                                ),
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          formatDuration(position),
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
+                                        Text(
+                                          formatDuration(duration),
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Slider(
+                                    value: position.inSeconds.toDouble(),
+                                    min: 0,
+                                    max: duration.inSeconds.toDouble(),
+                                    onChanged:
+                                        (value) => provider.seek(
+                                          Duration(seconds: value.toInt()),
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      const Center(child: CircularProgressIndicator()),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        AspectRatio(
-                          aspectRatio: controller.value.aspectRatio,
-                          child: VideoPlayer(controller),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Padding(
+                        if (episodeIndex > 0)
+                          SizedBox(
+                            width: 150,
+                            height: 50,
+                            child: InkWell(
+                              onTap:
+                                  () => {
+                                    provider.loadEpisode(
+                                      anime,
+                                      episodeIndex - 1,
+                                      context,
+                                    ),
+                                  },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.grey,
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0,
+                                  horizontal: 8,
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.replay_10,
-                                        color: Colors.white,
+                                    const Icon(Icons.skip_previous),
+                                    Flexible(
+                                      child: Text(
+                                        anime.episodes[episodeIndex - 1].name ??
+                                            'Previous episode',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 8,
+                                          fontWeight: FontWeight.w900,
+                                        ),
                                       ),
-                                      onPressed:
-                                          () => provider.seek(
-                                            position - Duration(seconds: 10),
-                                          ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        controller.value.isPlaying
-                                            ? Icons.pause
-                                            : Icons.play_arrow,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed: provider.togglePlayPause,
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.forward_10,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed:
-                                          () => provider.seek(
-                                            position + Duration(seconds: 10),
-                                          ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.fullscreen,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed:
-                                          () => Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (_) => FullscreenPlayer(
-                                                    provider: provider,
-                                                    anime: anime,
-                                                  ),
-                                            ),
-                                          ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Padding(
+                            ),
+                          )
+                        else
+                          const SizedBox(width: 150, height: 50),
+                        if (episodeIndex < anime.episodes.length - 1)
+                          SizedBox(
+                            width: 150,
+                            height: 50,
+                            child: InkWell(
+                              onTap:
+                                  () => {
+                                    provider.loadEpisode(
+                                      anime,
+                                      episodeIndex + 1,
+                                      context,
+                                    ),
+                                  },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.grey,
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0,
+                                  horizontal: 8,
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      formatDuration(position),
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w300,
+                                    Flexible(
+                                      child: Text(
+                                        anime.episodes[episodeIndex + 1].name ??
+                                            'Next episode',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 8,
+                                          fontWeight: FontWeight.w900,
+                                        ),
                                       ),
                                     ),
-                                    Text(
-                                      formatDuration(duration),
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w300,
-                                      ),
-                                    ),
+                                    const Icon(Icons.skip_next),
                                   ],
                                 ),
                               ),
-                              Slider(
-                                value: position.inSeconds.toDouble(),
-                                min: 0,
-                                max: duration.inSeconds.toDouble(),
-                                onChanged:
-                                    (value) => provider.seek(
-                                      Duration(seconds: value.toInt()),
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          )
+                        else
+                          const SizedBox(width: 150, height: 50),
                       ],
                     ),
-                  )
-                else
-                  const Center(child: CircularProgressIndicator()),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    if (episodeIndex > 0)
-                      SizedBox(
-                        width: 150,
-                        height: 50,
-                        child: InkWell(
-                          onTap:
-                              () => provider.loadEpisode(
-                                anime,
-                                episodeIndex - 1,
-                                context,
-                              ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey, width: 2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Icon(Icons.skip_previous),
-                                Flexible(
-                                  child: Text(
-                                    anime.episodes[episodeIndex - 1].name ??
-                                        'Previous episode',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 8,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      const SizedBox(width: 150, height: 50),
-                    if (episodeIndex < anime.episodes.length - 1)
-                      SizedBox(
-                        width: 150,
-                        height: 50,
-                        child: InkWell(
-                          onTap:
-                              () => provider.loadEpisode(
-                                anime,
-                                episodeIndex + 1,
-                                context,
-                              ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey, width: 2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    anime.episodes[episodeIndex + 1].name ??
-                                        'Next episode',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 8,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                ),
-                                const Icon(Icons.skip_next),
-                              ],
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      const SizedBox(width: 150, height: 50),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-    );
+        );
   }
 }

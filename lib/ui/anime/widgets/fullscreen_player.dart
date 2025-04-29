@@ -94,6 +94,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
       child: Consumer<VideoControllerProvider>(
         builder: (context, provider, _) {
           final controller = provider.controller;
+          final episodeIndex = provider.episodeIndex;
           final anime = widget.anime;
           final position = controller?.value.position ?? Duration.zero;
           final duration = controller?.value.duration ?? Duration.zero;
@@ -113,171 +114,81 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
 
           return Scaffold(
             backgroundColor: Colors.black,
-            body: Stack(
-              alignment: Alignment.center,
-              children: [
-                if (controller != null && controller.value.isInitialized)
-                  Center(
-                    child: AspectRatio(
-                      aspectRatio: controller.value.aspectRatio,
-                      child: VideoPlayer(controller),
-                    ),
-                  ),
-
-                if (controller == null || !controller.value.isInitialized)
-                  const Center(child: CircularProgressIndicator()),
-
-                Positioned.fill(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      setState(() => _showControls = true);
-                      _startHideTimer();
-                    },
-                    onDoubleTapDown:
-                        (details) => _handleDoubleTap(
-                          details.globalPosition.dx,
-                          provider,
-                        ),
-                  ),
-                ),
-
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: AnimatedOpacity(
-                    opacity: _showControls ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 300),
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.black54, Colors.transparent],
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                                size: 28,
-                              ),
-                              onPressed: () => Navigator.pop(context),
+            body:
+                episodeIndex == null
+                    ? const Center(child: CircularProgressIndicator())
+                    : Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (controller != null &&
+                            controller.value.isInitialized)
+                          Center(
+                            child: AspectRatio(
+                              aspectRatio: controller.value.aspectRatio,
+                              child: VideoPlayer(controller),
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                          ),
 
-                Positioned(
-                  bottom: 24,
-                  left: 16,
-                  right: 16,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            provider.openingStart != null &&
-                                    position >= provider.openingStart! &&
-                                    position <=
-                                        provider.openingStart! +
-                                            Duration(seconds: 20)
-                                ? TextButton(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: const Color.fromARGB(
-                                      179,
-                                      158,
-                                      158,
-                                      158,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 10,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    provider.seek(provider.openingEnd!);
-                                  },
-                                  child: const Text(
-                                    'Skip opening',
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                )
-                                : const SizedBox.shrink(),
-                            (provider.endingStart != null &&
-                                        provider.episodeIndex <
-                                            anime.episodes.length &&
-                                        position >= provider.endingStart! &&
-                                        position <=
-                                            provider.endingStart! +
-                                                Duration(seconds: 20)) ||
-                                    position == duration
-                                ? TextButton(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: const Color.fromARGB(
-                                      179,
-                                      158,
-                                      158,
-                                      158,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 10,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    provider.seek(
-                                      Duration(
-                                        seconds:
-                                            provider
-                                                .anime!
-                                                .episodes[provider.episodeIndex]
-                                                .duration,
+                        if (controller == null ||
+                            !controller.value.isInitialized)
+                          const Center(child: CircularProgressIndicator()),
+
+                        Positioned.fill(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              setState(() => _showControls = true);
+                              _startHideTimer();
+                            },
+                            onDoubleTapDown:
+                                (details) => _handleDoubleTap(
+                                  details.globalPosition.dx,
+                                  provider,
+                                ),
+                          ),
+                        ),
+
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: AnimatedOpacity(
+                            opacity: _showControls ? 1.0 : 0.0,
+                            duration: const Duration(milliseconds: 300),
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [Colors.black54, Colors.transparent],
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                  vertical: 8,
+                                ),
+                                child: Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 28,
                                       ),
-                                    );
-                                    provider.loadEpisode(
-                                      anime,
-                                      provider.episodeIndex + 1,
-                                      context,
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Next episode',
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                )
-                                : const SizedBox.shrink(),
-                          ],
+                                      onPressed: () => Navigator.pop(context),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
 
-                      const SizedBox(height: 12),
-
-                      AnimatedOpacity(
-                        opacity: _showControls ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 300),
-                        child: IgnorePointer(
-                          ignoring: !_showControls,
+                        Positioned(
+                          bottom: 24,
+                          left: 16,
+                          right: 16,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -289,137 +200,255 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      _formatDuration(position),
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Text(
-                                      _formatDuration(duration),
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                    provider.openingStart != null &&
+                                            position >=
+                                                provider.openingStart! &&
+                                            position <=
+                                                provider.openingStart! +
+                                                    Duration(seconds: 20)
+                                        ? TextButton(
+                                          style: TextButton.styleFrom(
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                  179,
+                                                  158,
+                                                  158,
+                                                  158,
+                                                ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 10,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            provider.seek(provider.openingEnd!);
+                                          },
+                                          child: const Text(
+                                            'Skip opening',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        )
+                                        : const SizedBox.shrink(),
+                                    (provider.endingStart != null &&
+                                                episodeIndex <
+                                                    anime.episodes.length &&
+                                                position >=
+                                                    provider.endingStart! &&
+                                                position <=
+                                                    provider.endingStart! +
+                                                        Duration(
+                                                          seconds: 20,
+                                                        )) ||
+                                            position == duration
+                                        ? TextButton(
+                                          style: TextButton.styleFrom(
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                  179,
+                                                  158,
+                                                  158,
+                                                  158,
+                                                ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 10,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            provider.seek(
+                                              Duration(
+                                                seconds:
+                                                    provider
+                                                        .anime!
+                                                        .episodes[episodeIndex]
+                                                        .duration,
+                                              ),
+                                            );
+                                            provider.loadEpisode(
+                                              anime,
+                                              episodeIndex + 1,
+                                              context,
+                                            );
+                                          },
+                                          child: const Text(
+                                            'Next episode',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        )
+                                        : const SizedBox.shrink(),
                                   ],
                                 ),
                               ),
+
                               const SizedBox(height: 12),
-                              Container(
-                                height: 24,
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    LinearProgressIndicator(
-                                      value: bufferedValue,
-                                      backgroundColor: Colors.grey[800],
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.grey[600]!,
+
+                              AnimatedOpacity(
+                                opacity: _showControls ? 1.0 : 0.0,
+                                duration: const Duration(milliseconds: 300),
+                                child: IgnorePointer(
+                                  ignoring: !_showControls,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16.0,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              _formatDuration(position),
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            Text(
+                                              _formatDuration(duration),
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                      minHeight: 3,
-                                    ),
-                                    Slider(
-                                      value: position.inSeconds.toDouble(),
-                                      min: 0,
-                                      max: duration.inSeconds.toDouble(),
-                                      onChanged: (value) {
-                                        provider.seek(
-                                          Duration(seconds: value.toInt()),
-                                        );
-                                        _startHideTimer();
-                                      },
-                                    ),
-                                  ],
+                                      const SizedBox(height: 12),
+                                      Container(
+                                        height: 24,
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                        ),
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            LinearProgressIndicator(
+                                              value: bufferedValue,
+                                              backgroundColor: Colors.grey[800],
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    Colors.grey[600]!,
+                                                  ),
+                                              minHeight: 3,
+                                            ),
+                                            Slider(
+                                              value:
+                                                  position.inSeconds.toDouble(),
+                                              min: 0,
+                                              max:
+                                                  duration.inSeconds.toDouble(),
+                                              onChanged: (value) {
+                                                provider.seek(
+                                                  Duration(
+                                                    seconds: value.toInt(),
+                                                  ),
+                                                );
+                                                _startHideTimer();
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              const SizedBox(height: 16),
                             ],
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
 
-                if (_showSeekIcon)
-                  Center(
-                    child: Icon(
-                      _seekIcon,
-                      color: Colors.white.withOpacity(0.8),
-                      size: 50,
-                    ),
-                  ),
-
-                AnimatedOpacity(
-                  opacity: _showControls ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IgnorePointer(
-                          ignoring: !_showControls,
-                          child: IconButton(
-                            icon: const Icon(Icons.replay_10, size: 40),
-                            color: Colors.white,
-                            onPressed: () {
-                              provider.seek(
-                                position - const Duration(seconds: 10),
-                              );
-                              _startHideTimer();
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 48),
-                        Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.black54,
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            icon: Icon(
-                              controller?.value.isPlaying ?? false
-                                  ? Icons.pause
-                                  : Icons.play_arrow,
-                              size: 44,
+                        if (_showSeekIcon)
+                          Center(
+                            child: Icon(
+                              _seekIcon,
+                              color: Colors.white.withOpacity(0.8),
+                              size: 50,
                             ),
-                            color: Colors.white,
-                            onPressed: () {
-                              provider.togglePlayPause();
-                              setState(() {
-                                _showControls = true;
-                              });
-                              _startHideTimer();
-                            },
                           ),
-                        ),
-                        const SizedBox(width: 48),
-                        IgnorePointer(
-                          ignoring: !_showControls,
-                          child: IconButton(
-                            icon: const Icon(Icons.forward_10, size: 40),
-                            color: Colors.white,
-                            onPressed: () {
-                              provider.seek(
-                                position + const Duration(seconds: 10),
-                              );
-                              _startHideTimer();
-                            },
+
+                        AnimatedOpacity(
+                          opacity: _showControls ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IgnorePointer(
+                                  ignoring: !_showControls,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.replay_10, size: 40),
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      provider.seek(
+                                        position - const Duration(seconds: 10),
+                                      );
+                                      _startHideTimer();
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 48),
+                                Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.black54,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: IconButton(
+                                    icon: Icon(
+                                      controller?.value.isPlaying ?? false
+                                          ? Icons.pause
+                                          : Icons.play_arrow,
+                                      size: 44,
+                                    ),
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      provider.togglePlayPause();
+                                      setState(() {
+                                        _showControls = true;
+                                      });
+                                      _startHideTimer();
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 48),
+                                IgnorePointer(
+                                  ignoring: !_showControls,
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Icons.forward_10,
+                                      size: 40,
+                                    ),
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      provider.seek(
+                                        position + const Duration(seconds: 10),
+                                      );
+                                      _startHideTimer();
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              ],
-            ),
           );
         },
       ),

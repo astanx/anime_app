@@ -9,7 +9,7 @@ import 'package:video_player/video_player.dart';
 
 class VideoControllerProvider extends ChangeNotifier {
   VideoPlayerController? _controller;
-  int _episodeIndex = 0;
+  int? _episodeIndex;
   Anime? _anime;
   TimecodeProvider? _timecodeProvider;
   bool _isDisposing = false;
@@ -19,7 +19,7 @@ class VideoControllerProvider extends ChangeNotifier {
   Duration? endingEnd;
 
   VideoPlayerController? get controller => _controller;
-  int get episodeIndex => _episodeIndex;
+  int? get episodeIndex => _episodeIndex;
   Anime? get anime => _anime;
 
   Future<void> loadEpisode(Anime anime, int index, BuildContext context) async {
@@ -92,29 +92,32 @@ class VideoControllerProvider extends ChangeNotifier {
   }
 
   void _saveTimecode() {
-    if (_controller == null || _anime == null || _timecodeProvider == null) {
+    if (_controller == null ||
+        _anime == null ||
+        _timecodeProvider == null ||
+        _episodeIndex == null) {
       return;
     }
 
     final time = _controller!.value.position;
     if (time > Duration.zero) {
-      final episodeId = _anime!.episodes[_episodeIndex].id;
+      final episodeId = _anime!.episodes[_episodeIndex!].id;
       final timecode = Timecode(
         time: time.inSeconds,
         releaseEpisodeId: episodeId,
         isWatched:
             time >=
-            Duration(seconds: _anime!.episodes[_episodeIndex].duration - 360),
+            Duration(seconds: _anime!.episodes[_episodeIndex!].duration - 360),
       );
 
       _timecodeProvider!.updateTimecode(timecode, notify: !_isDisposing);
 
       final history = History(
         animeId: _anime!.release.id,
-        lastWatchedEpisode: _episodeIndex,
+        lastWatchedEpisode: _episodeIndex!,
         isWatched:
             time >=
-            Duration(seconds: _anime!.episodes[_episodeIndex].duration - 360),
+            Duration(seconds: _anime!.episodes[_episodeIndex!].duration - 360),
       );
 
       HistoryStorage.updateHistory(history);
