@@ -235,17 +235,16 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                           ),
                                         )
                                         : const SizedBox.shrink(),
-                                    (provider.endingStart != null &&
-                                                episodeIndex <
-                                                    anime.episodes.length &&
-                                                position >=
-                                                    provider.endingStart! &&
-                                                position <=
-                                                    provider.endingStart! +
-                                                        Duration(
-                                                          seconds: 20,
-                                                        )) ||
-                                            position == duration
+                                    episodeIndex < anime.episodes.length &&
+                                            ((provider.endingStart != null &&
+                                                    position >=
+                                                        provider.endingStart! &&
+                                                    position <=
+                                                        provider.endingStart! +
+                                                            Duration(
+                                                              seconds: 20,
+                                                            )) ||
+                                                position == duration)
                                         ? TextButton(
                                           style: TextButton.styleFrom(
                                             backgroundColor:
