@@ -86,13 +86,26 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                                 labelText: 'Enter anime title',
                                 border: OutlineInputBorder(),
                               ),
+                              textInputAction: TextInputAction.search,
+                              onSubmitted: (value) async {
+                                if (value.trim().isEmpty) {
+                                  return;
+                                } else {
+                                  final anime = await AnimeRepository()
+                                      .searchAnime(value);
+                                  Navigator.of(context).pushNamed(
+                                    '/genre/releases',
+                                    arguments: {'genreReleases': anime},
+                                  );
+                                }
+                              },
                             ),
                           ),
                           const SizedBox(width: 10),
                           IconButton(
                             onPressed: () async {
-                              if (_textController.text == '') {
-                                _fetchAnime();
+                              if (_textController.text.trim().isEmpty) {
+                                return;
                               } else {
                                 final anime = await AnimeRepository()
                                     .searchAnime(_textController.text);

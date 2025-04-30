@@ -14,7 +14,6 @@ class GenreReleasesScreen extends StatefulWidget {
 class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
   List<AnimeRelease>? _genreReleases;
   final repository = AnimeRepository();
-
   final _textController = TextEditingController();
 
   @override
@@ -23,22 +22,34 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
     super.dispose();
   }
 
+  Future<void> _fetchAnime() async {
+    final animeList = await repository.getReleases(20);
+
+    if (mounted) {
+      setState(() {
+        _genreReleases = animeList;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final arguments =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+      final List<AnimeRelease> releases = arguments['genreReleases'];
+      setState(() {
+        _genreReleases = releases;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
-    final arguments =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final List<AnimeRelease> releases =
-        arguments['genreReleases'] as List<AnimeRelease>;
-    setState(() {
-      _genreReleases = releases;
-    });
     int crossAxisCount = 2;
     if (screenWidth >= 600) {
       crossAxisCount = 3;
@@ -66,24 +77,40 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                                 labelText: 'Enter anime title',
                                 border: OutlineInputBorder(),
                               ),
+                              textInputAction: TextInputAction.search,
+                              onSubmitted: (value) async {
+                                if (value.trim().isNotEmpty) {
+                                  final anime = await repository.searchAnime(
+                                    value,
+                                  );
+                                  setState(() {
+                                    _genreReleases = anime;
+                                  });
+                                } else {
+                                  _fetchAnime();
+                                }
+                              },
                             ),
                           ),
                           const SizedBox(width: 10),
                           IconButton(
                             onPressed: () async {
-                              final anime = await repository.searchAnime(
-                                _textController.text,
-                              );
-
-                              Navigator.of(context).pushNamed(
-                                '/genre/releases',
-                                arguments: {'genreReleases': anime},
-                              );
+                              if (_textController.text.trim().isNotEmpty) {
+                                final anime = await repository.searchAnime(
+                                  _textController.text,
+                                );
+                                setState(() {
+                                  _genreReleases = anime;
+                                });
+                              } else {
+                                _fetchAnime();
+                              }
                             },
                             icon: const Icon(Icons.search),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 16),
                       Expanded(
                         child: GridView.builder(
                           gridDelegate:

@@ -1,5 +1,7 @@
 import 'package:anime_app/data/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AnilibriaLoginScreen extends StatefulWidget {
   const AnilibriaLoginScreen({super.key});
@@ -74,6 +76,30 @@ class _AnilibriaLoginScreenState extends State<AnilibriaLoginScreen> {
                       }
                     },
                     child: const Text('Submit'),
+                  ),
+                  const SizedBox(height: 24),
+                  RichText(
+                    text: TextSpan(
+                      text: 'Dont have account? ',
+                      children: [
+                        TextSpan(
+                          text: 'Register',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer:
+                              TapGestureRecognizer()
+                                ..onTap = () {
+                                  launchUrl(
+                                    Uri.parse(
+                                      'https://anilibria.wtf/app/auth/login',
+                                    ),
+                                  );
+                                },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
