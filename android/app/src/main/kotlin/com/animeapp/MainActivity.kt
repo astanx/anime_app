@@ -1,4 +1,4 @@
-package com.example.anime_app
+package com.animeapp
 
 import io.flutter.embedding.android.FlutterActivity
 
