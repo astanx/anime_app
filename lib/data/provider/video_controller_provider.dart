@@ -23,6 +23,7 @@ class VideoControllerProvider extends ChangeNotifier {
   Anime? get anime => _anime;
 
   Future<void> loadEpisode(Anime anime, int index, BuildContext context) async {
+    _saveTimecode();
     _anime = anime;
     _episodeIndex = index;
     _timecodeProvider = Provider.of<TimecodeProvider>(context, listen: false);
