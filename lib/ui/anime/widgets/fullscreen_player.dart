@@ -25,6 +25,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
   bool _showSeekIcon = false;
   IconData _seekIcon = Icons.replay_10;
   Timer? _hideTimer;
+  Timer? _displayTimer;
 
   @override
   void initState() {
@@ -42,6 +43,13 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
     _hideTimer?.cancel();
     _hideTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) setState(() => _showControls = false);
+    });
+  }
+
+  void _startDisplayTimer() {
+    _displayTimer?.cancel();
+    _displayTimer = Timer(const Duration(seconds: 9), () {
+      WakelockPlus.disable();
     });
   }
 
@@ -418,6 +426,13 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                     color: Colors.white,
                                     onPressed: () {
                                       provider.togglePlayPause();
+                                      if (controller?.value.isPlaying ??
+                                          false) {
+                                        _displayTimer?.cancel();
+                                      } else {
+                                        _startDisplayTimer();
+                                      }
+
                                       setState(() {
                                         _showControls = true;
                                       });
