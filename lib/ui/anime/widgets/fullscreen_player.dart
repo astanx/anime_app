@@ -243,7 +243,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                           ),
                                         )
                                         : const SizedBox.shrink(),
-                                    episodeIndex < anime.episodes.length &&
+                                    episodeIndex < anime.episodes.length - 1 &&
                                             ((provider.endingStart != null &&
                                                     position >=
                                                         provider.endingStart! &&
