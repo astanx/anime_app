@@ -1,5 +1,7 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/collection.dart';
+import 'package:anime_app/data/provider/collections_provider.dart';
 import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
@@ -48,6 +50,14 @@ class AnimeEpisodesScreen extends StatelessWidget {
               tooltip: 'Favourite',
               onPressed: () {
                 favouritesProvider.toggleFavourite(anime);
+              },
+            ),
+
+            IconButton(
+              icon: const Icon(Icons.home),
+              tooltip: 'Home',
+              onPressed: () {
+                Navigator.of(context).pushNamed('/anime/list');
               },
             ),
           ],
@@ -137,7 +147,7 @@ class AnimeEpisodesScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 8),
                         Column(
                           children: [
                             ElevatedButton(
@@ -169,6 +179,126 @@ class AnimeEpisodesScreen extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               'Torrent',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(width: 8),
+                        Column(
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: theme.colorScheme.primary,
+                                foregroundColor: theme.colorScheme.onPrimary,
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(16),
+                              ),
+                              onPressed: () async {
+                                final provider =
+                                    Provider.of<CollectionsProvider>(
+                                      context,
+                                      listen: false,
+                                    );
+                                final currentType = provider.getCollectionType(
+                                  anime,
+                                );
+
+                                await showModalBottomSheet(
+                                  context: context,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(16),
+                                    ),
+                                  ),
+                                  builder: (context) {
+                                    return Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Padding(
+                                          padding: EdgeInsets.all(16.0),
+                                          child: Text(
+                                            'Select a collection',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                        ...CollectionType.values.map((type) {
+                                          return ListTile(
+                                            leading: Icon(switch (type) {
+                                              CollectionType.watched =>
+                                                Icons.check,
+                                              CollectionType.abandoned =>
+                                                Icons.close,
+                                              CollectionType.postponed =>
+                                                Icons.pause,
+                                              CollectionType.planned =>
+                                                Icons.calendar_month,
+                                              CollectionType.watching =>
+                                                Icons.play_arrow,
+                                            }),
+                                            title: Text(
+                                              type.name.toUpperCase(),
+                                            ),
+                                            selected: currentType == type,
+                                            onTap: () async {
+                                              if (currentType != null &&
+                                                  currentType != type) {
+                                                // Optional: remove from old collection if needed
+                                              }
+
+                                              if (currentType != type) {
+                                                await provider.addToCollection(
+                                                  type,
+                                                  anime,
+                                                );
+                                              }
+
+                                              Navigator.of(context).pop();
+                                            },
+                                          );
+                                        }),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: switch (Provider.of<CollectionsProvider>(
+                                context,
+                                listen: false,
+                              ).getCollectionType(anime)) {
+                                CollectionType.watched => Icon(
+                                  Icons.check,
+                                  size: 28,
+                                ),
+
+                                CollectionType.abandoned => Icon(
+                                  Icons.close,
+                                  size: 28,
+                                ),
+                                CollectionType.postponed => Icon(
+                                  Icons.pause,
+                                  size: 28,
+                                ),
+                                CollectionType.planned => Icon(
+                                  Icons.calendar_month,
+                                  size: 28,
+                                ),
+
+                                CollectionType.watching => Icon(
+                                  Icons.play_arrow,
+                                  size: 28,
+                                ),
+                                null => Icon(Icons.folder_open, size: 28),
+                              },
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Collection',
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: theme.colorScheme.onSurface,
                               ),

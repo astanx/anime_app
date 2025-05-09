@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/collection.dart';
 import 'package:anime_app/data/models/login.dart';
 import 'package:anime_app/data/models/timecode.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
@@ -123,6 +124,37 @@ class UserRepository extends BaseRepository {
         return;
       }
       throw Error();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Collection> getCollections(
+    CollectionType type,
+    int page,
+    int limit,
+  ) async {
+    try {
+      final response = await dio.get(
+        'accounts/users/me/collections/releases?type_of_collection=${type.asQueryParam}&page=$page&limit=$limit',
+      );
+      final data = response.data as Map<String, dynamic>;
+
+      final collection = Collection.fromJson(data);
+
+      return collection;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> addToCollection(CollectionType type, int releaseId) async {
+    try {
+      final body = [
+        {'type_of_collection': type.asQueryParam, 'release_id': releaseId},
+      ];
+      dio.post('accounts/users/me/collections', data: body);
+      return;
     } catch (e) {
       rethrow;
     }

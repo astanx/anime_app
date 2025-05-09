@@ -36,7 +36,28 @@ class AnimeScreen extends StatelessWidget {
         return provider;
       },
       child: Scaffold(
-        appBar: AppBar(title: Text(anime.release.names.main)),
+        appBar: AppBar(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  anime.release.names.main,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  style: theme.textTheme.titleLarge,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.home),
+                tooltip: 'Home',
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/anime/list');
+                },
+              ),
+            ],
+          ),
+        ),
         body: SafeArea(
           child: Consumer<VideoControllerProvider>(
             builder: (context, provider, _) {
