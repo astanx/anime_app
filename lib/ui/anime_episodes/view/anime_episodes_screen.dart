@@ -30,6 +30,10 @@ class AnimeEpisodesScreen extends StatelessWidget {
       listen: false,
     );
     final isFavourite = favouritesProvider.isFavourite(anime.release.id);
+    final collection = Provider.of<CollectionsProvider>(
+      context,
+      listen: false,
+    ).getCollectionType(anime);
 
     return Scaffold(
       appBar: AppBar(
@@ -246,11 +250,6 @@ class AnimeEpisodesScreen extends StatelessWidget {
                                             ),
                                             selected: currentType == type,
                                             onTap: () async {
-                                              if (currentType != null &&
-                                                  currentType != type) {
-                                                // Optional: remove from old collection if needed
-                                              }
-
                                               if (currentType != type) {
                                                 await provider.addToCollection(
                                                   type,
@@ -267,10 +266,7 @@ class AnimeEpisodesScreen extends StatelessWidget {
                                   },
                                 );
                               },
-                              child: switch (Provider.of<CollectionsProvider>(
-                                context,
-                                listen: false,
-                              ).getCollectionType(anime)) {
+                              child: switch (collection) {
                                 CollectionType.watched => Icon(
                                   Icons.check,
                                   size: 28,
@@ -298,7 +294,7 @@ class AnimeEpisodesScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Collection',
+                              collection?.name.toUpperCase() ?? 'Collection',
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: theme.colorScheme.onSurface,
                               ),

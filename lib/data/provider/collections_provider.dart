@@ -22,9 +22,7 @@ class CollectionsProvider extends ChangeNotifier {
 
   Future<void> addToCollection(CollectionType type, Anime anime) async {
     for (final entry in _collections.entries) {
-      if (entry.value.data.any((a) => a.release.id == anime.release.id)) {
-        entry.value.data.removeWhere((a) => a.release.id == anime.release.id);
-      }
+      entry.value.data.removeWhere((a) => a.release.id == anime.release.id);
     }
     await _repository.addToCollection(type, anime.release.id);
     if (_collections[type] == null) {
