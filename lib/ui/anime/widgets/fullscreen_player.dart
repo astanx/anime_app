@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:anime_app/data/models/anime.dart';
+import 'package:floating/floating.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -26,17 +28,26 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
   IconData _seekIcon = Icons.replay_10;
   Timer? _hideTimer;
   Timer? _displayTimer;
+  late Floating floating;
+  bool isPipAvailable = false;
 
   @override
   void initState() {
     super.initState();
     WakelockPlus.enable();
+    floating = Floating();
+    requestPip();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     _startHideTimer();
+  }
+
+  void requestPip() async {
+    isPipAvailable = await floating.isPipAvailable;
+    setState(() {});
   }
 
   void _startHideTimer() {
@@ -97,6 +108,18 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
 
   @override
   Widget build(BuildContext context) {
+    final rational = Rational.landscape();
+    final screenSize = MediaQuery.of(context).size;
+    final arguments = ImmediatePiP(
+      aspectRatio: rational,
+      sourceRectHint: Rectangle<int>(
+        0,
+        0,
+        screenSize.width.toInt(),
+        screenSize.height.toInt(),
+      ),
+    );
+
     return ChangeNotifierProvider.value(
       value: widget.provider,
       child: Consumer<VideoControllerProvider>(
@@ -136,11 +159,9 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                               child: VideoPlayer(controller),
                             ),
                           ),
-
                         if (controller == null ||
                             !controller.value.isInitialized)
                           const Center(child: CircularProgressIndicator()),
-
                         Positioned.fill(
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
@@ -155,7 +176,6 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                 ),
                           ),
                         ),
-
                         Positioned(
                           top: 0,
                           left: 0,
@@ -177,6 +197,8 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                   vertical: 8,
                                 ),
                                 child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     IconButton(
                                       icon: const Icon(
@@ -186,13 +208,30 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                       ),
                                       onPressed: () => Navigator.pop(context),
                                     ),
+                                    IconButton(
+                                      onPressed:
+                                          isPipAvailable
+                                              ? () async {
+                                                try {
+                                                  await floating.enable(
+                                                    arguments,
+                                                  );
+                                                } catch (e) {
+                                                  print('PiP Error: $e');
+                                                }
+                                              }
+                                              : null,
+                                      icon: const Icon(
+                                        Icons.picture_in_picture,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
                             ),
                           ),
                         ),
-
                         Positioned(
                           bottom: 24,
                           left: 16,
@@ -208,99 +247,92 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    provider.openingStart != null &&
-                                            position >=
-                                                provider.openingStart! &&
-                                            position <=
-                                                provider.openingStart! +
-                                                    Duration(seconds: 20)
-                                        ? TextButton(
-                                          style: TextButton.styleFrom(
-                                            backgroundColor:
-                                                const Color.fromARGB(
-                                                  179,
-                                                  158,
-                                                  158,
-                                                  158,
-                                                ),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 10,
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
+                                    if (provider.openingStart != null &&
+                                        position >= provider.openingStart! &&
+                                        position <=
+                                            provider.openingStart! +
+                                                const Duration(seconds: 20))
+                                      TextButton(
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: const Color.fromARGB(
+                                            179,
+                                            158,
+                                            158,
+                                            158,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 10,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
                                             ),
                                           ),
-                                          onPressed: () {
-                                            provider.seek(provider.openingEnd!);
-                                          },
-                                          child: const Text(
-                                            'Skip opening',
-                                            style: TextStyle(
-                                              color: Colors.black,
+                                        ),
+                                        onPressed: () {
+                                          provider.seek(provider.openingEnd!);
+                                        },
+                                        child: const Text(
+                                          'Skip opening',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                      )
+                                    else
+                                      const SizedBox.shrink(),
+                                    if (episodeIndex <
+                                            anime.episodes.length - 1 &&
+                                        ((provider.endingStart != null &&
+                                                position >=
+                                                    provider.endingStart! &&
+                                                position <=
+                                                    provider.endingStart! +
+                                                        const Duration(
+                                                          seconds: 20,
+                                                        )) ||
+                                            position == duration))
+                                      TextButton(
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: const Color.fromARGB(
+                                            179,
+                                            158,
+                                            158,
+                                            158,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 10,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
                                             ),
                                           ),
-                                        )
-                                        : const SizedBox.shrink(),
-                                    episodeIndex < anime.episodes.length - 1 &&
-                                            ((provider.endingStart != null &&
-                                                    position >=
-                                                        provider.endingStart! &&
-                                                    position <=
-                                                        provider.endingStart! +
-                                                            Duration(
-                                                              seconds: 20,
-                                                            )) ||
-                                                position == duration)
-                                        ? TextButton(
-                                          style: TextButton.styleFrom(
-                                            backgroundColor:
-                                                const Color.fromARGB(
-                                                  179,
-                                                  158,
-                                                  158,
-                                                  158,
-                                                ),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 10,
+                                        ),
+                                        onPressed: () {
+                                          provider.seek(
+                                            Duration(
+                                              seconds:
+                                                  anime
+                                                      .episodes[episodeIndex]
+                                                      .duration,
                                             ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                          ),
-                                          onPressed: () {
-                                            provider.seek(
-                                              Duration(
-                                                seconds:
-                                                    provider
-                                                        .anime!
-                                                        .episodes[episodeIndex]
-                                                        .duration,
-                                              ),
-                                            );
-                                            provider.loadEpisode(
-                                              anime,
-                                              episodeIndex + 1,
-                                              context,
-                                            );
-                                          },
-                                          child: const Text(
-                                            'Next episode',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        )
-                                        : const SizedBox.shrink(),
+                                          );
+                                          provider.loadEpisode(
+                                            anime,
+                                            episodeIndex + 1,
+                                            context,
+                                          );
+                                        },
+                                        child: const Text(
+                                          'Next episode',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ),
-
                               const SizedBox(height: 12),
-
                               AnimatedOpacity(
                                 opacity: _showControls ? 1.0 : 0.0,
                                 duration: const Duration(milliseconds: 300),
@@ -380,7 +412,6 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                             ],
                           ),
                         ),
-
                         if (_showSeekIcon)
                           Center(
                             child: Icon(
@@ -389,7 +420,6 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                               size: 50,
                             ),
                           ),
-
                         AnimatedOpacity(
                           opacity: _showControls ? 1.0 : 0.0,
                           duration: const Duration(milliseconds: 300),
@@ -432,10 +462,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                       } else {
                                         _startDisplayTimer();
                                       }
-
-                                      setState(() {
-                                        _showControls = true;
-                                      });
+                                      setState(() => _showControls = true);
                                       _startHideTimer();
                                     },
                                   ),
