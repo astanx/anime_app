@@ -1,12 +1,11 @@
 import 'dart:async';
-import 'dart:math';
-import 'package:anime_app/data/models/anime.dart';
-import 'package:floating/floating.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
 
 class FullscreenPlayer extends StatefulWidget {
@@ -28,26 +27,33 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
   IconData _seekIcon = Icons.replay_10;
   Timer? _hideTimer;
   Timer? _displayTimer;
-  late Floating floating;
   bool isPipAvailable = false;
+  static const pipChannel = MethodChannel('pip_channel');
 
   @override
   void initState() {
     super.initState();
     WakelockPlus.enable();
-    floating = Floating();
-    requestPip();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     _startHideTimer();
+    _checkPipAvailability();
   }
 
-  void requestPip() async {
-    isPipAvailable = await floating.isPipAvailable;
+  void _checkPipAvailability() {
+    isPipAvailable = Platform.isAndroid || Platform.isIOS;
     setState(() {});
+  }
+
+  Future<void> _enablePip() async {
+    try {
+      await pipChannel.invokeMethod('enablePip');
+    } on PlatformException catch (e) {
+      print("Failed to enable PiP: '${e.message}'.");
+    }
   }
 
   void _startHideTimer() {
@@ -108,18 +114,6 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    final rational = Rational.landscape();
-    final screenSize = MediaQuery.of(context).size;
-    final arguments = ImmediatePiP(
-      aspectRatio: rational,
-      sourceRectHint: Rectangle<int>(
-        0,
-        0,
-        screenSize.width.toInt(),
-        screenSize.height.toInt(),
-      ),
-    );
-
     return ChangeNotifierProvider.value(
       value: widget.provider,
       child: Consumer<VideoControllerProvider>(
@@ -210,17 +204,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                     ),
                                     IconButton(
                                       onPressed:
-                                          isPipAvailable
-                                              ? () async {
-                                                try {
-                                                  await floating.enable(
-                                                    arguments,
-                                                  );
-                                                } catch (e) {
-                                                  print('PiP Error: $e');
-                                                }
-                                              }
-                                              : null,
+                                          isPipAvailable ? _enablePip : null,
                                       icon: const Icon(
                                         Icons.picture_in_picture,
                                         color: Colors.white,
@@ -270,9 +254,10 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                             ),
                                           ),
                                         ),
-                                        onPressed: () {
-                                          provider.seek(provider.openingEnd!);
-                                        },
+                                        onPressed:
+                                            () => provider.seek(
+                                              provider.openingEnd!,
+                                            ),
                                         child: const Text(
                                           'Skip opening',
                                           style: TextStyle(color: Colors.black),

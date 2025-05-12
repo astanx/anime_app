@@ -47,7 +47,12 @@
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
+  <string>Main</string>
+  <key>UIBackgroundModes</key>
+  <array>
+    <string>audio</string>
+    <string>picture-in-picture</string>
+  </array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

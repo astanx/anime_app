@@ -17,7 +17,6 @@ dependencies:
   shared_preferences: ^2.5.3
   provider: ^6.1.4
   carousel_slider: ^5.0.0
-  floating: ^6.0.0
 
 dev_dependencies:
   flutter_test:

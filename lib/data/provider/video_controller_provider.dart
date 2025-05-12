@@ -37,7 +37,10 @@ class VideoControllerProvider extends ChangeNotifier {
     );
 
     await _controller?.dispose();
-    _controller = VideoPlayerController.networkUrl(videoUrl);
+    _controller = VideoPlayerController.networkUrl(
+      videoUrl,
+      videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true),
+    );
     await _controller!.initialize();
 
     if (timecode > 0) {
