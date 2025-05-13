@@ -136,7 +136,7 @@ class UserRepository extends BaseRepository {
   ) async {
     try {
       final response = await dio.get(
-        'accounts/users/me/collections/releases?type_of_collection=${type.asQueryParam}&page=$page&limit=$limit',
+        'accounts/users/me/collections/releases?type_of_collection=${type.name.toUpperCase()}&page=$page&limit=$limit',
       );
       final data = response.data as Map<String, dynamic>;
 
@@ -151,7 +151,10 @@ class UserRepository extends BaseRepository {
   Future<void> addToCollection(CollectionType type, int releaseId) async {
     try {
       final body = [
-        {'type_of_collection': type.name, 'release_id': releaseId},
+        {
+          'type_of_collection': type.name.toUpperCase(),
+          'release_id': releaseId,
+        },
       ];
       dio.post('accounts/users/me/collections', data: body);
       return;
