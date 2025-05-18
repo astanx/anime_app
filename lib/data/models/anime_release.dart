@@ -1,3 +1,5 @@
+import 'package:anime_app/data/models/kodik_result.dart';
+
 class AnimeRelease {
   final int id;
   final AnimeType type;
@@ -21,6 +23,8 @@ class AnimeRelease {
   final int averageDurationOfEpisode;
   final List<Genre> genres;
   final LatestEpisode latestEpisode;
+  final String? shikimoriId;
+  final KodikResult? kodikResult;
 
   AnimeRelease({
     required this.id,
@@ -45,6 +49,8 @@ class AnimeRelease {
     required this.averageDurationOfEpisode,
     required this.genres,
     required this.latestEpisode,
+    this.shikimoriId,
+    this.kodikResult,
   });
 
   factory AnimeRelease.fromJson(Map<String, dynamic> json) => AnimeRelease(
@@ -71,7 +77,92 @@ class AnimeRelease {
     genres:
         (json['genres'] as List? ?? []).map((e) => Genre.fromJson(e)).toList(),
     latestEpisode: LatestEpisode.fromJson(json['latest_episode'] ?? {}),
+    shikimoriId: null,
+    kodikResult: null,
   );
+
+  factory AnimeRelease.fromKodik(KodikResult kodik) => AnimeRelease(
+    id: -1,
+    type: AnimeType(value: '', description: ''),
+    year: kodik.year,
+    names: AnimeNames(
+      main: kodik.title,
+      english: kodik.titleOrig,
+      alternative: kodik.otherTitle,
+    ),
+    alias: '',
+    season: AnimeSeason(value: null, description: null),
+    poster: Poster(
+      src: kodik.screenshots?.first ?? '',
+      thumbnail: kodik.screenshots?.first ?? '',
+      optimized: PosterOptimized(
+        src: kodik.screenshots?.first ?? '',
+        thumbnail: kodik.screenshots?.first ?? '',
+      ),
+    ),
+    freshAt: DateTime.now(),
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
+    isOngoing: false,
+    ageRating: AgeRating(value: '', label: '', isAdult: false, description: ''),
+    publishDay: PublishDay(value: 0, description: ''),
+    description: '',
+    episodesTotal: kodik.type == 'anime-serial' ? 1 : 0,
+    isInProduction: false,
+    isBlockedByGeo: false,
+    isBlockedByCopyrights: false,
+    addedInUsersFavorites: 0,
+    averageDurationOfEpisode: 0,
+    genres: [],
+    latestEpisode: LatestEpisode(
+      id: '',
+      name: null,
+      ordinal: 0,
+      preview: EpisodePreview(
+        src: '',
+        thumbnail: '',
+        optimized: EpisodePreviewOptimized(src: '', thumbnail: ''),
+      ),
+      hls480: '',
+      hls720: '',
+      hls1080: '',
+      duration: 0,
+    ),
+    shikimoriId: kodik.shikimoriId,
+    kodikResult: kodik,
+  );
+
+  factory AnimeRelease.fromAnilibriaAndKodik(
+    AnimeRelease original,
+    KodikResult kodik,
+  ) {
+    return AnimeRelease(
+      id: original.id,
+      type: original.type,
+      year: original.year,
+      names: original.names,
+      alias: original.alias,
+      season: original.season,
+      poster: original.poster,
+      freshAt: original.freshAt,
+      createdAt: original.createdAt,
+      updatedAt: original.updatedAt,
+      isOngoing: original.isOngoing,
+      ageRating: original.ageRating,
+      publishDay: original.publishDay,
+      description: original.description,
+      episodesTotal: original.episodesTotal,
+      isInProduction: original.isInProduction,
+      isBlockedByGeo: original.isBlockedByGeo,
+      isBlockedByCopyrights: original.isBlockedByCopyrights,
+      addedInUsersFavorites: original.addedInUsersFavorites,
+      averageDurationOfEpisode: original.averageDurationOfEpisode,
+      genres: original.genres,
+      latestEpisode: original.latestEpisode,
+      shikimoriId: kodik.shikimoriId,
+      kodikResult: kodik,
+    );
+  }
 }
 
 class AnimeType {
