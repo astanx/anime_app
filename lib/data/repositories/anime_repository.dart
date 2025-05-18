@@ -8,6 +8,13 @@ import 'package:anime_app/data/services/dio_client.dart';
 
 class AnimeRepository extends BaseRepository {
   AnimeRepository() : super(DioClient().dio);
+  String _normalizeTitle(String? title) {
+    if (title == null) return '';
+    return title
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^\wа-яё]', caseSensitive: false), '')
+        .replaceAll(' ', '');
+  }
 
   Future<List<AnimeRelease>> searchAnime(String query) async {
     try {
@@ -26,23 +33,30 @@ class AnimeRepository extends BaseRepository {
       for (var release in anilibriaReleases) {
         final names =
             [
-              release.names.main,
-              release.names.english,
-            ].where((n) => n.isNotEmpty).toList();
-        if (release.names.alternative != null)
-          names.add(release.names.alternative!);
+                  release.names.main,
+                  release.names.english,
+                  release.names.alternative,
+                ]
+                .where((n) => n != null && n.isNotEmpty)
+                .map(_normalizeTitle)
+                .toList();
+
         KodikResult? matchedKodik;
-        for (var name in names) {
-          for (var k in kodikResults) {
-            if (k.title == name ||
-                k.titleOrig == name ||
-                k.otherTitle == name) {
-              matchedKodik = k;
-              break;
-            }
+        for (var k in kodikResults) {
+          final kodikTitles =
+              [
+                k.title,
+                k.titleOrig,
+                k.otherTitle,
+              ].where((t) => t.isNotEmpty).map(_normalizeTitle).toList();
+
+          final hasMatch = names.any((n) => kodikTitles.contains(n));
+          if (hasMatch) {
+            matchedKodik = k;
+            break;
           }
-          if (matchedKodik != null) break;
         }
+
         if (matchedKodik != null) {
           matchedReleases.add(
             AnimeRelease.fromAnilibriaAndKodik(release, matchedKodik),
@@ -72,13 +86,13 @@ class AnimeRepository extends BaseRepository {
           movieResults.map((m) => AnimeRelease.fromKodik(m)).toList();
 
       final seriesReleases =
-          seriesGroups.entries.map((entry) {
-            final representative = entry.value.first;
-            return AnimeRelease.fromKodik(representative);
-          }).toList();
+          seriesGroups.values
+              .map((group) => AnimeRelease.fromKodik(group.first))
+              .toList();
 
       return [...matchedReleases, ...movieReleases, ...seriesReleases];
     } catch (e) {
+      log('Error searching anime: $e');
       rethrow;
     }
   }
@@ -95,6 +109,7 @@ class AnimeRepository extends BaseRepository {
       final data = response.data['results'] as List<dynamic>;
       return data.map((json) => KodikResult.fromJson(json)).toList();
     } catch (e) {
+      log('Error searching Kodik: $e');
       rethrow;
     }
   }

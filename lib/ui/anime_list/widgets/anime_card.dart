@@ -18,9 +18,7 @@ class AnimeCard extends StatelessWidget {
       onTap: () async {
         try {
           if (anime.id == -1 && anime.kodikResult != null) {
-            // Kodik-only anime (movie or series)
             final kodikResult = anime.kodikResult!;
-            // Create a minimal Anime object for Kodik anime
             final kodikAnime = Anime(
               release: anime,
               episodes: [],
@@ -32,7 +30,6 @@ class AnimeCard extends StatelessWidget {
               arguments: {'anime': kodikAnime, 'kodikResult': kodikResult},
             );
           } else {
-            // Anilibria anime
             final animeTitle = await repository.getAnimeById(anime.id);
             Navigator.of(context).pushNamed(
               '/anime/episodes',
@@ -61,19 +58,13 @@ class AnimeCard extends StatelessWidget {
           child: Column(
             children: [
               Image.network(
-                anime.poster.optimized.src.isNotEmpty
-                    ? '$baseUrl${anime.poster.optimized.src}'
-                    : 'https://via.placeholder.com/150',
+                anime.poster.optimized.src.isNotEmpty &&
+                        anime.poster.optimized.src.startsWith('http')
+                    ? anime.poster.optimized.src
+                    : '$baseUrl${anime.poster.optimized.src}',
                 width: 150,
                 height: 200,
                 fit: BoxFit.cover,
-                errorBuilder:
-                    (context, error, stackTrace) => Image.network(
-                      'https://via.placeholder.com/150',
-                      width: 150,
-                      height: 200,
-                      fit: BoxFit.cover,
-                    ),
               ),
               const SizedBox(height: 8),
               Text(
@@ -112,28 +103,4 @@ class AnimeCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class Team {
-  final List<String> voice;
-  final List<String> translator;
-  final List<String> editing;
-  final List<String> decor;
-  final List<String> timing;
-
-  Team({
-    required this.voice,
-    required this.translator,
-    required this.editing,
-    required this.decor,
-    required this.timing,
-  });
-
-  factory Team.fromJson(Map<String, dynamic> json) => Team(
-    voice: List<String>.from(json['voice'] ?? []),
-    translator: List<String>.from(json['translator'] ?? []),
-    editing: List<String>.from(json['editing'] ?? []),
-    decor: List<String>.from(json['decor'] ?? []),
-    timing: List<String>.from(json['timing'] ?? []),
-  );
 }
