@@ -1,4 +1,6 @@
 import 'package:anime_app/data/models/anime_release.dart';
+import 'package:anime_app/data/models/collection.dart';
+import 'package:anime_app/data/provider/collections_provider.dart';
 import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
@@ -33,6 +35,12 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
     _fetchGenres();
     Provider.of<TimecodeProvider>(context, listen: false).fetchTimecodes();
     Provider.of<FavouritesProvider>(context, listen: false).fetchFavourites();
+    for (final type in CollectionType.values) {
+      Provider.of<CollectionsProvider>(
+        context,
+        listen: false,
+      ).fetchCollection(type, 1, 15);
+    }
   }
 
   Future<void> _fetchAnime() async {

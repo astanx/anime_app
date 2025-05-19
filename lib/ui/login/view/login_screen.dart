@@ -22,10 +22,6 @@ class LoginScreen extends StatelessWidget {
                     Navigator.of(context).pushNamed('/login/anilibria');
                   },
                 ),
-                SizedBox(height: 12),
-                _buildLoginButton('Continue without login', Icons.person, () {
-                  Navigator.of(context).pushNamed('/anime/list');
-                }),
               ],
             ),
           ),

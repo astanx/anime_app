@@ -17,23 +17,9 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await fetchCollection();
-    });
+    _collections =
+        Provider.of<CollectionsProvider>(context, listen: false).collections;
     super.initState();
-  }
-
-  Future<void> fetchCollection([CollectionType? type]) async {
-    type ??= _type;
-    await Provider.of<CollectionsProvider>(
-      context,
-      listen: false,
-    ).fetchCollection(type, 1, 15);
-
-    setState(() {
-      _collections =
-          Provider.of<CollectionsProvider>(context, listen: false).collections;
-    });
   }
 
   @override
@@ -68,7 +54,6 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                         Theme.of(context).colorScheme.primaryContainer,
                     onChanged: (CollectionType? newType) async {
                       if (newType != null) {
-                        await fetchCollection(newType);
                         setState(() {
                           _type = newType;
                         });

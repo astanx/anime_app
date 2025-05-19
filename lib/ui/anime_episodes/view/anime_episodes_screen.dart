@@ -62,18 +62,32 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
 
   String getIframeHtml(String url) {
     return '''
-    <html>
-      <head>
-        <style>
-          body { margin: 0; padding: 0; }
-          iframe { width: 100%; height: 100%; border: none; }
-        </style>
-      </head>
-      <body>
-        <iframe src="$url" allowfullscreen></iframe>
-      </body>
-    </html>
-    ''';
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      <style>
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+        iframe {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          border: none;
+        }
+      </style>
+    </head>
+    <body>
+      <iframe src="$url" allowfullscreen></iframe>
+    </body>
+  </html>
+  ''';
   }
 
   @override
