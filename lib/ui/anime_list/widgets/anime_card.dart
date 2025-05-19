@@ -86,17 +86,6 @@ class AnimeCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  anime.description.isNotEmpty
-                      ? anime.description
-                      : 'No description available',
-                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 3,
-                ),
-              ),
             ],
           ),
         ),

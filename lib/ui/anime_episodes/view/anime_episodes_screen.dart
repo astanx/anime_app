@@ -126,11 +126,12 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                 style: theme.textTheme.titleLarge,
               ),
             ),
-            IconButton(
-              icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
-              color: isFavourite ? theme.colorScheme.secondary : null,
-              onPressed: () => favouritesProvider.toggleFavourite(anime),
-            ),
+            if (anime.episodes.isNotEmpty)
+              IconButton(
+                icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
+                color: isFavourite ? theme.colorScheme.secondary : null,
+                onPressed: () => favouritesProvider.toggleFavourite(anime),
+              ),
             if (kodikResult != null && anime.episodes.isNotEmpty)
               IconButton(
                 icon: Icon(

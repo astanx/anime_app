@@ -118,7 +118,7 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                                 crossAxisCount: crossAxisCount,
                                 crossAxisSpacing: 16,
                                 mainAxisSpacing: 16,
-                                childAspectRatio: 2 / 5,
+                                childAspectRatio: 2 / 4,
                               ),
                           itemCount: _genreReleases!.length,
                           itemBuilder: (context, index) {
