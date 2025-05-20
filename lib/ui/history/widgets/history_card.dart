@@ -83,13 +83,19 @@ class HistoryCard extends StatelessWidget {
                                 ? 'Continue with episode ${anime.lastWatchedEpisode + 2} →'
                                 : 'Continue watching episode ${anime.lastWatchedEpisode + 1} →',
                             style: TextStyle(
-                              fontSize: anime.kodikResult != null ? 12 : 15,
+                              fontSize: anime.kodikResult != null ? 12 : 14,
                               color: Colors.blue,
                               fontWeight: FontWeight.w500,
                             ),
                           )
                         else
-                          const Text('There is no new episodes :('),
+                          const Text(
+                            'There is no new episodes :(',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                         if (anime.kodikResult != null)
                           IconButton(
                             onPressed: () => _openKodik(context),
