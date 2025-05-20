@@ -122,6 +122,7 @@ class VideoControllerProvider extends ChangeNotifier {
         isWatched:
             time >=
             Duration(seconds: _anime!.episodes[_episodeIndex!].duration - 360),
+        kodikResult: _anime!.release.kodikResult,
       );
 
       HistoryStorage.updateHistory(history);

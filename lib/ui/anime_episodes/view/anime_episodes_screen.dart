@@ -1,11 +1,13 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
+import 'package:anime_app/data/models/history.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/collections_provider.dart';
 import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/data/storage/history_storage.dart';
 import 'package:anime_app/ui/anime_episodes/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -90,6 +92,24 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
   ''';
   }
 
+  void _addToHistory(
+    BuildContext context,
+    Anime anime,
+    KodikResult? kodikResult,
+  ) {
+    final history = History(
+      animeId: anime.release.id,
+      lastWatchedEpisode: 0,
+      isWatched: false,
+      kodikResult: kodikResult,
+    );
+
+    HistoryStorage.updateHistory(history);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Added to history')));
+  }
+
   @override
   Widget build(BuildContext context) {
     final arguments =
@@ -114,6 +134,9 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       listen: false,
     ).getCollectionType(anime);
 
+    final bool isKodikOnly = anime.release.id == -1 && kodikResult != null;
+    final bool hasEpisodes = anime.episodes.isNotEmpty;
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -126,13 +149,16 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                 style: theme.textTheme.titleLarge,
               ),
             ),
-            if (anime.episodes.isNotEmpty)
+            if (hasEpisodes)
               IconButton(
-                icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
-                color: isFavourite ? theme.colorScheme.secondary : null,
+                icon: Icon(
+                  favouritesProvider.isFavourite(anime.release.id)
+                      ? Icons.star
+                      : Icons.star_outline,
+                ),
                 onPressed: () => favouritesProvider.toggleFavourite(anime),
               ),
-            if (kodikResult != null && anime.episodes.isNotEmpty)
+            if (kodikResult != null && hasEpisodes)
               IconButton(
                 icon: Icon(
                   _showKodikPlayer ? Icons.movie : Icons.play_circle_fill,
@@ -148,6 +174,11 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                     }
                   });
                 },
+              ),
+            if (isKodikOnly)
+              IconButton(
+                icon: const Icon(Icons.history_rounded),
+                onPressed: () => _addToHistory(context, anime, kodikResult),
               ),
             IconButton(
               icon: const Icon(Icons.home),

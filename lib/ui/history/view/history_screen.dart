@@ -30,6 +30,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         }).toList();
 
     final results = await Future.wait(futures);
+
     setState(() {
       _historyList = results.reversed.toList();
     });
