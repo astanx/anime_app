@@ -1,4 +1,5 @@
 import 'package:anime_app/data/models/anime_release.dart';
+import 'package:anime_app/data/models/kodik_result.dart';
 
 class Anime {
   final AnimeRelease release;
@@ -39,6 +40,16 @@ class Anime {
             ?.map((e) => LatestEpisode.fromJson(e))
             .toList() ??
         [],
+  );
+
+  factory Anime.fromKodik(KodikResult kodik) => Anime(
+    release: AnimeRelease.fromKodik(kodik),
+    notification: null,
+    externalPlayer: null,
+    members: [],
+    torrents: [],
+    sponsor: null,
+    episodes: [],
   );
 }
 

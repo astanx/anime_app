@@ -1,3 +1,4 @@
+import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/history.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/storage/history_storage.dart';
@@ -25,6 +26,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     final futures =
         history.map((h) async {
+          if (h.animeId == -1) {
+            return AnimeWithHistory.combineWithHistory(
+              anime: Anime.fromKodik(h.kodikResult!),
+              history: h,
+            );
+          }
           final anime = await repository.getAnimeById(h.animeId);
           return AnimeWithHistory.combineWithHistory(anime: anime, history: h);
         }).toList();
