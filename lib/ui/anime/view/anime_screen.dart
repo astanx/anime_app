@@ -1,5 +1,6 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
 import 'package:anime_app/ui/anime/widgets/fullscreen_player.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ class AnimeScreen extends StatelessWidget {
     final arguments =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final Anime anime = arguments['anime'] as Anime;
+    final KodikResult? kodikResult = arguments['kodikResult'] as KodikResult?;
     final int episodeIndex = arguments['episodeIndex'] as int;
 
     final theme = Theme.of(context);
@@ -31,7 +33,7 @@ class AnimeScreen extends StatelessWidget {
       create: (context) {
         final provider = VideoControllerProvider();
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          await provider.loadEpisode(anime, episodeIndex, context);
+          await provider.loadEpisode(anime, episodeIndex, context, kodikResult);
         });
         return provider;
       },
@@ -61,7 +63,7 @@ class AnimeScreen extends StatelessWidget {
         body: SafeArea(
           child: Consumer<VideoControllerProvider>(
             builder: (context, provider, _) {
-              return _buildBody(context, provider, anime, theme);
+              return _buildBody(context, provider, anime, theme, kodikResult);
             },
           ),
         ),
@@ -74,6 +76,7 @@ class AnimeScreen extends StatelessWidget {
     VideoControllerProvider provider,
     Anime anime,
     ThemeData theme,
+    KodikResult? kodikResult,
   ) {
     final controller = provider.controller;
     final episodeIndex = provider.episodeIndex;
@@ -194,6 +197,8 @@ class AnimeScreen extends StatelessWidget {
                                                       (_) => FullscreenPlayer(
                                                         provider: provider,
                                                         anime: anime,
+                                                        kodikResult:
+                                                            kodikResult,
                                                       ),
                                                 ),
                                               ),
@@ -258,6 +263,7 @@ class AnimeScreen extends StatelessWidget {
                                       anime,
                                       episodeIndex - 1,
                                       context,
+                                      kodikResult,
                                     ),
                                   },
                               child: Container(
@@ -305,6 +311,7 @@ class AnimeScreen extends StatelessWidget {
                                       anime,
                                       episodeIndex + 1,
                                       context,
+                                      kodikResult,
                                     ),
                                   },
                               child: Container(

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -13,9 +14,11 @@ class FullscreenPlayer extends StatefulWidget {
     super.key,
     required this.provider,
     required this.anime,
+    required this.kodikResult,
   });
   final VideoControllerProvider provider;
   final Anime anime;
+  final KodikResult? kodikResult;
 
   @override
   State<FullscreenPlayer> createState() => _FullscreenPlayerState();
@@ -121,6 +124,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
           final controller = provider.controller;
           final episodeIndex = provider.episodeIndex;
           final anime = widget.anime;
+          final kodikResult = widget.kodikResult;
           final position = controller?.value.position ?? Duration.zero;
           final duration = controller?.value.duration ?? Duration.zero;
           final buffered = controller?.value.buffered ?? [];
@@ -307,6 +311,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                             anime,
                                             episodeIndex + 1,
                                             context,
+                                            kodikResult,
                                           );
                                         },
                                         child: const Text(

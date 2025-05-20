@@ -33,4 +33,15 @@ class KodikResult {
     screenshots:
         (json['screenshots'] as List?)?.map((s) => s.toString()).toList(),
   );
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'type': type,
+    'link': link,
+    'title': title,
+    'title_orig': titleOrig,
+    'other_title': otherTitle,
+    'year': year,
+    'shikimori_id': shikimoriId,
+    'screenshots': screenshots,
+  };
 }

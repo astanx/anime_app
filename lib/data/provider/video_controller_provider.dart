@@ -1,5 +1,6 @@
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/history.dart';
+import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/models/timecode.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/storage/history_storage.dart';
@@ -11,6 +12,7 @@ class VideoControllerProvider extends ChangeNotifier {
   VideoPlayerController? _controller;
   int? _episodeIndex;
   Anime? _anime;
+  KodikResult? _kodikResult;
   TimecodeProvider? _timecodeProvider;
   bool _isDisposing = false;
   Duration? openingStart;
@@ -21,11 +23,18 @@ class VideoControllerProvider extends ChangeNotifier {
   VideoPlayerController? get controller => _controller;
   int? get episodeIndex => _episodeIndex;
   Anime? get anime => _anime;
+  KodikResult? get kodikResult => _kodikResult;
 
-  Future<void> loadEpisode(Anime anime, int index, BuildContext context) async {
+  Future<void> loadEpisode(
+    Anime anime,
+    int index,
+    BuildContext context,
+    KodikResult? kodikResult,
+  ) async {
     _saveTimecode();
     _anime = anime;
     _episodeIndex = index;
+    _kodikResult = kodikResult;
     _timecodeProvider = Provider.of<TimecodeProvider>(context, listen: false);
 
     await _timecodeProvider!.fetchTimecodes();
@@ -122,7 +131,7 @@ class VideoControllerProvider extends ChangeNotifier {
         isWatched:
             time >=
             Duration(seconds: _anime!.episodes[_episodeIndex!].duration - 360),
-        kodikResult: _anime!.release.kodikResult,
+        kodikResult: _kodikResult,
       );
 
       HistoryStorage.updateHistory(history);

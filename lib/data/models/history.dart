@@ -18,14 +18,17 @@ class History {
     'animeId': animeId,
     'lastWatchedEpisode': lastWatchedEpisode,
     'isWatched': isWatched,
-    'kodikResult': kodikResult,
+    'kodikResult': kodikResult?.toJson(),
   };
 
   factory History.fromJson(Map<String, dynamic> json) => History(
     animeId: json['animeId'] as int,
     lastWatchedEpisode: json['lastWatchedEpisode'] as int,
     isWatched: json['isWatched'] ?? false,
-    kodikResult: json['kodikResult'],
+    kodikResult:
+        json['kodikResult'] != null
+            ? KodikResult.fromJson(json['kodikResult'])
+            : null,
   );
 }
 

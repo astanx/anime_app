@@ -15,6 +15,7 @@ class HistoryCard extends StatelessWidget {
             anime.isWatched
                 ? anime.lastWatchedEpisode + 1
                 : anime.lastWatchedEpisode,
+        'kodikResult': anime.kodikResult,
       },
     );
   }
@@ -22,7 +23,11 @@ class HistoryCard extends StatelessWidget {
   void _openKodik(BuildContext context) {
     Navigator.of(context).pushNamed(
       '/anime/episodes',
-      arguments: {'anime': anime.anime, 'kodikResult': anime.kodikResult},
+      arguments: {
+        'anime': anime.anime,
+        'kodikResult': anime.kodikResult,
+        'showKodik': true,
+      },
     );
   }
 
@@ -83,7 +88,7 @@ class HistoryCard extends StatelessWidget {
                                 ? 'Continue with episode ${anime.lastWatchedEpisode + 2} →'
                                 : 'Continue watching episode ${anime.lastWatchedEpisode + 1} →',
                             style: TextStyle(
-                              fontSize: anime.kodikResult != null ? 12 : 14,
+                              fontSize: anime.kodikResult != null ? 12 : 15,
                               color: Colors.blue,
                               fontWeight: FontWeight.w500,
                             ),

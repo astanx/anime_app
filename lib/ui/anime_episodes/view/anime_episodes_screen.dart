@@ -1,13 +1,11 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
-import 'package:anime_app/data/models/history.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/collections_provider.dart';
 import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
-import 'package:anime_app/data/storage/history_storage.dart';
 import 'package:anime_app/ui/anime_episodes/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -52,7 +50,10 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
       final Anime anime = arguments['anime'] as Anime;
       final KodikResult? kodikResult = arguments['kodikResult'] as KodikResult?;
-      if (anime.release.id == -1 && kodikResult != null) {
+      final bool? showKodik = arguments['showKodik'] as bool?;
+
+      if ((anime.release.id == -1 && kodikResult != null) ||
+          ((showKodik ?? false) && kodikResult != null)) {
         setState(() {
           _showKodikPlayer = true;
           _kodikPlayerUrl = 'https:${kodikResult.link}';
@@ -92,24 +93,6 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
   ''';
   }
 
-  void _addToHistory(
-    BuildContext context,
-    Anime anime,
-    KodikResult? kodikResult,
-  ) {
-    final history = History(
-      animeId: anime.release.id,
-      lastWatchedEpisode: 0,
-      isWatched: false,
-      kodikResult: kodikResult,
-    );
-
-    HistoryStorage.updateHistory(history);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Added to history')));
-  }
-
   @override
   Widget build(BuildContext context) {
     final arguments =
@@ -134,9 +117,6 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       listen: false,
     ).getCollectionType(anime);
 
-    final bool isKodikOnly = anime.release.id == -1 && kodikResult != null;
-    final bool hasEpisodes = anime.episodes.isNotEmpty;
-
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -149,16 +129,13 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                 style: theme.textTheme.titleLarge,
               ),
             ),
-            if (hasEpisodes)
+            if (anime.episodes.isNotEmpty)
               IconButton(
-                icon: Icon(
-                  favouritesProvider.isFavourite(anime.release.id)
-                      ? Icons.star
-                      : Icons.star_outline,
-                ),
+                icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
+                color: isFavourite ? theme.colorScheme.secondary : null,
                 onPressed: () => favouritesProvider.toggleFavourite(anime),
               ),
-            if (kodikResult != null && hasEpisodes)
+            if (kodikResult != null && anime.episodes.isNotEmpty)
               IconButton(
                 icon: Icon(
                   _showKodikPlayer ? Icons.movie : Icons.play_circle_fill,
@@ -174,11 +151,6 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                     }
                   });
                 },
-              ),
-            if (isKodikOnly)
-              IconButton(
-                icon: const Icon(Icons.history_rounded),
-                onPressed: () => _addToHistory(context, anime, kodikResult),
               ),
             IconButton(
               icon: const Icon(Icons.home),
@@ -468,6 +440,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                     anime: anime,
                                     episodeIndex: index,
                                     timecodeProvider: timecodeProvider,
+                                    kodikResult: kodikResult,
                                   ),
                             )
                           else

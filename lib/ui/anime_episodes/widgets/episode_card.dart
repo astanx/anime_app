@@ -1,4 +1,5 @@
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:flutter/material.dart';
@@ -9,11 +10,13 @@ class EpisodeCard extends StatelessWidget {
     required this.anime,
     required this.episodeIndex,
     required this.timecodeProvider,
+    required this.kodikResult,
   });
 
   final Anime anime;
   final int episodeIndex;
   final TimecodeProvider timecodeProvider;
+  final KodikResult? kodikResult;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +29,11 @@ class EpisodeCard extends StatelessWidget {
         );
         Navigator.of(context).pushNamed(
           '/anime',
-          arguments: {'anime': animeTitle, 'episodeIndex': episodeIndex},
+          arguments: {
+            'anime': animeTitle,
+            'episodeIndex': episodeIndex,
+            'kodikResult': kodikResult,
+          },
         );
       },
       child: Card(
