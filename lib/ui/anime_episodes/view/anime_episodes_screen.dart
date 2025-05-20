@@ -1,11 +1,13 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
+import 'package:anime_app/data/models/history.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/collections_provider.dart';
 import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/data/storage/history_storage.dart';
 import 'package:anime_app/ui/anime_episodes/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -150,6 +152,20 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                       );
                     }
                   });
+                },
+              ),
+            if (kodikResult != null && anime.episodes.isEmpty)
+              IconButton(
+                icon: const Icon(Icons.history),
+                onPressed: () {
+                  final history = History(
+                    animeId: -1,
+                    lastWatchedEpisode: 0,
+                    isWatched: true,
+                    kodikResult: kodikResult,
+                  );
+
+                  HistoryStorage.updateHistory(history);
                 },
               ),
             IconButton(

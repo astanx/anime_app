@@ -38,7 +38,7 @@ final darkTheme = ThemeData(
     ),
     labelSmall: TextStyle(color: Colors.grey, fontSize: 12),
   ),
-  cardTheme: const CardTheme(
+  cardTheme: const CardThemeData(
     color: Color(0xFF1E1E1E),
     shadowColor: Colors.black54,
     elevation: 4,
