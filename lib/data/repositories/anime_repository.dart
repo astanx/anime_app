@@ -25,7 +25,8 @@ class AnimeRepository extends BaseRepository {
       final anilibriaReleases =
           anilibriaData.map((json) => AnimeRelease.fromJson(json)).toList();
 
-      final kodikResults = await searchKodik(query);
+      final kodikResultsRaw = await searchKodik(query);
+      final kodikResults = _deduplicateKodikByShikimori(kodikResultsRaw);
 
       final matchedReleases = <AnimeRelease>[];
       final matchedKodikIds = <String>{};
@@ -199,5 +200,18 @@ class AnimeRepository extends BaseRepository {
     } catch (e) {
       rethrow;
     }
+  }
+
+  List<KodikResult> _deduplicateKodikByShikimori(List<KodikResult> results) {
+    final uniqueByShikimori = <String, KodikResult>{};
+
+    for (var result in results) {
+      final id = result.shikimoriId;
+      if (id != null && !uniqueByShikimori.containsKey(id)) {
+        uniqueByShikimori[id] = result;
+      }
+    }
+
+    return uniqueByShikimori.values.toList();
   }
 }

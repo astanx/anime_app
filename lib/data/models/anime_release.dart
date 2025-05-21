@@ -319,6 +319,7 @@ class LatestEpisode {
   final int duration;
   final Opening? opening;
   final Ending? ending;
+  final String? nameEnglish;
 
   LatestEpisode({
     required this.id,
@@ -331,11 +332,13 @@ class LatestEpisode {
     required this.duration,
     this.opening,
     this.ending,
+    this.nameEnglish,
   });
 
   factory LatestEpisode.fromJson(Map<String, dynamic> json) => LatestEpisode(
     id: json['id'] ?? '',
     name: json['name'],
+    nameEnglish: json['name_english'],
     ordinal: json['ordinal'] ?? 0,
     preview: EpisodePreview.fromJson(json['preview'] ?? {}),
     hls480: json['hls_480'] ?? '',
