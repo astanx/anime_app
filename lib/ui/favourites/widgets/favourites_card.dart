@@ -11,9 +11,13 @@ class FavouritesCard extends StatelessWidget {
     return GestureDetector(
       onTap:
           () => {
-            Navigator.of(
-              context,
-            ).pushNamed('/anime/episodes', arguments: {'anime': anime}),
+            Navigator.of(context).pushNamed(
+              '/anime/episodes',
+              arguments: {
+                'anime': anime,
+                'kodikResult': anime.release.kodikResult,
+              },
+            ),
           },
       child: Card(
         elevation: 4,
@@ -26,7 +30,10 @@ class FavouritesCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
-                  '$baseUrl${anime.release.poster.optimized.src}',
+                  anime.release.poster.optimized.src.isNotEmpty &&
+                          anime.release.poster.optimized.src.startsWith('http')
+                      ? anime.release.poster.optimized.src
+                      : '$baseUrl${anime.release.poster.optimized.src}',
                   width: 80,
                   height: 100,
                   fit: BoxFit.cover,

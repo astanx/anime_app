@@ -1,4 +1,6 @@
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:flutter/material.dart';
 import 'package:anime_app/data/repositories/user_repository.dart';
 
@@ -21,8 +23,8 @@ class FavouritesProvider extends ChangeNotifier {
     return _favourites.any((anime) => anime.release.id == animeId);
   }
 
-  Future<void> addToFavourites(Anime anime) async {
-    await _repository.addToFavourite(anime.release.id);
+  Future<void> addToFavourites(Anime anime, [int? id]) async {
+    await _repository.addToFavourite(id ?? anime.release.id);
     _favourites.add(anime);
     notifyListeners();
   }
@@ -38,6 +40,15 @@ class FavouritesProvider extends ChangeNotifier {
       await removeFromFavourites(anime.release.id);
     } else {
       await addToFavourites(anime);
+    }
+  }
+
+  Future<void> toggleKodikFavourite(KodikResult kodikResult) async {
+    final id = int.parse('$kodikIdPattern${kodikResult.shikimoriId}');
+    if (isFavourite(id)) {
+      await removeFromFavourites(id);
+    } else {
+      await addToFavourites(Anime.fromKodik(kodikResult), id);
     }
   }
 }

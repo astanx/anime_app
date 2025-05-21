@@ -131,12 +131,17 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                 style: theme.textTheme.titleLarge,
               ),
             ),
-            if (anime.episodes.isNotEmpty)
-              IconButton(
-                icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
-                color: isFavourite ? theme.colorScheme.secondary : null,
-                onPressed: () => favouritesProvider.toggleFavourite(anime),
-              ),
+            IconButton(
+              icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
+              color: isFavourite ? theme.colorScheme.secondary : null,
+              onPressed:
+                  () =>
+                      anime.episodes.isNotEmpty
+                          ? favouritesProvider.toggleFavourite(anime)
+                          : favouritesProvider.toggleKodikFavourite(
+                            kodikResult!,
+                          ),
+            ),
             if (kodikResult != null && anime.episodes.isNotEmpty)
               IconButton(
                 icon: Icon(
@@ -235,11 +240,11 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    if (anime.release.id != -1)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: 30.0,
-                        children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 30.0,
+                      children: [
+                        if (anime.release.id != -1)
                           Column(
                             children: [
                               ElevatedButton(
@@ -270,7 +275,9 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(width: 8),
+                        const SizedBox(width: 8),
+
+                        if (anime.release.id != -1)
                           Column(
                             children: [
                               ElevatedButton(
@@ -311,111 +318,107 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(width: 8),
-                          Column(
-                            children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: theme.colorScheme.primary,
-                                  foregroundColor: theme.colorScheme.onPrimary,
-                                  shape: const CircleBorder(),
-                                  padding: const EdgeInsets.all(16),
-                                ),
-                                onPressed: () async {
-                                  final provider =
-                                      Provider.of<CollectionsProvider>(
-                                        context,
-                                        listen: false,
-                                      );
-                                  final currentType = provider
-                                      .getCollectionType(anime);
-                                  await showModalBottomSheet(
-                                    context: context,
-                                    builder:
-                                        (context) => Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children:
-                                              CollectionType.values
-                                                  .map(
-                                                    (type) => ListTile(
-                                                      leading: Icon(
-                                                        switch (type) {
-                                                          CollectionType
-                                                              .watched =>
-                                                            Icons.check,
-                                                          CollectionType
-                                                              .abandoned =>
-                                                            Icons.close,
-                                                          CollectionType
-                                                              .postponed =>
-                                                            Icons.pause,
-                                                          CollectionType
-                                                              .planned =>
-                                                            Icons
-                                                                .calendar_month,
-                                                          CollectionType
-                                                              .watching =>
-                                                            Icons.play_arrow,
-                                                        },
-                                                      ),
-                                                      title: Text(
-                                                        type.name.toUpperCase(),
-                                                      ),
-                                                      selected:
-                                                          currentType == type,
-                                                      onTap: () async {
-                                                        if (currentType !=
-                                                            type) {
-                                                          await provider
-                                                              .addToCollection(
-                                                                type,
-                                                                anime,
-                                                              );
-                                                        }
-                                                        Navigator.pop(context);
+                        const SizedBox(width: 8),
+                        Column(
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: theme.colorScheme.primary,
+                                foregroundColor: theme.colorScheme.onPrimary,
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(16),
+                              ),
+                              onPressed: () async {
+                                final provider =
+                                    Provider.of<CollectionsProvider>(
+                                      context,
+                                      listen: false,
+                                    );
+                                final currentType = provider.getCollectionType(
+                                  anime,
+                                );
+                                await showModalBottomSheet(
+                                  context: context,
+                                  builder:
+                                      (context) => Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children:
+                                            CollectionType.values
+                                                .map(
+                                                  (type) => ListTile(
+                                                    leading: Icon(
+                                                      switch (type) {
+                                                        CollectionType
+                                                            .watched =>
+                                                          Icons.check,
+                                                        CollectionType
+                                                            .abandoned =>
+                                                          Icons.close,
+                                                        CollectionType
+                                                            .postponed =>
+                                                          Icons.pause,
+                                                        CollectionType
+                                                            .planned =>
+                                                          Icons.calendar_month,
+                                                        CollectionType
+                                                            .watching =>
+                                                          Icons.play_arrow,
                                                       },
                                                     ),
-                                                  )
-                                                  .toList(),
-                                        ),
-                                  );
-                                },
-                                child: switch (collection) {
-                                  CollectionType.watched => const Icon(
-                                    Icons.check,
-                                    size: 28,
-                                  ),
-                                  CollectionType.abandoned => const Icon(
-                                    Icons.close,
-                                    size: 28,
-                                  ),
-                                  CollectionType.postponed => const Icon(
-                                    Icons.pause,
-                                    size: 28,
-                                  ),
-                                  CollectionType.planned => const Icon(
-                                    Icons.calendar_month,
-                                    size: 28,
-                                  ),
-                                  CollectionType.watching => const Icon(
-                                    Icons.play_arrow,
-                                    size: 28,
-                                  ),
-                                  null => const Icon(
-                                    Icons.folder_open,
-                                    size: 28,
-                                  ),
-                                },
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                collection?.name.toUpperCase() ?? 'Collection',
-                                style: theme.textTheme.labelSmall,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                                                    title: Text(
+                                                      type.name.toUpperCase(),
+                                                    ),
+                                                    selected:
+                                                        currentType == type,
+                                                    onTap: () async {
+                                                      if (currentType != type) {
+                                                        await provider
+                                                            .addToCollection(
+                                                              type,
+                                                              anime,
+                                                            );
+                                                      }
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                )
+                                                .toList(),
+                                      ),
+                                );
+                              },
+                              child: switch (collection) {
+                                CollectionType.watched => const Icon(
+                                  Icons.check,
+                                  size: 28,
+                                ),
+                                CollectionType.abandoned => const Icon(
+                                  Icons.close,
+                                  size: 28,
+                                ),
+                                CollectionType.postponed => const Icon(
+                                  Icons.pause,
+                                  size: 28,
+                                ),
+                                CollectionType.planned => const Icon(
+                                  Icons.calendar_month,
+                                  size: 28,
+                                ),
+                                CollectionType.watching => const Icon(
+                                  Icons.play_arrow,
+                                  size: 28,
+                                ),
+                                null => const Icon(Icons.folder_open, size: 28),
+                              },
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              collection?.name.toUpperCase() ?? 'Collection',
+                              style: theme.textTheme.labelSmall,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 24),
                     if (_showKodikPlayer && _kodikPlayerUrl != null)
                       Column(

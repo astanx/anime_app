@@ -115,6 +115,23 @@ class AnimeRepository extends BaseRepository {
     }
   }
 
+  Future<List<KodikResult>> getAnimeByKodikId(int id) async {
+    try {
+      final response = await dio.get(
+        'https://kodikapi.com/search',
+        queryParameters: {
+          'token': '447d179e875efe44217f20d1ee2146be',
+          'shikimori_id': id,
+        },
+      );
+      final data = response.data['results'] as List<dynamic>;
+      return data.map((json) => KodikResult.fromJson(json)).toList();
+    } catch (e) {
+      log('Error searching Kodik: $e');
+      rethrow;
+    }
+  }
+
   Future<Anime> getAnimeById(int id) async {
     try {
       final response = await dio.get('anime/releases/$id');

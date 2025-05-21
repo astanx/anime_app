@@ -53,6 +53,17 @@ class Pagination {
   );
 }
 
+class CollectionId {
+  final int id;
+  final String status;
+
+  CollectionId({required this.id, required this.status});
+
+  factory CollectionId.fromList(List<dynamic> list) {
+    return CollectionId(id: list[0] as int, status: list[1] as String);
+  }
+}
+
 enum CollectionType {
   planned,
   watched,

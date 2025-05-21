@@ -1,14 +1,17 @@
 import 'dart:developer';
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
 import 'package:anime_app/data/models/login.dart';
 import 'package:anime_app/data/models/timecode.dart';
+import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
 import 'package:anime_app/data/storage/token_storage.dart';
 
 class UserRepository extends BaseRepository {
   UserRepository() : super(DioClient().dio);
+  final repository = AnimeRepository();
 
   Future<bool> login(String login, String password) async {
     try {
@@ -96,16 +99,39 @@ class UserRepository extends BaseRepository {
 
   Future<List<Anime>> getFavourites() async {
     try {
-      final response = await dio.get('accounts/users/me/favorites/releases');
-      final data = response.data as Map<String, dynamic>;
-      final favouritesData = data['data'] as List<dynamic>;
+      final favourites = await getFavourites();
+      final favouriteIds = favourites.map((a) => a.release.id).toSet();
 
-      final favourites =
-          favouritesData
-              .map((f) => Anime.fromJson(f as Map<String, dynamic>))
+      final kodikCollections = await getKodikCollectionIds();
+
+      final missingKodikIds =
+          kodikCollections
+              .where((c) => !favouriteIds.contains(c.id))
+              .map((c) => c.id)
               .toList();
 
-      return favourites;
+      final kodikAnimes = <Anime>[];
+
+      for (final fullId in missingKodikIds) {
+        final fullIdStr = fullId.toString();
+        final patternStr = kodikIdPattern.toString();
+
+        if (fullIdStr.startsWith(patternStr)) {
+          final kodikResultIdStr = fullIdStr.substring(patternStr.length);
+          final kodikResultId = int.parse(kodikResultIdStr);
+
+          final kodikResults = await repository.getAnimeByKodikId(
+            kodikResultId,
+          );
+
+          if (kodikResults.isNotEmpty) {
+            final anime = Anime.fromKodik(kodikResults.first);
+            kodikAnimes.add(anime);
+          }
+        }
+      }
+
+      return [...favourites, ...kodikAnimes];
     } catch (e) {
       rethrow;
     }
@@ -155,6 +181,23 @@ class UserRepository extends BaseRepository {
       ];
       dio.post('accounts/users/me/collections', data: body);
       return;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<CollectionId>> getKodikCollectionIds() async {
+    try {
+      final response = await dio.get('accounts/users/me/collections/ids');
+      final data = response.data as List<dynamic>;
+
+      final collection =
+          data
+              .map((entry) => CollectionId.fromList(entry as List<dynamic>))
+              .where((c) => c.id.toString().startsWith(kodikIdPattern))
+              .toList();
+
+      return collection;
     } catch (e) {
       rethrow;
     }
