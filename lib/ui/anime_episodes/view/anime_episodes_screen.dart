@@ -198,7 +198,11 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                   'http',
                                 )
                             ? anime.release.poster.optimized.src
-                            : '$baseUrl${anime.release.poster.optimized.src}',
+                            : anime.release.poster.optimized.src.startsWith(
+                              '/storage',
+                            )
+                            ? '$baseUrl${anime.release.poster.optimized.src}'
+                            : 'https://shikimori.one/${anime.release.poster.optimized.src}',
                         fit: BoxFit.cover,
                         width: double.infinity,
                       ),

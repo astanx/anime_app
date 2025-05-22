@@ -13,7 +13,6 @@ class AnimeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return InkWell(
       onTap: () async {
         try {
@@ -61,7 +60,9 @@ class AnimeCard extends StatelessWidget {
                 anime.poster.optimized.src.isNotEmpty &&
                         anime.poster.optimized.src.startsWith('http')
                     ? anime.poster.optimized.src
-                    : '$baseUrl${anime.poster.optimized.src}',
+                    : anime.poster.optimized.src.startsWith('/storage')
+                    ? '$baseUrl${anime.poster.optimized.src}'
+                    : 'https://shikimori.one/${anime.poster.optimized.src}',
                 width: 150,
                 height: 200,
                 fit: BoxFit.cover,

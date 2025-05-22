@@ -1,4 +1,5 @@
 import 'package:anime_app/data/models/kodik_result.dart';
+import 'package:anime_app/data/models/shikimori_anime.dart';
 
 class AnimeRelease {
   final int id;
@@ -162,6 +163,129 @@ class AnimeRelease {
       shikimoriId: kodik.shikimoriId,
       kodikResult: kodik,
     );
+  }
+
+  factory AnimeRelease.fromKodikAndShikimori(
+    KodikResult kodik,
+    ShikimoriAnime shikimori,
+  ) {
+    return AnimeRelease(
+      id: -1,
+      type: AnimeType(value: shikimori.kind, description: ''),
+      year: kodik.year,
+      names: AnimeNames(
+        main: shikimori.name,
+        english:
+            shikimori.english.isNotEmpty
+                ? shikimori.english.first
+                : kodik.titleOrig,
+        alternative:
+            shikimori.synonyms.isNotEmpty
+                ? shikimori.synonyms.first
+                : kodik.otherTitle,
+      ),
+      alias: shikimori.franchise ?? '',
+      season: _getSeasonFromDate(shikimori.airedOn),
+      poster: Poster(
+        src: shikimori.image.original,
+        thumbnail: shikimori.image.preview,
+        optimized: PosterOptimized(
+          src: shikimori.image.original,
+          thumbnail: shikimori.image.original,
+        ),
+      ),
+      freshAt: shikimori.updatedAt,
+      createdAt: DateTime.now(),
+      updatedAt: shikimori.updatedAt,
+      isOngoing: shikimori.ongoing,
+      ageRating: _getAgeRating(shikimori.rating),
+      publishDay: _getPublishDay(shikimori.airedOn),
+      description: shikimori.description,
+      episodesTotal: shikimori.episodes,
+      isInProduction:
+          shikimori.status == 'ongoing' || shikimori.status == 'anons',
+      isBlockedByGeo: false,
+      isBlockedByCopyrights: false,
+      addedInUsersFavorites: 0,
+      averageDurationOfEpisode: shikimori.duration,
+      genres:
+          shikimori.genres
+              .map(
+                (g) => Genre(
+                  id: g.id,
+                  name: g.name,
+                  image: GenreImage(
+                    preview: '',
+                    thumbnail: '',
+                    optimized: GenreImageOptimized(preview: '', thumbnail: ''),
+                  ),
+                ),
+              )
+              .toList(),
+      latestEpisode: LatestEpisode(
+        id: '',
+        name: null,
+        ordinal: 0,
+        preview: EpisodePreview(
+          src: '',
+          thumbnail: '',
+          optimized: EpisodePreviewOptimized(src: '', thumbnail: ''),
+        ),
+        hls480: '',
+        hls720: '',
+        hls1080: '',
+        duration: 0,
+      ),
+      shikimoriId: kodik.shikimoriId,
+      kodikResult: kodik,
+    );
+  }
+
+  static AnimeSeason _getSeasonFromDate(DateTime? date) {
+    if (date == null) return AnimeSeason(value: null, description: null);
+    int month = date.month;
+    String season;
+    if (month >= 1 && month <= 3) {
+      season = 'winter';
+    } else if (month >= 4 && month <= 6) {
+      season = 'spring';
+    } else if (month >= 7 && month <= 9) {
+      season = 'summer';
+    } else {
+      season = 'fall';
+    }
+    return AnimeSeason(value: season, description: season);
+  }
+
+  static AgeRating _getAgeRating(String? rating) {
+    if (rating == null)
+      return AgeRating(value: '', label: '', isAdult: false, description: '');
+    String value = rating;
+    String label = rating.toUpperCase();
+    bool isAdult = rating.contains('r') || rating.contains('rx');
+    return AgeRating(
+      value: value,
+      label: label,
+      isAdult: isAdult,
+      description: '',
+    );
+  }
+
+  static PublishDay _getPublishDay(DateTime? date) {
+    if (date == null) return PublishDay(value: 0, description: '');
+    int day = date.weekday;
+    int value = (day - 1) % 7;
+    List<String> days = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+    String description = days[value];
+    return PublishDay(value: value, description: description);
   }
 }
 

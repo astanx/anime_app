@@ -3,8 +3,10 @@ import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/models/franchise.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
+import 'package:anime_app/data/models/shikimori_anime.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
+import 'package:dio/dio.dart';
 
 class AnimeRepository extends BaseRepository {
   AnimeRepository() : super(DioClient().dio);
@@ -83,13 +85,38 @@ class AnimeRepository extends BaseRepository {
         }
       }
 
-      final movieReleases =
-          movieResults.map((m) => AnimeRelease.fromKodik(m)).toList();
+      final movieReleases = <AnimeRelease>[];
+      for (var m in movieResults) {
+        if (m.shikimoriId != null) {
+          try {
+            final shikimoriAnime = await getShikimoriAnimeById(m.shikimoriId!);
+            movieReleases.add(
+              AnimeRelease.fromKodikAndShikimori(m, shikimoriAnime),
+            );
+          } catch (e) {
+            log('Error fetching Shikimori data for movie: $e');
+            movieReleases.add(AnimeRelease.fromKodik(m));
+          }
+        } else {
+          movieReleases.add(AnimeRelease.fromKodik(m));
+        }
+      }
 
-      final seriesReleases =
-          seriesGroups.values
-              .map((group) => AnimeRelease.fromKodik(group.first))
-              .toList();
+      final seriesReleases = <AnimeRelease>[];
+      for (var group in seriesGroups.values) {
+        final first = group.first;
+        try {
+          final shikimoriAnime = await getShikimoriAnimeById(
+            first.shikimoriId!,
+          );
+          seriesReleases.add(
+            AnimeRelease.fromKodikAndShikimori(first, shikimoriAnime),
+          );
+        } catch (e) {
+          log('Error fetching Shikimori data for series: $e');
+          seriesReleases.add(AnimeRelease.fromKodik(first));
+        }
+      }
 
       return [...matchedReleases, ...movieReleases, ...seriesReleases];
     } catch (e) {
@@ -128,6 +155,19 @@ class AnimeRepository extends BaseRepository {
       return data.map((json) => KodikResult.fromJson(json)).toList();
     } catch (e) {
       log('Error searching Kodik: $e');
+      rethrow;
+    }
+  }
+
+  Future<ShikimoriAnime> getShikimoriAnimeById(String shikimoriId) async {
+    try {
+      final response = await Dio().get(
+        'https://shikimori.one/api/animes/$shikimoriId',
+      );
+      final data = response.data as Map<String, dynamic>;
+      final anime = ShikimoriAnime.fromJson(data);
+      return anime;
+    } catch (e) {
       rethrow;
     }
   }
