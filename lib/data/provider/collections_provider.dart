@@ -1,3 +1,4 @@
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
 import 'package:flutter/material.dart';
@@ -21,10 +22,25 @@ class CollectionsProvider extends ChangeNotifier {
   }
 
   Future<void> addToCollection(CollectionType type, Anime anime) async {
-    for (final entry in _collections.entries) {
-      entry.value.data.removeWhere((a) => a.release.id == anime.release.id);
+    if (anime.release.id != -1) {
+      for (final entry in _collections.entries) {
+        entry.value.data.removeWhere((a) => a.release.id == anime.release.id);
+      }
+      await _repository.addToCollection(type, anime.release.id);
+    } else {
+      for (final entry in _collections.entries) {
+        entry.value.data.removeWhere(
+          (a) =>
+              a.release.kodikResult?.shikimoriId ==
+              anime.release.kodikResult?.shikimoriId,
+        );
+      }
+      await _repository.addToCollection(
+        type,
+        int.parse('$kodikIdPattern${anime.release.kodikResult?.shikimoriId}'),
+      );
     }
-    await _repository.addToCollection(type, anime.release.id);
+
     if (_collections[type] == null) {
       await fetchCollection(type, 1, 15);
     }

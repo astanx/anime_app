@@ -242,7 +242,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      spacing: 30.0,
+                      spacing: anime.release.id != -1 ? 30.0 : 0.0,
                       children: [
                         if (anime.release.id != -1)
                           Column(
