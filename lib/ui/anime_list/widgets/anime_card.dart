@@ -71,7 +71,7 @@ class AnimeCard extends StatelessWidget {
               Text(
                 anime.names.main,
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
                 overflow: TextOverflow.ellipsis,
