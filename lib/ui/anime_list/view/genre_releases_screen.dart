@@ -112,19 +112,32 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                       ),
                       const SizedBox(height: 16),
                       Expanded(
-                        child: GridView.builder(
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: crossAxisCount,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 16,
-                                childAspectRatio: 2 / 4,
-                              ),
-                          itemCount: _genreReleases!.length,
-                          itemBuilder: (context, index) {
-                            return AnimeCard(anime: _genreReleases![index]);
-                          },
-                        ),
+                        child:
+                            _genreReleases!.isEmpty
+                                ? const Center(
+                                  child: Text(
+                                    'No anime found',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                )
+                                : GridView.builder(
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: crossAxisCount,
+                                        crossAxisSpacing: 16,
+                                        mainAxisSpacing: 16,
+                                        childAspectRatio: 2 / 4,
+                                      ),
+                                  itemCount: _genreReleases!.length,
+                                  itemBuilder: (context, index) {
+                                    return AnimeCard(
+                                      anime: _genreReleases![index],
+                                    );
+                                  },
+                                ),
                       ),
                     ],
                   ),
