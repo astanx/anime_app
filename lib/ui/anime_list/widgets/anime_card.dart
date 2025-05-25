@@ -1,4 +1,4 @@
-import 'package:anime_app/core/constants.dart';
+import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
@@ -57,12 +57,7 @@ class AnimeCard extends StatelessWidget {
           child: Column(
             children: [
               Image.network(
-                anime.poster.optimized.src.isNotEmpty &&
-                        anime.poster.optimized.src.startsWith('http')
-                    ? anime.poster.optimized.src
-                    : anime.poster.optimized.src.startsWith('/storage')
-                    ? '$baseUrl${anime.poster.optimized.src}'
-                    : 'https://shikimori.one/${anime.poster.optimized.src}',
+                getImageUrl(anime),
                 width: 150,
                 height: 200,
                 fit: BoxFit.cover,

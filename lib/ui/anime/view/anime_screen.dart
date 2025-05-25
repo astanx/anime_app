@@ -1,4 +1,4 @@
-import 'package:anime_app/core/constants.dart';
+import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
@@ -93,10 +93,7 @@ class AnimeScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   children: [
-                    Image.network(
-                      '$baseUrl${anime.release.poster.optimized.src}',
-                      fit: BoxFit.cover,
-                    ),
+                    Image.network(getImageUrl(anime), fit: BoxFit.cover),
                     const SizedBox(height: 8),
                     Text(
                       anime.release.names.main,

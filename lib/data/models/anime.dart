@@ -1,5 +1,6 @@
 import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
+import 'package:anime_app/data/models/shikimori_anime.dart';
 
 class Anime {
   final AnimeRelease release;
@@ -44,6 +45,18 @@ class Anime {
 
   factory Anime.fromKodik(KodikResult kodik) => Anime(
     release: AnimeRelease.fromKodik(kodik),
+    notification: null,
+    externalPlayer: null,
+    members: [],
+    torrents: [],
+    sponsor: null,
+    episodes: [],
+  );
+  factory Anime.fromKodikAndShikimori(
+    KodikResult kodik,
+    ShikimoriAnime shikimori,
+  ) => Anime(
+    release: AnimeRelease.fromKodikAndShikimori(kodik, shikimori),
     notification: null,
     externalPlayer: null,
     members: [],

@@ -1,16 +1,17 @@
 import 'package:anime_app/data/models/timecode.dart';
-import 'package:anime_app/data/repositories/user_repository.dart';
+import 'package:anime_app/data/repositories/timecode_repository.dart';
 import 'package:flutter/material.dart';
 
 class TimecodeProvider extends ChangeNotifier {
   List<Timecode> _timecodes = [];
   bool _hasFetched = false;
+  final _repository = TimecodeRepository();
 
   List<Timecode> get timecodes => _timecodes;
 
   Future<void> fetchTimecodes() async {
     if (!_hasFetched) {
-      _timecodes = await UserRepository().getTimecodes();
+      _timecodes = await _repository.getTimecodes();
       _hasFetched = true;
       notifyListeners();
     }
@@ -32,7 +33,7 @@ class TimecodeProvider extends ChangeNotifier {
 
   Future<void> updateTimecode(Timecode timecode, {bool notify = true}) async {
     if (timecode.time > 0) {
-      UserRepository().updateTimecode([timecode]);
+      _repository.updateTimecode([timecode]);
       final index = _timecodes.indexWhere(
         (t) => t.releaseEpisodeId == timecode.releaseEpisodeId,
       );

@@ -259,7 +259,10 @@ class AnimeRelease {
 
   static AgeRating _getAgeRating(String? rating) {
     if (rating == null)
+    {
+
       return AgeRating(value: '', label: '', isAdult: false, description: '');
+      }
     String value = rating;
     String label = rating.toUpperCase();
     bool isAdult = rating.contains('r') || rating.contains('rx');

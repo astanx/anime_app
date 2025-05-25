@@ -1,4 +1,4 @@
-import 'package:anime_app/core/constants.dart';
+import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:flutter/material.dart';
 
@@ -30,10 +30,7 @@ class CollectionCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
-                  anime.release.poster.optimized.src.isNotEmpty &&
-                          anime.release.poster.optimized.src.startsWith('http')
-                      ? anime.release.poster.optimized.src
-                      : '$baseUrl${anime.release.poster.optimized.src}',
+                  getImageUrl(anime),
                   width: 80,
                   height: 100,
                   fit: BoxFit.cover,

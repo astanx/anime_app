@@ -1,4 +1,5 @@
 import 'package:anime_app/core/constants.dart';
+import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
 import 'package:anime_app/data/models/history.dart';
@@ -113,7 +114,12 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       context,
       listen: false,
     );
-    final isFavourite = favouritesProvider.isFavourite(anime.release.id);
+    final isFavourite =
+        anime.episodes.isNotEmpty
+            ? favouritesProvider.isFavourite(anime.release.id)
+            : favouritesProvider.isFavouriteKodik(
+              anime.release.kodikResult?.shikimoriId,
+            );
     final collection = Provider.of<CollectionsProvider>(
       context,
       listen: false,
@@ -138,9 +144,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                   () =>
                       anime.episodes.isNotEmpty
                           ? favouritesProvider.toggleFavourite(anime)
-                          : favouritesProvider.toggleKodikFavourite(
-                            kodikResult!,
-                          ),
+                          : favouritesProvider.toggleKodikFavourite(anime),
             ),
             if (kodikResult != null && anime.episodes.isNotEmpty)
               IconButton(
@@ -193,16 +197,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
-                        anime.release.poster.optimized.src.isNotEmpty &&
-                                anime.release.poster.optimized.src.startsWith(
-                                  'http',
-                                )
-                            ? anime.release.poster.optimized.src
-                            : anime.release.poster.optimized.src.startsWith(
-                              '/storage',
-                            )
-                            ? '$baseUrl${anime.release.poster.optimized.src}'
-                            : 'https://shikimori.one/${anime.release.poster.optimized.src}',
+                        getImageUrl(anime),
                         fit: BoxFit.cover,
                         width: double.infinity,
                       ),

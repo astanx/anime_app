@@ -1,11 +1,11 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
+import 'package:anime_app/data/repositories/collection_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:anime_app/data/repositories/user_repository.dart';
 
 class CollectionsProvider extends ChangeNotifier {
-  final UserRepository _repository = UserRepository();
+  final _repository = CollectionRepository();
   final Map<CollectionType, Collection> _collections = {};
   final Map<CollectionType, bool> _hasFetched = {
     for (final type in CollectionType.values) type: false,
