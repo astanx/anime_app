@@ -56,4 +56,15 @@ class CollectionsProvider extends ChangeNotifier {
     }
     return null;
   }
+
+  CollectionType? getKodikCollectionType(Anime anime) {
+    for (final entry in _collections.entries) {
+      if (entry.value.data.any(
+        (a) => a.release.shikimoriId == anime.release.shikimoriId,
+      )) {
+        return entry.key;
+      }
+    }
+    return null;
+  }
 }

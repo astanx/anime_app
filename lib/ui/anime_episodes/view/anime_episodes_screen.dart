@@ -120,10 +120,16 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
             : favouritesProvider.isFavouriteKodik(
               anime.release.kodikResult?.shikimoriId,
             );
-    final collection = Provider.of<CollectionsProvider>(
-      context,
-      listen: false,
-    ).getCollectionType(anime);
+    final collection =
+        anime.episodes.isNotEmpty
+            ? Provider.of<CollectionsProvider>(
+              context,
+              listen: false,
+            ).getCollectionType(anime)
+            : Provider.of<CollectionsProvider>(
+              context,
+              listen: false,
+            ).getKodikCollectionType(anime);
 
     return Scaffold(
       appBar: AppBar(
