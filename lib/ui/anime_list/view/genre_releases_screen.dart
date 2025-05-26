@@ -13,6 +13,7 @@ class GenreReleasesScreen extends StatefulWidget {
 
 class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
   List<AnimeRelease>? _genreReleases;
+  String? _query;
   final repository = AnimeRepository();
   final _textController = TextEditingController();
 
@@ -36,13 +37,23 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final arguments =
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-      final List<AnimeRelease> releases = arguments['genreReleases'];
-      setState(() {
-        _genreReleases = releases;
-      });
+      final List<AnimeRelease>? releases = arguments['genreReleases'];
+
+      final query = arguments['query'] as String?;
+      if (query != null) {
+        final anime = await repository.searchAnime(query);
+        setState(() {
+          _genreReleases = anime;
+          _query = query;
+        });
+      } else {
+        setState(() {
+          _genreReleases = releases;
+        });
+      }
     });
   }
 
@@ -85,6 +96,7 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                                   );
                                   setState(() {
                                     _genreReleases = anime;
+                                    _query = value;
                                   });
                                 } else {
                                   _fetchAnime();
@@ -101,6 +113,7 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                                 );
                                 setState(() {
                                   _genreReleases = anime;
+                                  _query = _textController.text;
                                 });
                               } else {
                                 _fetchAnime();
@@ -114,9 +127,9 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                       Expanded(
                         child:
                             _genreReleases!.isEmpty
-                                ? const Center(
+                                ? Center(
                                   child: Text(
-                                    'No anime found',
+                                    'No anime found${_query != null && _query!.isNotEmpty ? ' for "$_query"' : ''}.',
                                     style: TextStyle(
                                       fontSize: 18,
                                       color: Colors.grey,

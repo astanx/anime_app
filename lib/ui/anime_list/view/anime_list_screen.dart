@@ -115,11 +115,9 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                               if (_textController.text.trim().isEmpty) {
                                 return;
                               } else {
-                                final anime = await AnimeRepository()
-                                    .searchAnime(_textController.text);
                                 Navigator.of(context).pushNamed(
                                   '/genre/releases',
-                                  arguments: {'genreReleases': anime},
+                                  arguments: {'query': _textController.text},
                                 );
                               }
                             },
