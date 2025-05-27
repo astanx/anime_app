@@ -44,7 +44,7 @@ class EpisodeCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Text(
-            'Episode ${anime.episodes[episodeIndex].ordinal}',
+            'Episode ${anime.episodes[episodeIndex].ordinalFormatted}',
             textAlign: TextAlign.center,
             style: TextStyle(
               color:

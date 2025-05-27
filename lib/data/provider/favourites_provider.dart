@@ -7,16 +7,43 @@ class FavouritesProvider extends ChangeNotifier {
   final _repository = FavouriteRepository();
   List<Anime> _favourites = [];
   bool _hasFetched = false;
+  int _page = 1;
+  final int _limit = 15;
+  bool _isLoadingMore = false;
+  bool _hasMore = true;
 
   List<Anime> get favourites => _favourites;
 
   Future<void> fetchFavourites() async {
     if (!_hasFetched) {
-      _favourites = await _repository.getFavourites(1, 15);
+      _favourites = await _repository.getFavourites(_page, _limit);
       _hasFetched = true;
       notifyListeners();
     }
   }
+
+  Future<void> fetchNextPage() async {
+    if (_isLoadingMore || !_hasMore) return;
+
+    _isLoadingMore = true;
+    notifyListeners();
+
+    final nextPage = _page + 1;
+    final newFavourites = await _repository.getFavourites(nextPage, _limit);
+
+    if (newFavourites.isEmpty) {
+      _hasMore = false;
+    } else {
+      _favourites.addAll(newFavourites);
+      _page = nextPage;
+    }
+
+    _isLoadingMore = false;
+    notifyListeners();
+  }
+
+  bool get isLoadingMore => _isLoadingMore;
+  bool get hasMore => _hasMore;
 
   bool isFavourite(int animeId) {
     return _favourites.any((anime) => anime.release.id == animeId);

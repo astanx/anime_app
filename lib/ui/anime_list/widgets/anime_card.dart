@@ -15,35 +15,23 @@ class AnimeCard extends StatelessWidget {
     final theme = Theme.of(context);
     return InkWell(
       onTap: () async {
-        try {
-          if (anime.id == -1 && anime.kodikResult != null) {
-            final kodikResult = anime.kodikResult!;
-            final kodikAnime = Anime(
-              release: anime,
-              episodes: [],
-              torrents: [],
-              members: [],
-            );
-            Navigator.of(context).pushNamed(
-              '/anime/episodes',
-              arguments: {'anime': kodikAnime, 'kodikResult': kodikResult},
-            );
-          } else {
-            final animeTitle = await repository.getAnimeById(anime.id);
-            Navigator.of(context).pushNamed(
-              '/anime/episodes',
-              arguments: {
-                'anime': animeTitle,
-                'kodikResult': anime.kodikResult,
-              },
-            );
-          }
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error loading anime: $e'),
-              backgroundColor: theme.colorScheme.error,
-            ),
+        if (anime.id == -1 && anime.kodikResult != null) {
+          final kodikResult = anime.kodikResult!;
+          final kodikAnime = Anime(
+            release: anime,
+            episodes: [],
+            torrents: [],
+            members: [],
+          );
+          Navigator.of(context).pushNamed(
+            '/anime/episodes',
+            arguments: {'anime': kodikAnime, 'kodikResult': kodikResult},
+          );
+        } else {
+          final animeTitle = await repository.getAnimeById(anime.id);
+          Navigator.of(context).pushNamed(
+            '/anime/episodes',
+            arguments: {'anime': animeTitle, 'kodikResult': anime.kodikResult},
           );
         }
       },

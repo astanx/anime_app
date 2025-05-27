@@ -39,7 +39,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
       Provider.of<CollectionsProvider>(
         context,
         listen: false,
-      ).fetchCollection(type, 1, 15);
+      ).fetchCollection(type, 1);
     }
   }
 

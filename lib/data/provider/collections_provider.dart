@@ -10,15 +10,52 @@ class CollectionsProvider extends ChangeNotifier {
   final Map<CollectionType, bool> _hasFetched = {
     for (final type in CollectionType.values) type: false,
   };
+  final Map<CollectionType, int> _page = {
+    for (final type in CollectionType.values) type: 1,
+  };
+  final Map<CollectionType, bool> _hasMore = {
+    for (final type in CollectionType.values) type: true,
+  };
+  final Map<CollectionType, bool> _isLoadingMore = {
+    for (final type in CollectionType.values) type: false,
+  };
+  final int _limit = 15;
 
   Map<CollectionType, Collection> get collections => _collections;
 
-  Future<void> fetchCollection(CollectionType type, int page, int limit) async {
-    if (!_hasFetched[type]!) {
-      _collections[type] = await _repository.getCollections(type, page, limit);
-      _hasFetched[type] = true;
+  bool isLoadingMore(CollectionType type) => _isLoadingMore[type] ?? false;
+  bool hasMore(CollectionType type) => _hasMore[type] ?? true;
+
+  Future<void> fetchCollection(CollectionType type, [int page = 1]) async {
+    if (!_hasFetched[type]! || page > 1) {
+      final collection = await _repository.getCollections(type, page, _limit);
+      if (_collections[type] == null) {
+        _collections[type] = collection;
+      } else {
+        _collections[type]!.data.addAll(collection.data);
+      }
+      if (collection.data.length < _limit) {
+        _hasMore[type] = false;
+      }
+      if (page == 1) {
+        _hasFetched[type] = true;
+      }
+      _page[type] = page;
       notifyListeners();
     }
+  }
+
+  Future<void> fetchNextPage(CollectionType type) async {
+    if (_isLoadingMore[type]! || !_hasMore[type]!) return;
+
+    _isLoadingMore[type] = true;
+    notifyListeners();
+
+    final nextPage = _page[type]! + 1;
+    await fetchCollection(type, nextPage);
+
+    _isLoadingMore[type] = false;
+    notifyListeners();
   }
 
   Future<void> addToCollection(CollectionType type, Anime anime) async {
@@ -42,7 +79,7 @@ class CollectionsProvider extends ChangeNotifier {
     }
 
     if (_collections[type] == null) {
-      await fetchCollection(type, 1, 15);
+      await fetchCollection(type);
     }
     _collections[type]!.data.add(anime);
     notifyListeners();

@@ -117,8 +117,8 @@ class AnimeScreen extends StatelessWidget {
                     Text(
                       anime.episodes[episodeIndex].name != null ||
                               anime.episodes[episodeIndex].nameEnglish != null
-                          ? 'Episode ${anime.episodes[episodeIndex].ordinal}: ${anime.episodes[episodeIndex].name ?? anime.episodes[episodeIndex].nameEnglish}'
-                          : 'Episode ${anime.episodes[episodeIndex].ordinal}',
+                          ? 'Episode ${anime.episodes[episodeIndex].ordinalFormatted}: ${anime.episodes[episodeIndex].name ?? anime.episodes[episodeIndex].nameEnglish}'
+                          : 'Episode ${anime.episodes[episodeIndex].ordinalFormatted}',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 16,

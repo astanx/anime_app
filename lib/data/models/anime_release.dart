@@ -258,11 +258,9 @@ class AnimeRelease {
   }
 
   static AgeRating _getAgeRating(String? rating) {
-    if (rating == null)
-    {
-
+    if (rating == null) {
       return AgeRating(value: '', label: '', isAdult: false, description: '');
-      }
+    }
     String value = rating;
     String label = rating.toUpperCase();
     bool isAdult = rating.contains('r') || rating.contains('rx');
@@ -438,7 +436,7 @@ class GenreImageOptimized {
 class LatestEpisode {
   final String id;
   final String? name;
-  final int ordinal;
+  final double ordinal;
   final EpisodePreview preview;
   final String hls480;
   final String hls720;
@@ -447,7 +445,8 @@ class LatestEpisode {
   final Opening? opening;
   final Ending? ending;
   final String? nameEnglish;
-
+  String get ordinalFormatted =>
+      ordinal % 1 == 0 ? ordinal.toInt().toString() : ordinal.toString();
   LatestEpisode({
     required this.id,
     required this.name,
@@ -466,7 +465,8 @@ class LatestEpisode {
     id: json['id'] ?? '',
     name: json['name'],
     nameEnglish: json['name_english'],
-    ordinal: json['ordinal'] ?? 0,
+    ordinal:
+        json['ordinal'] != null ? (json['ordinal'] as num).toDouble() : 0.0,
     preview: EpisodePreview.fromJson(json['preview'] ?? {}),
     hls480: json['hls_480'] ?? '',
     hls720: json['hls_720'] ?? '',

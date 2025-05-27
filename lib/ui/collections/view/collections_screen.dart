@@ -12,14 +12,27 @@ class CollectionsScreen extends StatefulWidget {
 }
 
 class _CollectionsScreenState extends State<CollectionsScreen> {
-  Map<CollectionType, Collection>? _collections;
+  final ScrollController _scrollController = ScrollController();
   CollectionType _type = CollectionType.planned;
 
   @override
   void initState() {
-    _collections =
-        Provider.of<CollectionsProvider>(context, listen: false).collections;
     super.initState();
+    final provider = Provider.of<CollectionsProvider>(context, listen: false);
+    provider.fetchCollection(_type);
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 300) {
+        provider.fetchNextPage(_type);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -33,106 +46,126 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<CollectionType>(
-                    isExpanded: true,
-                    value: _type,
-                    icon: Icon(
-                      Icons.arrow_drop_down,
-                      color: Theme.of(context).colorScheme.onSurface,
+          child: Consumer<CollectionsProvider>(
+            builder: (context, provider, _) {
+              final collections = provider.collections;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    dropdownColor:
-                        Theme.of(context).colorScheme.primaryContainer,
-                    onChanged: (CollectionType? newType) async {
-                      if (newType != null) {
-                        setState(() {
-                          _type = newType;
-                        });
-                      }
-                    },
-                    items:
-                        CollectionType.values.map((CollectionType type) {
-                          return DropdownMenuItem<CollectionType>(
-                            value: type,
-                            child: Text(
-                              type.name.toUpperCase(),
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<CollectionType>(
+                        isExpanded: true,
+                        value: _type,
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        dropdownColor:
+                            Theme.of(context).colorScheme.primaryContainer,
+                        onChanged: (CollectionType? newType) async {
+                          if (newType != null) {
+                            setState(() {
+                              _type = newType;
+                            });
+                            await provider.fetchCollection(newType);
+                          }
+                        },
+                        items:
+                            CollectionType.values.map((CollectionType type) {
+                              return DropdownMenuItem<CollectionType>(
+                                value: type,
+                                child: Text(
+                                  type.name.toUpperCase(),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              Expanded(
-                child:
-                    _collections == null
-                        ? const Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CircularProgressIndicator(),
-                              SizedBox(height: 16),
-                              Text('Loading your collection...'),
-                            ],
-                          ),
-                        )
-                        : _collections![_type]!.data.isEmpty
-                        ? Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.folder_open,
-                                size: 64,
-                                color: Colors.grey,
+                  const SizedBox(height: 24),
+                  Expanded(
+                    child:
+                        collections[_type] == null
+                            ? const Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(height: 16),
+                                  Text('Loading your collection...'),
+                                ],
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No items found in this collection',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        )
-                        : ListView.separated(
-                          itemCount: _collections![_type]!.data.length,
-                          separatorBuilder:
-                              (context, index) => const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 2),
+                            )
+                            : collections[_type]!.data.isEmpty &&
+                                !provider.isLoadingMore(_type)
+                            ? Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.folder_open,
+                                    size: 64,
+                                    color: Colors.grey,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No items found in this collection',
+                                    style: TextStyle(color: Colors.grey),
                                   ),
                                 ],
                               ),
-                              child: CollectionCard(
-                                anime: _collections![_type]!.data[index],
-                              ),
-                            );
-                          },
-                        ),
-              ),
-            ],
+                            )
+                            : ListView.separated(
+                              controller: _scrollController,
+                              itemCount:
+                                  collections[_type]!.data.length +
+                                  (provider.hasMore(_type) ? 1 : 0),
+                              separatorBuilder:
+                                  (context, index) =>
+                                      const SizedBox(height: 12),
+                              itemBuilder: (context, index) {
+                                if (index < collections[_type]!.data.length) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: CollectionCard(
+                                      anime: collections[_type]!.data[index],
+                                    ),
+                                  );
+                                } else {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
