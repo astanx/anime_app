@@ -2,6 +2,7 @@ import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class EpisodeCard extends StatelessWidget {
@@ -22,6 +23,7 @@ class EpisodeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final l10n = AppLocalizations.of(context);
     return InkWell(
       onTap: () async {
         final animeTitle = await AnimeRepository().getAnimeById(
@@ -44,7 +46,7 @@ class EpisodeCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Text(
-            'Episode ${anime.episodes[episodeIndex].ordinalFormatted}',
+            '${l10n!.episode(0)} ${anime.episodes[episodeIndex].ordinalFormatted}',
             textAlign: TextAlign.center,
             style: TextStyle(
               color:

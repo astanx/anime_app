@@ -9,6 +9,8 @@ import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/storage/history_storage.dart';
+import 'package:anime_app/l10n/app_localizations.dart';
+import 'package:anime_app/l10n/collection_localization.dart';
 import 'package:anime_app/ui/anime_episodes/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -114,6 +116,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       context,
       listen: false,
     );
+    final l10n = AppLocalizations.of(context);
     final isFavourite =
         anime.episodes.isNotEmpty
             ? favouritesProvider.isFavourite(anime.release.id)
@@ -235,10 +238,10 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                     const SizedBox(height: 4),
                     Text(
                       anime.release.id != -1
-                          ? '${anime.release.episodesTotal} episodes ${anime.release.isOngoing ? '| Ongoing' : ''}'
+                          ? '${l10n!.episode_count(anime.release.episodesTotal)} ${anime.release.isOngoing ? '| ${l10n.ongoing}' : ''}'
                           : kodikResult?.type == 'anime'
-                          ? 'Movie'
-                          : 'Series',
+                          ? l10n!.movie
+                          : l10n!.series,
                       style: theme.textTheme.bodySmall?.copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -275,7 +278,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Franchise',
+                                l10n.franchise,
                                 style: theme.textTheme.labelSmall,
                               ),
                             ],
@@ -302,9 +305,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: const Text(
-                                          'Could not launch URL',
-                                        ),
+                                        content: Text(l10n.url_error),
                                         backgroundColor:
                                             theme.colorScheme.error,
                                       ),
@@ -318,7 +319,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Torrent',
+                                l10n.torrent,
                                 style: theme.textTheme.labelSmall,
                               ),
                             ],
@@ -371,7 +372,9 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                                       },
                                                     ),
                                                     title: Text(
-                                                      type.name.toUpperCase(),
+                                                      type.localizedName(
+                                                        context,
+                                                      ),
                                                     ),
                                                     selected:
                                                         currentType == type,
@@ -417,7 +420,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              collection?.name.toUpperCase() ?? 'Collection',
+                              collection?.localizedName(context) ??
+                                  l10n.collection,
                               style: theme.textTheme.labelSmall,
                             ),
                           ],
@@ -438,7 +442,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                       Column(
                         children: [
                           Text(
-                            'Kodik Player',
+                            l10n.kodik_player,
                             style: theme.textTheme.titleMedium,
                           ),
                           const SizedBox(height: 16),
@@ -454,7 +458,10 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                     if (!_showKodikPlayer || _kodikPlayerUrl == null)
                       Column(
                         children: [
-                          Text('Episodes', style: theme.textTheme.titleMedium),
+                          Text(
+                            l10n.episode(1),
+                            style: theme.textTheme.titleMedium,
+                          ),
                           const SizedBox(height: 16),
                           if (anime.release.id != -1)
                             GridView.builder(

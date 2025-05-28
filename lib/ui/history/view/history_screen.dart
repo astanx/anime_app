@@ -2,6 +2,7 @@ import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/history.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/storage/history_storage.dart';
+import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/history/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -45,6 +46,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('History')),
       body: SafeArea(
@@ -54,7 +56,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               _historyList == null
                   ? const Center(child: CircularProgressIndicator())
                   : _historyList!.isEmpty
-                  ? const Center(child: Text('No history found.'))
+                  ? Center(child: Text(l10n!.no_history_found))
                   : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

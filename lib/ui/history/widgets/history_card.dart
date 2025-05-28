@@ -1,5 +1,6 @@
 import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/history.dart';
+import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class HistoryCard extends StatelessWidget {
@@ -34,6 +35,7 @@ class HistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final onlyKodik = anime.anime.episodes.isEmpty;
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
       onTap: () => onlyKodik ? _openKodik(context) : _openNextEpisode(context),
       child: Card(
@@ -71,7 +73,9 @@ class HistoryCard extends StatelessWidget {
                     Text(
                       onlyKodik
                           ? ''
-                          : 'Last watched episode: ${anime.lastWatchedEpisode + 1}',
+                          : l10n!.last_watched_episode(
+                            anime.lastWatchedEpisode + 1,
+                          ),
                       style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                     ),
                     const SizedBox(height: 8),
@@ -81,10 +85,14 @@ class HistoryCard extends StatelessWidget {
                             anime.lastWatchedEpisode + 1)
                           Text(
                             onlyKodik
-                                ? 'Continue with Kodik'
+                                ? l10n!.continue_with_kodik
                                 : anime.isWatched
-                                ? 'Continue with episode ${anime.lastWatchedEpisode + 2} →'
-                                : 'Continue watching episode ${anime.lastWatchedEpisode + 1} →',
+                                ? l10n!.continue_with_episode(
+                                  anime.lastWatchedEpisode + 2,
+                                )
+                                : l10n!.continue_watching_episode(
+                                  anime.lastWatchedEpisode + 1,
+                                ),
                             style: TextStyle(
                               fontSize: anime.kodikResult != null ? 12 : 15,
                               color: Colors.blue,
@@ -92,9 +100,9 @@ class HistoryCard extends StatelessWidget {
                             ),
                           )
                         else
-                          const Text(
-                            'There is no new episodes :(',
-                            style: TextStyle(
+                          Text(
+                            l10n!.no_new_episodes,
+                            style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                             ),

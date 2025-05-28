@@ -1,4 +1,5 @@
 import 'package:anime_app/data/provider/favourites_provider.dart';
+import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/favourites/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,8 +37,9 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Favourites')),
+      appBar: AppBar(title: Text(l10n!.favourites)),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -46,7 +48,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
               final favourites = provider.favourites;
 
               if (favourites.isEmpty && !provider.isLoadingMore) {
-                return const Center(child: Text('No favourites found.'));
+                return Center(child: Text(l10n.no_favourites_found));
               }
 
               return Column(

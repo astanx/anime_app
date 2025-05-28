@@ -1,3 +1,4 @@
+import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -6,8 +7,12 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text('Login'), automaticallyImplyLeading: false),
+      appBar: AppBar(
+        title: Text(l10n!.login_label),
+        automaticallyImplyLeading: false,
+      ),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -15,13 +20,9 @@ class LoginScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildLoginButton(
-                  'Continue with Anilibria',
-                  FontAwesomeIcons.a,
-                  () {
-                    Navigator.of(context).pushNamed('/login/anilibria');
-                  },
-                ),
+                _buildLoginButton(l10n.login_title, FontAwesomeIcons.a, () {
+                  Navigator.of(context).pushNamed('/login/anilibria');
+                }),
               ],
             ),
           ),

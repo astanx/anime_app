@@ -2,6 +2,7 @@ import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
+import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/anime/widgets/fullscreen_player.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -82,6 +83,7 @@ class AnimeScreen extends StatelessWidget {
     final episodeIndex = provider.episodeIndex;
     final position = controller?.value.position ?? Duration.zero;
     final duration = controller?.value.duration ?? Duration.zero;
+    final l10n = AppLocalizations.of(context);
     return episodeIndex == null
         ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
@@ -117,8 +119,8 @@ class AnimeScreen extends StatelessWidget {
                     Text(
                       anime.episodes[episodeIndex].name != null ||
                               anime.episodes[episodeIndex].nameEnglish != null
-                          ? 'Episode ${anime.episodes[episodeIndex].ordinalFormatted}: ${anime.episodes[episodeIndex].name ?? anime.episodes[episodeIndex].nameEnglish}'
-                          : 'Episode ${anime.episodes[episodeIndex].ordinalFormatted}',
+                          ? '${l10n!.episode(0)} ${anime.episodes[episodeIndex].ordinalFormatted}: ${anime.episodes[episodeIndex].name ?? anime.episodes[episodeIndex].nameEnglish}'
+                          : '${l10n!.episode(0)} ${anime.episodes[episodeIndex].ordinalFormatted}',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 16,
@@ -283,7 +285,7 @@ class AnimeScreen extends StatelessWidget {
                                     Flexible(
                                       child: Text(
                                         anime.episodes[episodeIndex - 1].name ??
-                                            'Previous episode',
+                                            l10n.prev_episode,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                           fontSize: 8,
@@ -330,7 +332,7 @@ class AnimeScreen extends StatelessWidget {
                                     Flexible(
                                       child: Text(
                                         anime.episodes[episodeIndex + 1].name ??
-                                            'Next episode',
+                                            l10n.next_episode,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                           fontSize: 8,

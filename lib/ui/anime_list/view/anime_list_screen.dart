@@ -4,6 +4,7 @@ import 'package:anime_app/data/provider/collections_provider.dart';
 import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +67,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
+    final l10n = AppLocalizations.of(context);
     int crossAxisCount = 2;
     if (screenWidth >= 600) {
       crossAxisCount = 3;
@@ -90,8 +91,8 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                           Expanded(
                             child: TextField(
                               controller: _textController,
-                              decoration: const InputDecoration(
-                                labelText: 'Enter anime title',
+                              decoration: InputDecoration(
+                                labelText: l10n!.anime_search_placeholder,
                                 border: OutlineInputBorder(),
                               ),
                               textInputAction: TextInputAction.search,

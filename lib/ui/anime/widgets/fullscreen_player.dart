@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:anime_app/data/models/kodik_result.dart';
+import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -128,6 +129,8 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
           final position = controller?.value.position ?? Duration.zero;
           final duration = controller?.value.duration ?? Duration.zero;
           final buffered = controller?.value.buffered ?? [];
+
+          final l10n = AppLocalizations.of(context);
 
           double bufferedEnd = buffered.fold<double>(
             0.0,
@@ -262,8 +265,8 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                             () => provider.seek(
                                               provider.openingEnd!,
                                             ),
-                                        child: const Text(
-                                          'Skip opening',
+                                        child: Text(
+                                          l10n!.skip_opening,
                                           style: TextStyle(color: Colors.black),
                                         ),
                                       )
@@ -314,8 +317,8 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                             kodikResult,
                                           );
                                         },
-                                        child: const Text(
-                                          'Next episode',
+                                        child: Text(
+                                          l10n!.next_episode,
                                           style: TextStyle(color: Colors.black),
                                         ),
                                       ),

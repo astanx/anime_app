@@ -1,4 +1,5 @@
 import 'package:anime_app/data/repositories/user_repository.dart';
+import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,8 +20,10 @@ class _AnilibriaLoginScreenState extends State<AnilibriaLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Login with Anilibria')),
+      appBar: AppBar(title: Text(l10n.login_title)),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -32,13 +35,13 @@ class _AnilibriaLoginScreenState extends State<AnilibriaLoginScreen> {
                 children: [
                   TextFormField(
                     controller: _loginController,
-                    decoration: const InputDecoration(
-                      labelText: 'Login',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.login_label,
+                      border: const OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your login';
+                        return l10n.login_empty_error;
                       }
                       return null;
                     },
@@ -46,14 +49,14 @@ class _AnilibriaLoginScreenState extends State<AnilibriaLoginScreen> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _passwordController,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.password_label,
+                      border: const OutlineInputBorder(),
                     ),
                     obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return l10n.password_empty_error;
                       }
                       return null;
                     },
@@ -75,16 +78,17 @@ class _AnilibriaLoginScreenState extends State<AnilibriaLoginScreen> {
                         }
                       }
                     },
-                    child: const Text('Submit'),
+                    child: Text(l10n.submit_button),
                   ),
                   const SizedBox(height: 24),
                   RichText(
                     text: TextSpan(
-                      text: 'Dont have account? ',
+                      text: l10n.no_account_text,
+                      style: DefaultTextStyle.of(context).style,
                       children: [
                         TextSpan(
-                          text: 'Register',
-                          style: TextStyle(
+                          text: l10n.register_text,
+                          style: const TextStyle(
                             color: Colors.blue,
                             decoration: TextDecoration.underline,
                           ),

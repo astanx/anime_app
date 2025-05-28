@@ -1,5 +1,7 @@
 import 'package:anime_app/data/models/collection.dart';
 import 'package:anime_app/data/provider/collections_provider.dart';
+import 'package:anime_app/l10n/app_localizations.dart';
+import 'package:anime_app/l10n/collection_localization.dart';
 import 'package:anime_app/ui/collections/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,9 +39,10 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Collections'),
+        title: Text(l10n!.my_collections),
         centerTitle: true,
         elevation: 0,
       ),
@@ -82,7 +85,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                               return DropdownMenuItem<CollectionType>(
                                 value: type,
                                 child: Text(
-                                  type.name.toUpperCase(),
+                                  type.localizedName(context),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     color:
@@ -98,13 +101,13 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                   Expanded(
                     child:
                         collections[_type] == null
-                            ? const Center(
+                            ? Center(
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   CircularProgressIndicator(),
                                   SizedBox(height: 16),
-                                  Text('Loading your collection...'),
+                                  Text(l10n.loading_your_collection),
                                 ],
                               ),
                             )
@@ -121,7 +124,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
-                                    'No items found in this collection',
+                                    l10n.no_collection,
                                     style: TextStyle(color: Colors.grey),
                                   ),
                                 ],
