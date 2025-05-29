@@ -1,7 +1,7 @@
 import 'package:anime_app/data/models/anime.dart';
 
 class Collection {
-  final List<Anime> data;
+  List<Anime> data;
   final Meta meta;
 
   Collection({required this.data, required this.meta});

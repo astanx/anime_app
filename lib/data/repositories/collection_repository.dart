@@ -1,6 +1,7 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
+import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
@@ -19,32 +20,41 @@ class CollectionRepository extends BaseRepository {
         'accounts/users/me/collections/releases?type_of_collection=${type.asQueryParam}&page=$page&limit=$limit',
       );
       final data = response.data as Map<String, dynamic>;
-
       final collection = Collection.fromJson(data);
 
       final kodikIds = await getKodikCollectionIds(type);
-      final kodikAnimes = <Anime>[];
-
+      final kodikResults = <KodikResult>[];
       for (final id in kodikIds) {
         final fullIdStr = id.toString();
         final kodikResultIdStr = fullIdStr.substring(kodikIdPattern.length);
         final kodikResultId = int.parse(kodikResultIdStr);
-
-        final kodikResults = await repository.getAnimeByKodikId(kodikResultId);
-        final shikimoriResult = await repository.getShikimoriAnimeById(
-          kodikResultId.toString(),
-        );
-
-        if (kodikResults.isNotEmpty) {
-          final anime = Anime.fromKodikAndShikimori(
-            kodikResults.first,
-            shikimoriResult,
-          );
-          kodikAnimes.add(anime);
+        final results = await repository.getAnimeByKodikId(kodikResultId);
+        if (results.isNotEmpty) {
+          kodikResults.add(results.first);
         }
       }
 
-      collection.data.addAll(kodikAnimes);
+      final matchResult = repository.matchAnimeWithKodik(
+        collection.data,
+        kodikResults,
+      );
+      collection.data = matchResult.matched;
+
+      for (final remainingKodik in matchResult.unmatched) {
+        if (remainingKodik.shikimoriId != null) {
+          final shikimoriResult = await repository.getShikimoriAnimeById(
+            remainingKodik.shikimoriId!,
+          );
+          final anime = Anime.fromKodikAndShikimori(
+            remainingKodik,
+            shikimoriResult,
+          );
+          collection.data.add(anime);
+        } else {
+          final anime = Anime.fromKodik(remainingKodik);
+          collection.data.add(anime);
+        }
+      }
 
       return collection;
     } catch (e) {

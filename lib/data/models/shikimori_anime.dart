@@ -100,9 +100,28 @@ class ShikimoriAnime {
               ? DateTime.tryParse(json['released_on'])
               : null,
       rating: json['rating'],
-      english: List<String>.from(json['english']),
-      japanese: List<String>.from(json['japanese']),
-      synonyms: List<String>.from(json['synonyms']),
+      english:
+          (json['english'] as List<dynamic>?)?.whereType<String>().toList() ??
+          [],
+      japanese:
+          (json['japanese'] as List<dynamic>?)?.whereType<String>().toList() ??
+          [],
+      synonyms:
+          (json['synonyms'] as List<dynamic>?)?.whereType<String>().toList() ??
+          [],
+      fansubbers:
+          (json['fansubbers'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList() ??
+          [],
+      fandubbers:
+          (json['fandubbers'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList() ??
+          [],
+      licensors:
+          (json['licensors'] as List<dynamic>?)?.whereType<String>().toList() ??
+          [],
       licenseNameRu: json['license_name_ru'],
       duration: json['duration'],
       description: json['description'],
@@ -127,9 +146,6 @@ class ShikimoriAnime {
           json['next_episode_at'] != null
               ? DateTime.tryParse(json['next_episode_at'])
               : null,
-      fansubbers: List<String>.from(json['fansubbers']),
-      fandubbers: List<String>.from(json['fandubbers']),
-      licensors: List<String>.from(json['licensors']),
       genres:
           (json['genres'] as List)
               .map((e) => ShikimoriGenre.fromJson(e))

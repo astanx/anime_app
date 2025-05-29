@@ -52,6 +52,16 @@ class Anime {
     sponsor: null,
     episodes: [],
   );
+  factory Anime.fromAnilibriaAndKodik(KodikResult kodik, Anime anilibria) =>
+      Anime(
+        release: AnimeRelease.fromAnilibriaAndKodik(anilibria.release, kodik),
+        notification: anilibria.notification,
+        externalPlayer: anilibria.externalPlayer,
+        members: anilibria.members,
+        torrents: anilibria.torrents,
+        sponsor: anilibria.sponsor,
+        episodes: anilibria.episodes,
+      );
   factory Anime.fromKodikAndShikimori(
     KodikResult kodik,
     ShikimoriAnime shikimori,

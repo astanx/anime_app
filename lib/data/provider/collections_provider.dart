@@ -1,6 +1,7 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
+import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/repositories/collection_repository.dart';
 import 'package:flutter/material.dart';
 
@@ -58,30 +59,41 @@ class CollectionsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addToCollection(CollectionType type, Anime anime) async {
+  Future<void> addToCollection(
+    CollectionType type,
+    Anime anime, [
+    KodikResult? kodikResult,
+  ]) async {
     if (anime.release.id != -1) {
       for (final entry in _collections.entries) {
         entry.value.data.removeWhere((a) => a.release.id == anime.release.id);
       }
       await _repository.addToCollection(type, anime.release.id);
-    } else {
-      for (final entry in _collections.entries) {
-        entry.value.data.removeWhere(
-          (a) =>
-              a.release.kodikResult?.shikimoriId ==
-              anime.release.kodikResult?.shikimoriId,
-        );
-      }
+    }
+    for (final entry in _collections.entries) {
+      entry.value.data.removeWhere(
+        (a) => a.release.kodikResult?.shikimoriId == kodikResult?.shikimoriId,
+      );
+    }
+    if (kodikResult?.shikimoriId != null) {
       await _repository.addToCollection(
         type,
-        int.parse('$kodikIdPattern${anime.release.kodikResult?.shikimoriId}'),
+        int.parse('$kodikIdPattern${kodikResult!.shikimoriId}'),
       );
     }
 
     if (_collections[type] == null) {
       await fetchCollection(type);
     }
-    _collections[type]!.data.add(anime);
+
+    if (kodikResult != null) {
+      _collections[type]!.data.add(
+        Anime.fromAnilibriaAndKodik(kodikResult, anime),
+      );
+    } else {
+      _collections[type]!.data.add(anime);
+    }
+
     notifyListeners();
   }
 

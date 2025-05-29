@@ -1,5 +1,6 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
@@ -32,36 +33,45 @@ class FavouriteRepository extends BaseRepository {
         'accounts/users/me/favorites/releases?page=$page&limit=$limit',
       );
       final data = response.data['data'] as List<dynamic>;
-      final favourites = data.map((f) => Anime.fromJson(f)).toList();
+      var favourites = data.map((f) => Anime.fromJson(f)).toList();
       final kodikFavouritesIds = await getKodikFavouritesIds();
 
-      final kodikAnimes = <Anime>[];
+      final kodikResults = <KodikResult>[];
 
       for (final fullId in kodikFavouritesIds) {
         final fullIdStr = fullId.toString();
+        final kodikResultIdStr = fullIdStr.substring(kodikIdPattern.length);
+        final kodikResultId = int.parse(kodikResultIdStr);
 
-        if (fullIdStr.startsWith(kodikIdPattern)) {
-          final kodikResultIdStr = fullIdStr.substring(kodikIdPattern.length);
-          final kodikResultId = int.parse(kodikResultIdStr);
+        final kodikAnime = await repository.getAnimeByKodikId(kodikResultId);
 
-          final kodikResults = await repository.getAnimeByKodikId(
-            kodikResultId,
-          );
+        kodikResults.add(kodikAnime.first);
+      }
+
+      final matchResult = repository.matchAnimeWithKodik(
+        favourites,
+        kodikResults,
+      );
+
+      favourites = matchResult.matched;
+
+      for (final remainingKodik in matchResult.unmatched) {
+        if (remainingKodik.shikimoriId != null) {
           final shikimoriResult = await repository.getShikimoriAnimeById(
-            kodikResultId.toString(),
+            remainingKodik.shikimoriId!,
           );
-
-          if (kodikResults.isNotEmpty) {
-            final anime = Anime.fromKodikAndShikimori(
-              kodikResults.first,
-              shikimoriResult,
-            );
-            kodikAnimes.add(anime);
-          }
+          final anime = Anime.fromKodikAndShikimori(
+            remainingKodik,
+            shikimoriResult,
+          );
+          favourites.add(anime);
+        } else {
+          final anime = Anime.fromKodik(remainingKodik);
+          favourites.add(anime);
         }
       }
 
-      return [...favourites, ...kodikAnimes];
+      return favourites;
     } catch (e) {
       rethrow;
     }

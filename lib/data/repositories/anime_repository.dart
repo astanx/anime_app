@@ -271,4 +271,59 @@ class AnimeRepository extends BaseRepository {
 
     return uniqueByShikimori.values.toList();
   }
+
+  MatchResult matchAnimeWithKodik(
+    List<Anime> anilibriaAnimes,
+    List<KodikResult> kodikResults,
+  ) {
+    final matchedReleases = <Anime>[];
+    final matchedKodikIds = <String>{};
+
+    for (var anime in anilibriaAnimes) {
+      final names =
+          [
+                anime.release.names.main,
+                anime.release.names.english,
+                anime.release.names.alternative,
+              ]
+              .where((n) => n != null && n.isNotEmpty)
+              .map(_normalizeTitle)
+              .toList();
+
+      KodikResult? matchedKodik;
+      for (var k in kodikResults) {
+        final kodikTitles =
+            [
+              k.title,
+              k.titleOrig,
+              k.otherTitle,
+            ].where((t) => t.isNotEmpty).map(_normalizeTitle).toList();
+
+        final hasMatch = names.any((n) => kodikTitles.contains(n));
+        if (hasMatch) {
+          matchedKodik = k;
+          break;
+        }
+      }
+
+      if (matchedKodik != null) {
+        matchedReleases.add(Anime.fromAnilibriaAndKodik(matchedKodik, anime));
+        matchedKodikIds.add(matchedKodik.id);
+      } else {
+        matchedReleases.add(anime);
+      }
+    }
+
+    final remainingKodik =
+        kodikResults.where((k) => !matchedKodikIds.contains(k.id)).toList();
+
+    return MatchResult(matchedReleases, remainingKodik);
+  }
+}
+
+class MatchResult {
+  final List<Anime> matched;
+  final List<KodikResult> unmatched;
+
+  MatchResult(this.matched, this.unmatched);
 }

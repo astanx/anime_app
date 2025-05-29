@@ -384,6 +384,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                                             .addToCollection(
                                                               type,
                                                               anime,
+                                                              kodikResult,
                                                             );
                                                       }
                                                       Navigator.pop(context);

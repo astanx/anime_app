@@ -55,6 +55,12 @@ class FavouritesProvider extends ChangeNotifier {
 
   Future<void> addToFavourites(Anime anime, [int? id]) async {
     await _repository.addToFavourite(id ?? anime.release.id);
+    if (id == null && anime.release.shikimoriId != null) {
+      final animeId = int.parse(
+        '$kodikIdPattern${anime.release.kodikResult?.shikimoriId}',
+      );
+      await _repository.addToFavourite(animeId);
+    }
     _favourites.add(anime);
     notifyListeners();
   }
