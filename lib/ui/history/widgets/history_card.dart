@@ -84,9 +84,7 @@ class HistoryCard extends StatelessWidget {
                         if (anime.anime.episodes.length >
                             anime.lastWatchedEpisode + 1)
                           Text(
-                            onlyKodik
-                                ? l10n!.continue_with_kodik
-                                : anime.isWatched
+                            anime.isWatched
                                 ? l10n!.continue_with_episode(
                                   anime.lastWatchedEpisode + 2,
                                 )
@@ -101,7 +99,9 @@ class HistoryCard extends StatelessWidget {
                           )
                         else
                           Text(
-                            l10n!.no_new_episodes,
+                            onlyKodik
+                                ? l10n!.continue_with_kodik
+                                : l10n!.no_new_episodes,
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
