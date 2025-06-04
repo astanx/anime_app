@@ -38,5 +38,9 @@
   "password_empty_error": "Please enter your password",
   "submit_button": "Submit",
   "no_account_text": "Don't have account? ",
-  "register_text": "Register"
+  "register_text": "Register",
+
+  "home": "Home",
+  "search":"Search",
+  "history": "History"
 }

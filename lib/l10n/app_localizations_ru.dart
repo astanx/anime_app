@@ -149,4 +149,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get register_text => 'Регистрация';
+
+  @override
+  String get home => 'Главная';
+
+  @override
+  String get search => 'Поиск';
+
+  @override
+  String get history => 'История';
 }

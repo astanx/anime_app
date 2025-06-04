@@ -149,4 +149,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get register_text => 'Register';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get history => 'History';
 }

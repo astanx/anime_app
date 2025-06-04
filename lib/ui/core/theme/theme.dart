@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 
 final darkTheme = ThemeData(
+  fontFamily: 'Allan',
   brightness: Brightness.dark,
-  scaffoldBackgroundColor: const Color(0xFF121212),
+  scaffoldBackgroundColor: const Color(0xFF121111),
   colorScheme: ColorScheme.fromSeed(
     seedColor: Colors.deepPurple,
     brightness: Brightness.dark,
     primary: Colors.deepPurple,
-    secondary: Colors.purpleAccent,
-    surface: Color(0xFF1E1E1E),
-    error: Colors.redAccent,
+    secondary: Color(0xFFAD1CB4),
+    surface: Color(0xFF332525),
     onPrimary: Colors.white,
     onSecondary: Colors.white,
     onSurface: Colors.white,
     onError: Colors.white,
   ),
   useMaterial3: true,
-  dividerColor: Colors.grey.shade700,
+  dividerColor: Colors.black,
   appBarTheme: const AppBarTheme(
-    backgroundColor: Color(0xFF1E1E1E),
+    backgroundColor: Colors.black,
     foregroundColor: Colors.white,
     elevation: 0,
   ),
@@ -39,13 +39,13 @@ final darkTheme = ThemeData(
     labelSmall: TextStyle(color: Colors.grey, fontSize: 12),
   ),
   cardTheme: const CardThemeData(
-    color: Color(0xFF1E1E1E),
+    color: Color(0xFF332525),
     shadowColor: Colors.black54,
     elevation: 4,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(12)),
     ),
   ),
-  iconTheme: const IconThemeData(color: Colors.purpleAccent),
+  iconTheme: const IconThemeData(color: Colors.white),
   buttonTheme: const ButtonThemeData(buttonColor: Colors.deepPurple),
 );

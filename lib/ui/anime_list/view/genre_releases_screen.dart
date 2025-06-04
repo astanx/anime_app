@@ -71,7 +71,7 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
     }
 
     return Scaffold(
-      appBar: AnimeAppBar(title: 'Oshavotik'),
+      bottomNavigationBar: AnimeBar(),
       body:
           _genreReleases == null
               ? const Center(child: CircularProgressIndicator())

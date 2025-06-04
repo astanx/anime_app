@@ -30,6 +30,11 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.3
 
 flutter:
+  fonts:
+    - family: Allan
+      fonts:
+        - asset: assets/fonts/Allan-Regular.ttf
+        - asset: assets/fonts/Allan-Bold.ttf
   generate: true
   uses-material-design: true
   assets:

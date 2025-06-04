@@ -77,7 +77,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
     }
 
     return Scaffold(
-      appBar: AnimeAppBar(title: 'Oshavotik'),
+      bottomNavigationBar: AnimeBar(),
       body:
           _animeList == null
               ? const Center(child: CircularProgressIndicator())

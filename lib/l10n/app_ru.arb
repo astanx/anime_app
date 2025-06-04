@@ -38,5 +38,9 @@
   "password_empty_error": "Пожалуйста, введите пароль",
   "submit_button": "Отправить",
   "no_account_text": "Нет аккаунта? ",
-  "register_text": "Регистрация"
+  "register_text": "Регистрация",
+
+  "home": "Главная",
+  "search": "Поиск",
+  "history": "История"
 }
