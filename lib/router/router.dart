@@ -1,12 +1,13 @@
 import 'package:anime_app/ui/anime/anime.dart';
-import 'package:anime_app/ui/anime_episodes/view/anime_episodes_screen.dart';
+import 'package:anime_app/ui/anime_episodes/anime_episodes.dart';
 import 'package:anime_app/ui/anime_list/anime_list.dart';
-import 'package:anime_app/ui/collections/view/collections_screen.dart';
-import 'package:anime_app/ui/favourites/view/favourites_screen.dart';
-import 'package:anime_app/ui/franchise_list/view/franchise_list_screen.dart';
-import 'package:anime_app/ui/history/view/history_screen.dart';
+import 'package:anime_app/ui/collections/collections.dart';
+import 'package:anime_app/ui/favourites/favourites.dart';
+import 'package:anime_app/ui/franchise_list/franchise_list.dart';
+import 'package:anime_app/ui/history/history.dart';
 import 'package:anime_app/ui/login/login.dart';
-import 'package:anime_app/ui/splash/view/splash_screen.dart';
+import 'package:anime_app/ui/search/search.dart';
+import 'package:anime_app/ui/splash/splash.dart';
 
 final routes = {
   '/': (context) => const LoginScreen(),
@@ -20,4 +21,5 @@ final routes = {
   '/genre/releases': (context) => const GenreReleasesScreen(),
   '/anime/franchise': (context) => const FranchiseScreen(),
   '/collections': (context) => const CollectionsScreen(),
+  '/anime/search': (context) => const SearchScreen(),
 };

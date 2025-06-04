@@ -380,8 +380,14 @@ abstract class AppLocalizations {
   /// No description provided for @latest_releases.
   ///
   /// In en, this message translates to:
-  /// **'Lates releases'**
+  /// **'Latest releases'**
   String get latest_releases;
+
+  /// No description provided for @search_anime.
+  ///
+  /// In en, this message translates to:
+  /// **'Search anime'**
+  String get search_anime;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

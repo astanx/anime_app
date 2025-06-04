@@ -49,5 +49,6 @@
   "exit": "Exit",
   "genres": "Genres",
   "this_week": "This week",
-  "latest_releases": "Lates releases"
+  "latest_releases": "Latest releases",
+  "search_anime": "Search anime"
 }

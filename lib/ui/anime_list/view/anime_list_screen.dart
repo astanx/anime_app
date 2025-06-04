@@ -23,11 +23,9 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   List<AnimeRelease>? _weekSchedule;
   List<Genre>? _genres;
   final repository = AnimeRepository();
-  final _textController = TextEditingController();
 
   @override
   void dispose() {
-    _textController.dispose();
     super.dispose();
   }
 
@@ -89,46 +87,6 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: ListView(
                     children: [
-                      // Row(
-                      //   children: [
-                      //     Expanded(
-                      //       child: TextField(
-                      //         controller: _textController,
-                      //         decoration: InputDecoration(
-                      //           labelText: l10n!.anime_search_placeholder,
-                      //           border: OutlineInputBorder(),
-                      //         ),
-                      //         textInputAction: TextInputAction.search,
-                      //         onSubmitted: (value) async {
-                      //           if (value.trim().isEmpty) {
-                      //             return;
-                      //           } else {
-                      //             final anime = await AnimeRepository()
-                      //                 .searchAnime(value);
-                      //             Navigator.of(context).pushNamed(
-                      //               '/genre/releases',
-                      //               arguments: {'genreReleases': anime},
-                      //             );
-                      //           }
-                      //         },
-                      //       ),
-                      //     ),
-                      //     const SizedBox(width: 10),
-                      //     IconButton(
-                      //       onPressed: () async {
-                      //         if (_textController.text.trim().isEmpty) {
-                      //           return;
-                      //         } else {
-                      //           Navigator.of(context).pushNamed(
-                      //             '/genre/releases',
-                      //             arguments: {'query': _textController.text},
-                      //           );
-                      //         }
-                      //       },
-                      //       icon: const Icon(Icons.search),
-                      //     ),
-                      //   ],
-                      // ),
                       SizedBox(
                         height: 540,
                         width: double.infinity,
@@ -147,51 +105,45 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Center(
-                                            child: Text(
-                                              l10n.app_title.toUpperCase(),
-                                              style: TextStyle(
-                                                fontSize: 32,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        SizedBox(),
+                                        Text(
+                                          l10n.app_title.toUpperCase(),
+                                          style: TextStyle(
+                                            fontSize: 32,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          Positioned(
-                                            right: 10,
-                                            child: PopupMenuButton<String>(
-                                              icon: const Icon(
-                                                Icons.person,
-                                                size: 32,
-                                              ),
-                                              itemBuilder:
-                                                  (BuildContext context) => [
-                                                    PopupMenuItem<String>(
-                                                      value: 'exit',
-                                                      child: ListTile(
-                                                        leading: Icon(
-                                                          Icons.exit_to_app,
-                                                        ),
-                                                        title: Text(l10n.exit),
-                                                      ),
+                                        ),
+                                        PopupMenuButton<String>(
+                                          icon: const Icon(
+                                            Icons.person,
+                                            size: 32,
+                                          ),
+                                          itemBuilder:
+                                              (BuildContext context) => [
+                                                PopupMenuItem<String>(
+                                                  value: 'exit',
+                                                  child: ListTile(
+                                                    leading: Icon(
+                                                      Icons.exit_to_app,
                                                     ),
-                                                  ],
-                                              onSelected: (String value) {
-                                                if (value == 'exit') {
-                                                  UserRepository().logout();
-                                                  Navigator.of(
-                                                    context,
-                                                  ).pushNamed('/');
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                                    title: Text(l10n.exit),
+                                                  ),
+                                                ),
+                                              ],
+                                          onSelected: (String value) {
+                                            if (value == 'exit') {
+                                              UserRepository().logout();
+                                              Navigator.of(
+                                                context,
+                                              ).pushNamed('/');
+                                            }
+                                          },
+                                        ),
+                                      ],
                                     ),
                                     Text(
                                       l10n.app_name.toUpperCase(),
@@ -238,6 +190,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                         ),
                       ),
                       ReleasesCarousel(releases: _weekSchedule!),
+                      SizedBox(height: 20),
                       Center(
                         child: Text(
                           l10n.genres.toUpperCase(),

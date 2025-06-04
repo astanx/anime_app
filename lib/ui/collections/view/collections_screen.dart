@@ -3,6 +3,7 @@ import 'package:anime_app/data/provider/collections_provider.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/l10n/collection_localization.dart';
 import 'package:anime_app/ui/collections/widgets/widgets.dart';
+import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -39,13 +40,9 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n!.my_collections),
-        centerTitle: true,
-        elevation: 0,
-      ),
+      bottomNavigationBar: AnimeBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

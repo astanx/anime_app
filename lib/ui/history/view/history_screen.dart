@@ -3,6 +3,7 @@ import 'package:anime_app/data/models/history.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/storage/history_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
+import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:anime_app/ui/history/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -48,7 +49,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('History')),
+      bottomNavigationBar: AnimeBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

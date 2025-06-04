@@ -176,4 +176,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get latest_releases => 'Последние релизы';
+
+  @override
+  String get search_anime => 'Поиск аниме';
 }

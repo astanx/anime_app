@@ -175,5 +175,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get this_week => 'This week';
 
   @override
-  String get latest_releases => 'Lates releases';
+  String get latest_releases => 'Latest releases';
+
+  @override
+  String get search_anime => 'Search anime';
 }

@@ -61,7 +61,7 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppLocalizations.of(context)!;
     int crossAxisCount = 2;
     if (screenWidth >= 600) {
       crossAxisCount = 3;
@@ -80,33 +80,22 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _textController,
-                              decoration: InputDecoration(
-                                labelText: l10n!.anime_search_placeholder,
-                                border: OutlineInputBorder(),
-                              ),
-                              textInputAction: TextInputAction.search,
-                              onSubmitted: (value) async {
-                                if (value.trim().isNotEmpty) {
-                                  final anime = await repository.searchAnime(
-                                    value,
-                                  );
-                                  setState(() {
-                                    _genreReleases = anime;
-                                    _query = value;
-                                  });
-                                } else {
-                                  _fetchAnime();
-                                }
-                              },
-                            ),
+                      TextField(
+                        controller: _textController,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          filled: true,
+                          fillColor: const Color(0xFF1B1F26),
+                          hintText: l10n.anime_search_placeholder.toUpperCase(),
+                          hintStyle: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            letterSpacing: 3,
                           ),
-                          const SizedBox(width: 10),
-                          IconButton(
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.search, color: Colors.white),
                             onPressed: () async {
                               if (_textController.text.trim().isNotEmpty) {
                                 final anime = await repository.searchAnime(
@@ -120,9 +109,21 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                                 _fetchAnime();
                               }
                             },
-                            icon: const Icon(Icons.search),
                           ),
-                        ],
+                        ),
+                        style: const TextStyle(color: Colors.white),
+                        textInputAction: TextInputAction.search,
+                        onSubmitted: (value) async {
+                          if (value.trim().isNotEmpty) {
+                            final anime = await repository.searchAnime(value);
+                            setState(() {
+                              _genreReleases = anime;
+                              _query = value;
+                            });
+                          } else {
+                            _fetchAnime();
+                          }
+                        },
                       ),
                       const SizedBox(height: 16),
                       Expanded(
