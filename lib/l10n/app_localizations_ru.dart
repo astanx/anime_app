@@ -158,4 +158,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get history => 'История';
+
+  @override
+  String get app_name => 'Oshavotik';
+
+  @override
+  String get app_title => 'Смотри аниме';
+
+  @override
+  String get exit => 'Выйти';
+
+  @override
+  String get genres => 'Жанры';
+
+  @override
+  String get this_week => 'На этой неделе';
+
+  @override
+  String get latest_releases => 'Последние релизы';
 }

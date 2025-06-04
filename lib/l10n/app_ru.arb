@@ -42,5 +42,12 @@
 
   "home": "Главная",
   "search": "Поиск",
-  "history": "История"
+  "history": "История",
+
+  "app_name": "Oshavotik",
+  "app_title": "Смотри аниме",
+  "exit": "Выйти",
+  "genres": "Жанры",
+  "this_week": "На этой неделе",
+  "latest_releases": "Последние релизы"
 }

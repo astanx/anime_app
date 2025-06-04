@@ -29,14 +29,14 @@ final darkTheme = ThemeData(
       fontSize: 20,
       fontWeight: FontWeight.bold,
     ),
-    bodyMedium: TextStyle(color: Colors.white70, fontSize: 18),
-    bodySmall: TextStyle(color: Colors.white54, fontSize: 14),
+    bodyMedium: TextStyle(color: Colors.white, fontSize: 18),
+    bodySmall: TextStyle(color: Colors.white, fontSize: 14),
     labelLarge: TextStyle(
       color: Colors.purpleAccent,
       fontSize: 16,
       fontWeight: FontWeight.w600,
     ),
-    labelSmall: TextStyle(color: Colors.grey, fontSize: 12),
+    labelSmall: TextStyle(color: Colors.white, fontSize: 12),
   ),
   cardTheme: const CardThemeData(
     color: Color(0xFF332525),

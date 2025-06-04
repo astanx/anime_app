@@ -1,4 +1,3 @@
-// import 'package:anime_app/data/repositories/user_repository.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 

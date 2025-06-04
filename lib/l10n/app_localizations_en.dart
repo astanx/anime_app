@@ -158,4 +158,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get history => 'History';
+
+  @override
+  String get app_name => 'Oshavotik';
+
+  @override
+  String get app_title => 'Watch anime';
+
+  @override
+  String get exit => 'Exit';
+
+  @override
+  String get genres => 'Genres';
+
+  @override
+  String get this_week => 'This week';
+
+  @override
+  String get latest_releases => 'Lates releases';
 }

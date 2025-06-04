@@ -346,6 +346,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'History'**
   String get history;
+
+  /// No description provided for @app_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Oshavotik'**
+  String get app_name;
+
+  /// No description provided for @app_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch anime'**
+  String get app_title;
+
+  /// No description provided for @exit.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit'**
+  String get exit;
+
+  /// No description provided for @genres.
+  ///
+  /// In en, this message translates to:
+  /// **'Genres'**
+  String get genres;
+
+  /// No description provided for @this_week.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get this_week;
+
+  /// No description provided for @latest_releases.
+  ///
+  /// In en, this message translates to:
+  /// **'Lates releases'**
+  String get latest_releases;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

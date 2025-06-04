@@ -18,6 +18,19 @@ class AnimeRepository extends BaseRepository {
         .replaceAll(' ', '');
   }
 
+  Future<List<AnimeRelease>> getWeekSchedule() async {
+    try {
+      final response = await dio.get('anime/schedule/week');
+
+      final data = response.data as List<dynamic>;
+      final schedule =
+          data.map((json) => AnimeRelease.fromJson(json["release"])).toList();
+      return schedule;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<List<AnimeRelease>> searchAnime(String query) async {
     try {
       final anilibriaResponse = await dio.get(

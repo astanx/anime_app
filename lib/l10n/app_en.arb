@@ -42,5 +42,12 @@
 
   "home": "Home",
   "search":"Search",
-  "history": "History"
+  "history": "History",
+
+  "app_name": "Oshavotik",
+  "app_title": "Watch anime",
+  "exit": "Exit",
+  "genres": "Genres",
+  "this_week": "This week",
+  "latest_releases": "Lates releases"
 }

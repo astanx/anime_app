@@ -4,6 +4,7 @@ import 'package:anime_app/data/provider/collections_provider.dart';
 import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/data/repositories/user_repository.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
@@ -19,6 +20,7 @@ class AnimeListScreen extends StatefulWidget {
 
 class _AnimeListScreenState extends State<AnimeListScreen> {
   List<AnimeRelease>? _animeList;
+  List<AnimeRelease>? _weekSchedule;
   List<Genre>? _genres;
   final repository = AnimeRepository();
   final _textController = TextEditingController();
@@ -46,10 +48,11 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
 
   Future<void> _fetchAnime() async {
     final animeList = await repository.getReleases(20);
-
+    final weekSchedule = await repository.getWeekSchedule();
     if (mounted) {
       setState(() {
         _animeList = animeList;
+        _weekSchedule = weekSchedule;
       });
     }
   }
@@ -67,7 +70,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppLocalizations.of(context)!;
     int crossAxisCount = 2;
     if (screenWidth >= 600) {
       crossAxisCount = 3;
@@ -86,49 +89,164 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: ListView(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _textController,
-                              decoration: InputDecoration(
-                                labelText: l10n!.anime_search_placeholder,
-                                border: OutlineInputBorder(),
-                              ),
-                              textInputAction: TextInputAction.search,
-                              onSubmitted: (value) async {
-                                if (value.trim().isEmpty) {
-                                  return;
-                                } else {
-                                  final anime = await AnimeRepository()
-                                      .searchAnime(value);
-                                  Navigator.of(context).pushNamed(
-                                    '/genre/releases',
-                                    arguments: {'genreReleases': anime},
-                                  );
-                                }
-                              },
+                      // Row(
+                      //   children: [
+                      //     Expanded(
+                      //       child: TextField(
+                      //         controller: _textController,
+                      //         decoration: InputDecoration(
+                      //           labelText: l10n!.anime_search_placeholder,
+                      //           border: OutlineInputBorder(),
+                      //         ),
+                      //         textInputAction: TextInputAction.search,
+                      //         onSubmitted: (value) async {
+                      //           if (value.trim().isEmpty) {
+                      //             return;
+                      //           } else {
+                      //             final anime = await AnimeRepository()
+                      //                 .searchAnime(value);
+                      //             Navigator.of(context).pushNamed(
+                      //               '/genre/releases',
+                      //               arguments: {'genreReleases': anime},
+                      //             );
+                      //           }
+                      //         },
+                      //       ),
+                      //     ),
+                      //     const SizedBox(width: 10),
+                      //     IconButton(
+                      //       onPressed: () async {
+                      //         if (_textController.text.trim().isEmpty) {
+                      //           return;
+                      //         } else {
+                      //           Navigator.of(context).pushNamed(
+                      //             '/genre/releases',
+                      //             arguments: {'query': _textController.text},
+                      //           );
+                      //         }
+                      //       },
+                      //       icon: const Icon(Icons.search),
+                      //     ),
+                      //   ],
+                      // ),
+                      SizedBox(
+                        height: 540,
+                        width: double.infinity,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.asset(
+                              'assets/images/mikasa.png',
+                              fit: BoxFit.cover,
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          IconButton(
-                            onPressed: () async {
-                              if (_textController.text.trim().isEmpty) {
-                                return;
-                              } else {
-                                Navigator.of(context).pushNamed(
-                                  '/genre/releases',
-                                  arguments: {'query': _textController.text},
-                                );
-                              }
-                            },
-                            icon: const Icon(Icons.search),
-                          ),
-                        ],
+
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Center(
+                                            child: Text(
+                                              l10n.app_title.toUpperCase(),
+                                              style: TextStyle(
+                                                fontSize: 32,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            right: 10,
+                                            child: PopupMenuButton<String>(
+                                              icon: const Icon(
+                                                Icons.person,
+                                                size: 32,
+                                              ),
+                                              itemBuilder:
+                                                  (BuildContext context) => [
+                                                    PopupMenuItem<String>(
+                                                      value: 'exit',
+                                                      child: ListTile(
+                                                        leading: Icon(
+                                                          Icons.exit_to_app,
+                                                        ),
+                                                        title: Text(l10n.exit),
+                                                      ),
+                                                    ),
+                                                  ],
+                                              onSelected: (String value) {
+                                                if (value == 'exit') {
+                                                  UserRepository().logout();
+                                                  Navigator.of(
+                                                    context,
+                                                  ).pushNamed('/');
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Text(
+                                      l10n.app_name.toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 72,
+
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 20),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: 10.0,
+                          top: 20.0,
+                          bottom: 10.0,
+                        ),
+                        child: Text(
+                          l10n.latest_releases.toUpperCase(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 3,
+                          ),
+                        ),
+                      ),
                       ReleasesCarousel(releases: _animeList!),
-                      const SizedBox(height: 20),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: 10.0,
+                          top: 20.0,
+                          bottom: 10.0,
+                        ),
+                        child: Text(
+                          l10n.this_week.toUpperCase(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 3,
+                          ),
+                        ),
+                      ),
+                      ReleasesCarousel(releases: _weekSchedule!),
+                      Center(
+                        child: Text(
+                          l10n.genres.toUpperCase(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 3,
+                          ),
+                        ),
+                      ),
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
