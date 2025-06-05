@@ -1,6 +1,7 @@
 import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/history.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class HistoryCard extends StatelessWidget {
@@ -83,7 +84,7 @@ class HistoryCard extends StatelessWidget {
                       children: [
                         if (anime.anime.episodes.length >
                             anime.lastWatchedEpisode + 1)
-                          Text(
+                          AutoSizeText(
                             anime.isWatched
                                 ? l10n!.continue_with_episode(
                                   anime.lastWatchedEpisode + 2,
@@ -91,8 +92,9 @@ class HistoryCard extends StatelessWidget {
                                 : l10n!.continue_watching_episode(
                                   anime.lastWatchedEpisode + 1,
                                 ),
+                            maxFontSize: 14,
+                            minFontSize: 10,
                             style: TextStyle(
-                              fontSize: anime.kodikResult != null ? 12 : 15,
                               color: Colors.blue,
                               fontWeight: FontWeight.w500,
                             ),

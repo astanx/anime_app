@@ -22,7 +22,7 @@ class AnimeBar extends StatelessWidget {
           GestureDetector(
             onTap: () {
               if (!isActive) {
-                Navigator.pushNamed(context, route);
+                Navigator.pushReplacementNamed(context, route);
               }
             },
             child: Icon(icon, color: color),

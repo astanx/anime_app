@@ -18,11 +18,7 @@ class SearchInput extends StatelessWidget {
         filled: true,
         fillColor: const Color(0xFF1B1F26),
         hintText: l10n.anime_search_placeholder.toUpperCase(),
-        hintStyle: const TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          letterSpacing: 3,
-        ),
+        hintStyle: const TextStyle(color: Colors.white, fontSize: 18),
         suffixIcon: IconButton(
           icon: const Icon(Icons.search, color: Colors.white),
           onPressed: () {

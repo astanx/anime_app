@@ -3,6 +3,7 @@ import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:anime_app/ui/search/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -47,13 +48,14 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: FractionallySizedBox(
                       widthFactor: 0.6,
                       child: Center(
-                        child: Text(
+                        child: AutoSizeText(
                           l10n.search_anime.toUpperCase(),
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 64,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          maxLines: 2,
+                          minFontSize: 48,
+                          maxFontSize: 64,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
