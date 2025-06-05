@@ -174,7 +174,7 @@ class AnimeRelease {
       type: AnimeType(value: shikimori.kind, description: ''),
       year: kodik.year,
       names: AnimeNames(
-        main: shikimori.name,
+        main: shikimori.russian,
         english:
             shikimori.english.isNotEmpty
                 ? shikimori.english.first
