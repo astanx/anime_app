@@ -62,33 +62,36 @@ class FavouritesCard extends StatelessWidget {
                     style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                   ),
                   SizedBox(height: 8),
-                  TextButton(
-                    onPressed:
-                        () => {
-                          Navigator.of(context).pushNamed(
-                            '/anime/episodes',
-                            arguments: {
-                              'anime': anime,
-                              'kodikResult': anime.release.kodikResult,
-                            },
-                          ),
-                        },
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFF6B5252),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 50,
-                        vertical: 12,
+                  SizedBox(
+                    width: 500,
+                    child: TextButton(
+                      onPressed:
+                          () => {
+                            Navigator.of(context).pushNamed(
+                              '/anime/episodes',
+                              arguments: {
+                                'anime': anime,
+                                'kodikResult': anime.release.kodikResult,
+                              },
+                            ),
+                          },
+                      style: TextButton.styleFrom(
+                        backgroundColor: const Color(0xFF6B5252),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 50,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      child: Text(l10n.view_anime),
                     ),
-                    child: Text('View anime'),
                   ),
                 ],
               ),

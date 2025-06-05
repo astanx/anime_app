@@ -388,6 +388,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search anime'**
   String get search_anime;
+
+  /// No description provided for @view_anime.
+  ///
+  /// In en, this message translates to:
+  /// **'View anime'**
+  String get view_anime;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

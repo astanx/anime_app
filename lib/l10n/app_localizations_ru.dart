@@ -179,4 +179,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get search_anime => 'Поиск аниме';
+
+  @override
+  String get view_anime => 'Смотреть аниме';
 }

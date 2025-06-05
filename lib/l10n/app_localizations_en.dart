@@ -179,4 +179,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get search_anime => 'Search anime';
+
+  @override
+  String get view_anime => 'View anime';
 }

@@ -122,13 +122,13 @@ class VideoControllerProvider extends ChangeNotifier {
             time >=
             Duration(
               seconds:
-                  _anime!.episodes[_episodeIndex!].opening?.start ??
+                  _anime!.episodes[_episodeIndex!].ending?.start ??
                   _anime!.episodes[_episodeIndex!].duration - 60,
             ),
       );
 
       _timecodeProvider!.updateTimecode(timecode, notify: !_isDisposing);
-
+      print(_kodikResult);
       final history = History(
         animeId: _anime!.release.id,
         lastWatchedEpisode: _episodeIndex!,
@@ -136,7 +136,7 @@ class VideoControllerProvider extends ChangeNotifier {
             time >=
             Duration(
               seconds:
-                  _anime!.episodes[_episodeIndex!].opening?.start ??
+                  _anime!.episodes[_episodeIndex!].ending?.start ??
                   _anime!.episodes[_episodeIndex!].duration - 60,
             ),
         kodikResult: _kodikResult,
