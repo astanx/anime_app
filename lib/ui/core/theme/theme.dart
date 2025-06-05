@@ -36,7 +36,7 @@ final darkTheme = ThemeData(
       fontSize: 16,
       fontWeight: FontWeight.w600,
     ),
-    labelSmall: TextStyle(color: Colors.white, fontSize: 12),
+    labelSmall: TextStyle(color: Colors.white, fontSize: 10),
   ),
   cardTheme: const CardThemeData(
     color: Color(0xFF332525),

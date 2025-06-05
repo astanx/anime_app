@@ -53,44 +53,67 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<CollectionType>(
-                        isExpanded: true,
-                        value: _type,
-                        icon: Icon(
-                          Icons.arrow_drop_down,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                        dropdownColor:
-                            Theme.of(context).colorScheme.primaryContainer,
-                        onChanged: (CollectionType? newType) async {
-                          if (newType != null) {
-                            setState(() {
-                              _type = newType;
-                            });
-                            await provider.fetchCollection(newType);
-                          }
-                        },
-                        items:
-                            CollectionType.values.map((CollectionType type) {
-                              return DropdownMenuItem<CollectionType>(
-                                value: type,
+                  Center(
+                    child: Container(
+                      width: 300,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6B5252),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<CollectionType>(
+                          isExpanded: true,
+                          alignment: Alignment.center,
+                          value: _type,
+                          icon: Icon(
+                            Icons.arrow_drop_down,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          dropdownColor: const Color(0xFF6B5252),
+                          onChanged: (CollectionType? newType) async {
+                            if (newType != null) {
+                              setState(() {
+                                _type = newType;
+                              });
+                              await provider.fetchCollection(newType);
+                            }
+                          },
+                          selectedItemBuilder: (BuildContext context) {
+                            return CollectionType.values.map((
+                              CollectionType type,
+                            ) {
+                              return Center(
                                 child: Text(
                                   type.localizedName(context),
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
                                   ),
                                 ),
                               );
-                            }).toList(),
+                            }).toList();
+                          },
+                          items:
+                              CollectionType.values.map((CollectionType type) {
+                                final bool isSelected = type == _type;
+                                return DropdownMenuItem<CollectionType>(
+                                  value: type,
+                                  child: Center(
+                                    child: Text(
+                                      type.localizedName(context),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color:
+                                            isSelected
+                                                ? Color(0xFF451C41)
+                                                : Colors.grey[300],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                        ),
                       ),
                     ),
                   ),
