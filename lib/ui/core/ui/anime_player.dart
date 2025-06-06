@@ -1,6 +1,7 @@
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
+import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/core/ui/fullscreen_player.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +34,8 @@ class AnimePlayer extends StatelessWidget {
         final controller = provider.controller;
         final position = controller?.value.position ?? Duration.zero;
         final duration = controller?.value.duration ?? Duration.zero;
+        final episodeIndex = provider.episodeIndex;
+        final l10n = AppLocalizations.of(context);
 
         if (!(controller?.value.isInitialized ?? false)) {
           return const Center(child: CircularProgressIndicator());
@@ -54,6 +57,7 @@ class AnimePlayer extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    const SizedBox(height: 12),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
@@ -114,6 +118,87 @@ class AnimePlayer extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          if (provider.openingStart != null &&
+                              position >= provider.openingStart! &&
+                              position <=
+                                  provider.openingStart! +
+                                      const Duration(seconds: 20))
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                backgroundColor: const Color.fromARGB(
+                                  179,
+                                  158,
+                                  158,
+                                  158,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed:
+                                  () => provider.seek(provider.openingEnd!),
+                              child: Text(
+                                l10n!.skip_opening,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 8,
+                                ),
+                              ),
+                            )
+                          else
+                            const SizedBox.shrink(),
+                          if (episodeIndex != null &&
+                              episodeIndex < anime.episodes.length - 1 &&
+                              ((provider.endingStart != null &&
+                                      position >= provider.endingStart! &&
+                                      position <=
+                                          provider.endingStart! +
+                                              const Duration(seconds: 20)) ||
+                                  position == duration))
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                backgroundColor: const Color.fromARGB(
+                                  179,
+                                  158,
+                                  158,
+                                  158,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () {
+                                provider.seek(
+                                  Duration(
+                                    seconds:
+                                        anime.episodes[episodeIndex].duration,
+                                  ),
+                                );
+                                provider.loadEpisode(
+                                  anime,
+                                  episodeIndex + 1,
+                                  context,
+                                  kodikResult,
+                                );
+                              },
+                              child: Text(
+                                l10n!.next_episode,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 8,
+                                ),
+                              ),
+                            )
+                          else
+                            const SizedBox.shrink(),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                           Text(
                             formatDuration(position),
                             style: const TextStyle(
@@ -132,6 +217,8 @@ class AnimePlayer extends StatelessWidget {
                       ),
                     ),
                     Slider(
+                      activeColor: Colors.white,
+                      inactiveColor: Colors.grey[600],
                       value: position.inSeconds.toDouble().clamp(
                         0,
                         duration.inSeconds.toDouble(),

@@ -15,7 +15,7 @@ class AnimeRelease {
   final bool isOngoing;
   final AgeRating ageRating;
   final PublishDay publishDay;
-  final String description;
+  final String? description;
   final int episodesTotal;
   final bool isInProduction;
   final bool isBlockedByGeo;
@@ -172,7 +172,7 @@ class AnimeRelease {
     return AnimeRelease(
       id: -1,
       type: AnimeType(value: shikimori.kind, description: ''),
-      year: kodik.year,
+      year: shikimori.airedOn?.year ?? kodik.year,
       names: AnimeNames(
         main: shikimori.russian,
         english:

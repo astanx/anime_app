@@ -447,15 +447,16 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          anime.release.description,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            fontSize: 12,
+                      if (anime.release.description != null)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            anime.release.description!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontSize: 12,
+                            ),
                           ),
                         ),
-                      ),
                       if (_showKodikPlayer && _kodikPlayerUrl != null)
                         Column(
                           children: [

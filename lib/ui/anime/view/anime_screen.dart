@@ -92,16 +92,18 @@ class AnimeScreen extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        anime.release.description,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
+                    if (anime.release.description != null) ...[
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          anime.release.description!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 12,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                     const SizedBox(height: 8),
                     Text(
                       anime.episodes[episodeIndex].name != null ||

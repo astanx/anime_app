@@ -15,9 +15,9 @@ class ShikimoriAnime {
   final List<String> english;
   final List<String> japanese;
   final List<String> synonyms;
-  final String licenseNameRu;
+  final String? licenseNameRu;
   final int duration;
-  final String description;
+  final String? description;
   final String descriptionHtml;
   final String? franchise;
   final bool favoured;
@@ -238,7 +238,7 @@ class Studio {
   final String name;
   final String filteredName;
   final bool real;
-  final String image;
+  final String? image;
 
   Studio({
     required this.id,
@@ -264,7 +264,7 @@ class Video {
   final String url;
   final String imageUrl;
   final String playerUrl;
-  final String name;
+  final String? name;
   final String kind;
   final String hosting;
 

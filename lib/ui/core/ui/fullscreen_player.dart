@@ -380,6 +380,8 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                               minHeight: 3,
                                             ),
                                             Slider(
+                                              activeColor: Colors.white,
+                                              inactiveColor: Colors.grey[600],
                                               value:
                                                   position.inSeconds.toDouble(),
                                               min: 0,

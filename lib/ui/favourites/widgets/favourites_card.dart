@@ -55,12 +55,13 @@ class FavouritesCard extends StatelessWidget {
                         : l10n.series,
                     style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                   ),
-                  Text(
-                    anime.release.description,
-                    maxLines: 6,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                  ),
+                  if (anime.release.description != null)
+                    Text(
+                      anime.release.description!,
+                      maxLines: 6,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                    ),
                   SizedBox(height: 8),
                   SizedBox(
                     width: 500,
