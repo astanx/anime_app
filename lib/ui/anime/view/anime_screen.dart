@@ -3,22 +3,12 @@ import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
-import 'package:anime_app/ui/anime/widgets/fullscreen_player.dart';
+import 'package:anime_app/ui/core/ui/anime_player.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player/video_player.dart';
 
 class AnimeScreen extends StatelessWidget {
   const AnimeScreen({super.key});
-  String formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
-    final seconds = duration.inSeconds.remainder(60);
-    return hours > 0
-        ? '${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}'
-        : '${twoDigits(minutes)}:${twoDigits(seconds)}';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,10 +69,7 @@ class AnimeScreen extends StatelessWidget {
     ThemeData theme,
     KodikResult? kodikResult,
   ) {
-    final controller = provider.controller;
     final episodeIndex = provider.episodeIndex;
-    final position = controller?.value.position ?? Duration.zero;
-    final duration = controller?.value.duration ?? Duration.zero;
     final l10n = AppLocalizations.of(context);
     return episodeIndex == null
         ? const Center(child: CircularProgressIndicator())
@@ -128,126 +115,7 @@ class AnimeScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    if (controller?.value.isInitialized ?? false)
-                      AspectRatio(
-                        aspectRatio: controller!.value.aspectRatio,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            AspectRatio(
-                              aspectRatio: controller.value.aspectRatio,
-                              child: VideoPlayer(controller),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.replay_10,
-                                            color: Colors.white,
-                                          ),
-                                          onPressed:
-                                              () => provider.seek(
-                                                position -
-                                                    Duration(seconds: 10),
-                                              ),
-                                        ),
-                                        IconButton(
-                                          icon: Icon(
-                                            controller.value.isPlaying
-                                                ? Icons.pause
-                                                : Icons.play_arrow,
-                                            color: Colors.white,
-                                          ),
-                                          onPressed: provider.togglePlayPause,
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.forward_10,
-                                            color: Colors.white,
-                                          ),
-                                          onPressed:
-                                              () => provider.seek(
-                                                position +
-                                                    Duration(seconds: 10),
-                                              ),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.fullscreen,
-                                            color: Colors.white,
-                                          ),
-                                          onPressed:
-                                              () => Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder:
-                                                      (_) => FullscreenPlayer(
-                                                        provider: provider,
-                                                        anime: anime,
-                                                        kodikResult:
-                                                            kodikResult,
-                                                      ),
-                                                ),
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          formatDuration(position),
-                                          style: const TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w300,
-                                          ),
-                                        ),
-                                        Text(
-                                          formatDuration(duration),
-                                          style: const TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w300,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Slider(
-                                    value: position.inSeconds.toDouble(),
-                                    min: 0,
-                                    max: duration.inSeconds.toDouble(),
-                                    onChanged:
-                                        (value) => provider.seek(
-                                          Duration(seconds: value.toInt()),
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    else
-                      const Center(child: CircularProgressIndicator()),
+                    AnimePlayer(anime: anime, kodikResult: kodikResult),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
