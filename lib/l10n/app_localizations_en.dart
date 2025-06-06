@@ -115,12 +115,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String continue_with_episode(Object episode) {
-    return 'Continue with episode $episode →';
+    return 'Continue with episode $episode ';
   }
 
   @override
   String continue_watching_episode(Object episode) {
-    return 'Continue watching episode $episode →';
+    return 'Continue watching episode $episode ';
   }
 
   @override
@@ -182,4 +182,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get view_anime => 'View anime';
+
+  @override
+  String get continue_watching_movie => 'Continue watching movie';
 }

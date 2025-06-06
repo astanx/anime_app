@@ -28,8 +28,8 @@
   "no_history_found": "История пуста.",
   "last_watched_episode": "Последний просмотренный эпизод: {last_watched}",
   "continue_with_kodik": "Продолжить с Kodik",
-  "continue_with_episode": "Продолжить с эпизода {episode} →",
-  "continue_watching_episode": "Продолжить просмотр эпизода {episode} →",
+  "continue_with_episode": "Продолжить с эпизода {episode} ",
+  "continue_watching_episode": "Продолжить просмотр эпизода {episode} ",
   "no_new_episodes": "Новых эпизодов нет :(",
   "login_title": "Войти через Anilibria",
   "login_label": "Логин",
@@ -51,5 +51,6 @@
   "this_week": "На этой неделе",
   "latest_releases": "Последние релизы",
   "search_anime": "Поиск аниме",
-  "view_anime": "Смотреть аниме"
+  "view_anime": "Смотреть аниме",
+  "continue_watching_movie": "Продолжить просмотр фильма"
 }

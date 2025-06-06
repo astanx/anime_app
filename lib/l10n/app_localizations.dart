@@ -266,13 +266,13 @@ abstract class AppLocalizations {
   /// No description provided for @continue_with_episode.
   ///
   /// In en, this message translates to:
-  /// **'Continue with episode {episode} →'**
+  /// **'Continue with episode {episode} '**
   String continue_with_episode(Object episode);
 
   /// No description provided for @continue_watching_episode.
   ///
   /// In en, this message translates to:
-  /// **'Continue watching episode {episode} →'**
+  /// **'Continue watching episode {episode} '**
   String continue_watching_episode(Object episode);
 
   /// No description provided for @no_new_episodes.
@@ -394,6 +394,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View anime'**
   String get view_anime;
+
+  /// No description provided for @continue_watching_movie.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue watching movie'**
+  String get continue_watching_movie;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

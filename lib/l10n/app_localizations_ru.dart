@@ -115,12 +115,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String continue_with_episode(Object episode) {
-    return 'Продолжить с эпизода $episode →';
+    return 'Продолжить с эпизода $episode ';
   }
 
   @override
   String continue_watching_episode(Object episode) {
-    return 'Продолжить просмотр эпизода $episode →';
+    return 'Продолжить просмотр эпизода $episode ';
   }
 
   @override
@@ -182,4 +182,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get view_anime => 'Смотреть аниме';
+
+  @override
+  String get continue_watching_movie => 'Продолжить просмотр фильма';
 }

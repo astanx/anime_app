@@ -28,8 +28,8 @@
   "no_history_found": "No history found.",
   "last_watched_episode": "Last watched episode: {last_watched}",
   "continue_with_kodik": "Continue with Kodik",
-  "continue_with_episode": "Continue with episode {episode} →",
-  "continue_watching_episode": "Continue watching episode {episode} →",
+  "continue_with_episode": "Continue with episode {episode} ",
+  "continue_watching_episode": "Continue watching episode {episode} ",
   "no_new_episodes": "There are no new episodes :(",
   "login_title": "Login with Anilibria",
   "login_label": "Login",
@@ -51,5 +51,6 @@
   "this_week": "This week",
   "latest_releases": "Latest releases",
   "search_anime": "Search anime",
-  "view_anime": "View anime"
+  "view_anime": "View anime",
+  "continue_watching_movie": "Continue watching movie"
 }
