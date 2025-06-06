@@ -1,4 +1,3 @@
-import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -36,10 +35,12 @@ class SearchInput extends StatelessWidget {
       onSubmitted: (value) async {
         if (value.trim().isEmpty) return;
 
-        final anime = await AnimeRepository().searchAnime(value);
-        Navigator.of(
-          context,
-        ).pushNamed('/genre/releases', arguments: {'genreReleases': anime});
+        final query = value.trim();
+        if (query.isNotEmpty) {
+          Navigator.of(
+            context,
+          ).pushNamed('/genre/releases', arguments: {'query': query});
+        }
       },
     );
   }

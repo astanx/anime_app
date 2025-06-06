@@ -116,6 +116,11 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       context,
       listen: false,
     );
+
+    final collectionProvider = Provider.of<CollectionsProvider>(
+      context,
+      listen: false,
+    );
     final l10n = AppLocalizations.of(context);
     final isFavourite =
         anime.episodes.isNotEmpty
@@ -125,14 +130,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
             );
     final collection =
         anime.episodes.isNotEmpty
-            ? Provider.of<CollectionsProvider>(
-              context,
-              listen: false,
-            ).getCollectionType(anime)
-            : Provider.of<CollectionsProvider>(
-              context,
-              listen: false,
-            ).getKodikCollectionType(anime);
+            ? collectionProvider.getCollectionType(anime)
+            : collectionProvider.getKodikCollectionType(anime);
 
     return Scaffold(
       appBar: AppBar(
@@ -335,14 +334,6 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                 padding: const EdgeInsets.all(16),
                               ),
                               onPressed: () async {
-                                final provider =
-                                    Provider.of<CollectionsProvider>(
-                                      context,
-                                      listen: false,
-                                    );
-                                final currentType = provider.getCollectionType(
-                                  anime,
-                                );
                                 await showModalBottomSheet(
                                   context: context,
                                   builder:
@@ -377,10 +368,10 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                                       ),
                                                     ),
                                                     selected:
-                                                        currentType == type,
+                                                        collection == type,
                                                     onTap: () async {
-                                                      if (currentType != type) {
-                                                        await provider
+                                                      if (collection != type) {
+                                                        await collectionProvider
                                                             .addToCollection(
                                                               type,
                                                               anime,

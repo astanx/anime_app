@@ -38,7 +38,7 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             Image.asset('assets/images/search_page.png', fit: BoxFit.cover),
             Padding(
-              padding: EdgeInsets.all(25.0),
+              padding: EdgeInsets.all(30.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
