@@ -32,7 +32,7 @@
   "continue_watching_episode": "Continue watching episode {episode} ",
   "no_new_episodes": "There are no new episodes :(",
   "login_title": "Login with Anilibria",
-  "login_label": "Login",
+  "login_label": "Username",
   "password_label": "Password",
   "login_empty_error": "Please enter your login",
   "password_empty_error": "Please enter your password",

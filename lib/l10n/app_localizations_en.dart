@@ -130,7 +130,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login_title => 'Login with Anilibria';
 
   @override
-  String get login_label => 'Login';
+  String get login_label => 'Username';
 
   @override
   String get password_label => 'Password';

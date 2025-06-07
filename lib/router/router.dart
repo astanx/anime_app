@@ -10,8 +10,8 @@ import 'package:anime_app/ui/search/search.dart';
 import 'package:anime_app/ui/splash/splash.dart';
 
 final routes = {
-  '/': (context) => const LoginScreen(),
-  '/login/anilibria': (context) => const AnilibriaLoginScreen(),
+  // '/': (context) => const LoginScreen(),
+  '/': (context) => const AnilibriaLoginScreen(),
   '/anime/list': (context) => const AnimeListScreen(),
   '/anime': (context) => const AnimeScreen(),
   '/anime/episodes': (context) => const AnimeEpisodesScreen(),

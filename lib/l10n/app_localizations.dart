@@ -290,7 +290,7 @@ abstract class AppLocalizations {
   /// No description provided for @login_label.
   ///
   /// In en, this message translates to:
-  /// **'Login'**
+  /// **'Username'**
   String get login_label;
 
   /// No description provided for @password_label.
