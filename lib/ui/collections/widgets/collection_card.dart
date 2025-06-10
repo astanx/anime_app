@@ -48,9 +48,10 @@ class CollectionCard extends StatelessWidget {
                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                   Text(
-                    anime.release.id != -1
+                    anime.release.episodesTotal > 0
                         ? '${l10n.episode_count(anime.release.episodesTotal)} ${anime.release.isOngoing ? '| ${l10n.ongoing}' : ''}'
-                        : anime.release.kodikResult?.type == 'anime'
+                        : anime.release.kodikResult?.type == 'anime' ||
+                            anime.release.id != -1
                         ? l10n.movie
                         : l10n.series,
                     style: TextStyle(fontSize: 10, color: Colors.grey[600]),

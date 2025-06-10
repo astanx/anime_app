@@ -134,7 +134,6 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
             ? collectionProvider.getCollectionType(anime)
             : collectionProvider.getKodikCollectionType(anime);
 
-    // Wrap the Scaffold with ChangeNotifierProvider for VideoControllerProvider
     return ChangeNotifierProvider(
       create: (context) {
         final provider = VideoControllerProvider();
@@ -253,8 +252,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                         ),
                       const SizedBox(height: 4),
                       Text(
-                        anime.release.id != -1 &&
-                                anime.release.episodesTotal > 0
+                        anime.release.episodesTotal > 0
                             ? '${l10n!.episode_count(anime.release.episodesTotal)} ${anime.release.isOngoing ? '| ${l10n.ongoing}' : ''}'
                             : kodikResult?.type == 'anime'
                             ? l10n!.movie
@@ -476,7 +474,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                         ),
                       if (!_showKodikPlayer && anime.release.episodesTotal == 0)
                         AnimePlayer(anime: anime, kodikResult: kodikResult)
-                      else if (anime.release.episodesTotal > 0)
+                      else if (anime.release.episodesTotal > 0 &&
+                          anime.release.id != -1)
                         Column(
                           children: [
                             Text(
