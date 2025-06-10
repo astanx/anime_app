@@ -128,7 +128,6 @@ class VideoControllerProvider extends ChangeNotifier {
       );
 
       _timecodeProvider!.updateTimecode(timecode, notify: !_isDisposing);
-      print(_kodikResult);
       final history = History(
         animeId: _anime!.release.id,
         lastWatchedEpisode: _episodeIndex!,

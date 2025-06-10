@@ -28,9 +28,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     final futures =
         history.map((h) async {
-          if (h.animeId == -1) {
+          if (h.animeId == -1 && h.kodikResult?.shikimoriId != null) {
+            final shikimori = await repository.getShikimoriAnimeById(
+              h.kodikResult!.shikimoriId!,
+            );
             return AnimeWithHistory.combineWithHistory(
-              anime: Anime.fromKodik(h.kodikResult!),
+              anime: Anime.fromKodikAndShikimori(h.kodikResult!, shikimori),
               history: h,
             );
           }

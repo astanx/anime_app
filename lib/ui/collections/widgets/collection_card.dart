@@ -65,6 +65,7 @@ class CollectionCard extends StatelessWidget {
                   SizedBox(height: 8),
                   SizedBox(
                     width: 500,
+                    height: 50,
                     child: TextButton(
                       onPressed:
                           () => {
@@ -79,10 +80,7 @@ class CollectionCard extends StatelessWidget {
                       style: TextButton.styleFrom(
                         backgroundColor: const Color(0xFF6B5252),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 50,
-                          vertical: 12,
-                        ),
+
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),

@@ -82,6 +82,7 @@ class HistoryCard extends StatelessWidget {
                   SizedBox(height: 8),
                   SizedBox(
                     width: 500,
+                    height: 50,
                     child: TextButton(
                       onPressed:
                           () => {
@@ -96,10 +97,6 @@ class HistoryCard extends StatelessWidget {
                       style: TextButton.styleFrom(
                         backgroundColor: const Color(0xFF6B5252),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 50,
-                          vertical: 12,
-                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -111,12 +108,14 @@ class HistoryCard extends StatelessWidget {
                       child: Text(l10n.view_anime),
                     ),
                   ),
+                  SizedBox(height: 8),
 
                   if (anime.anime.episodes.length >
                           anime.lastWatchedEpisode + 1 ||
-                      !anime.isWatched)
+                      !anime.isWatched) ...[
                     SizedBox(
                       width: 500,
+                      height: 50,
                       child: TextButton(
                         onPressed: () => _openNextEpisode(context),
                         style: TextButton.styleFrom(
@@ -156,16 +155,17 @@ class HistoryCard extends StatelessWidget {
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                       ),
-                    )
-                  else if (!onlyKodik)
+                    ),
+                    SizedBox(height: 8),
+                  ] else if (!onlyKodik) ...[
                     SizedBox(
                       width: 500,
+                      height: 50,
                       child: TextButton(
                         onPressed: () => {},
                         style: TextButton.styleFrom(
                           backgroundColor: const Color(0xFF6B5252),
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 30),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -185,15 +185,17 @@ class HistoryCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    SizedBox(height: 8),
+                  ],
                   if (anime.kodikResult != null)
                     SizedBox(
                       width: 500,
+                      height: 50,
                       child: TextButton(
                         onPressed: () => _openKodik(context),
                         style: TextButton.styleFrom(
                           backgroundColor: const Color(0xFF6B5252),
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 30),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),

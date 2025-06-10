@@ -25,7 +25,7 @@ class AnimeBar extends StatelessWidget {
                 Navigator.pushReplacementNamed(context, route);
               }
             },
-            child: Icon(icon, color: color),
+            child: Icon(icon, color: color, size: 30),
           ),
           Text(label, style: TextStyle(fontSize: 10, color: color)),
         ],

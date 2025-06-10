@@ -49,8 +49,6 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
           child: Consumer<CollectionsProvider>(
             builder: (context, provider, _) {
               final collections = provider.collections;
-
-              print(collections[_type]);
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
