@@ -74,7 +74,6 @@ class CollectionsProvider extends ChangeNotifier {
   ]) async {
     final uniqueId = anime.uniqueId;
 
-    // Remove from all collections using uniqueId
     for (final entry in _collections.entries) {
       entry.value.data.removeWhere((a) => a.uniqueId == uniqueId);
     }
