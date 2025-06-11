@@ -123,16 +123,9 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       listen: false,
     );
     final l10n = AppLocalizations.of(context);
-    final isFavourite =
-        anime.episodes.isNotEmpty
-            ? favouritesProvider.isFavourite(anime.release.id)
-            : favouritesProvider.isFavouriteKodik(
-              anime.release.kodikResult?.shikimoriId,
-            );
-    final collection =
-        anime.episodes.isNotEmpty
-            ? collectionProvider.getCollectionType(anime)
-            : collectionProvider.getKodikCollectionType(anime);
+    final isFavourite = favouritesProvider.isFavourite(anime);
+
+    final collection = collectionProvider.getCollectionType(anime);
 
     return ChangeNotifierProvider(
       create: (context) {
@@ -159,11 +152,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
               IconButton(
                 icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
                 color: isFavourite ? theme.colorScheme.secondary : null,
-                onPressed:
-                    () =>
-                        anime.episodes.isNotEmpty
-                            ? favouritesProvider.toggleFavourite(anime)
-                            : favouritesProvider.toggleKodikFavourite(anime),
+                onPressed: () => favouritesProvider.toggleFavourite(anime),
               ),
               if (kodikResult != null && anime.episodes.isNotEmpty)
                 IconButton(

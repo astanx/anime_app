@@ -1,4 +1,3 @@
-import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
@@ -30,11 +29,20 @@ class CollectionsProvider extends ChangeNotifier {
   Future<void> fetchCollection(CollectionType type, [int page = 1]) async {
     if (!_hasFetched[type]! || page > 1) {
       final collection = await _repository.getCollections(type, page, _limit);
+
       if (_collections[type] == null) {
         _collections[type] = collection;
       } else {
-        _collections[type]!.data.addAll(collection.data);
+        final existingIds =
+            _collections[type]!.data.map((a) => a.uniqueId).toSet();
+        final newItems =
+            collection.data
+                .where((a) => !existingIds.contains(a.uniqueId))
+                .toList();
+
+        _collections[type]!.data.addAll(newItems);
       }
+
       if (collection.data.length < _limit) {
         _hasMore[type] = false;
       }
@@ -64,53 +72,35 @@ class CollectionsProvider extends ChangeNotifier {
     Anime anime, [
     KodikResult? kodikResult,
   ]) async {
-    if (anime.release.id != -1) {
-      for (final entry in _collections.entries) {
-        entry.value.data.removeWhere((a) => a.release.id == anime.release.id);
-      }
-      await _repository.addToCollection(type, anime.release.id);
-    }
+    final uniqueId = anime.uniqueId;
+
+    // Remove from all collections using uniqueId
     for (final entry in _collections.entries) {
-      entry.value.data.removeWhere(
-        (a) => a.release.kodikResult?.shikimoriId == kodikResult?.shikimoriId,
-      );
+      entry.value.data.removeWhere((a) => a.uniqueId == uniqueId);
     }
-    if (kodikResult?.shikimoriId != null) {
-      await _repository.addToCollection(
-        type,
-        int.parse('$kodikIdPattern${kodikResult!.shikimoriId}'),
-      );
-    }
+
+    await _repository.addToCollection(type, uniqueId);
+
+    final animeToAdd =
+        kodikResult != null
+            ? Anime.fromAnilibriaAndKodik(kodikResult, anime)
+            : anime;
 
     if (_collections[type] == null) {
       await fetchCollection(type);
-    }
-
-    if (kodikResult != null) {
-      _collections[type]!.data.add(
-        Anime.fromAnilibriaAndKodik(kodikResult, anime),
-      );
     } else {
-      _collections[type]!.data.add(anime);
+      if (!_collections[type]!.data.any((a) => a.uniqueId == uniqueId)) {
+        _collections[type]!.data.add(animeToAdd);
+      }
     }
 
     notifyListeners();
   }
 
   CollectionType? getCollectionType(Anime anime) {
+    final uniqueId = anime.uniqueId;
     for (final entry in _collections.entries) {
-      if (entry.value.data.any((a) => a.release.id == anime.release.id)) {
-        return entry.key;
-      }
-    }
-    return null;
-  }
-
-  CollectionType? getKodikCollectionType(Anime anime) {
-    for (final entry in _collections.entries) {
-      if (entry.value.data.any(
-        (a) => a.release.shikimoriId == anime.release.shikimoriId,
-      )) {
+      if (entry.value.data.any((a) => a.uniqueId == uniqueId)) {
         return entry.key;
       }
     }

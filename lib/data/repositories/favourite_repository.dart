@@ -4,6 +4,7 @@ import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
+import 'package:anime_app/data/storage/favourites_storage.dart';
 
 class FavouriteRepository extends BaseRepository {
   FavouriteRepository() : super(DioClient().dio);
@@ -11,6 +12,9 @@ class FavouriteRepository extends BaseRepository {
 
   Future<void> addToFavourite(int animeId) async {
     try {
+      if (animeId.toString().startsWith(kodikIdPattern)) {
+        FavouritesStorage.updateFavorites(animeId);
+      }
       final body = [
         {'release_id': animeId},
       ];
@@ -79,6 +83,9 @@ class FavouriteRepository extends BaseRepository {
 
   Future<void> removeFromFavourites(int animeId) async {
     try {
+      if (animeId.toString().startsWith(kodikIdPattern)) {
+        FavouritesStorage.updateFavorites(animeId);
+      }
       final body = [
         {'release_id': animeId},
       ];
@@ -105,8 +112,9 @@ class FavouriteRepository extends BaseRepository {
               .where((id) => id.toString().startsWith(kodikIdPattern))
               .map((id) => id as int)
               .toList();
+      final ids = await FavouritesStorage.getFavoritesIds();
 
-      return favouritesIds;
+      return [...favouritesIds, ...ids];
     } catch (e) {
       rethrow;
     }

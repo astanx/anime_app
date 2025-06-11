@@ -5,6 +5,7 @@ import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
+import 'package:anime_app/data/storage/collection_storage.dart';
 
 class CollectionRepository extends BaseRepository {
   CollectionRepository() : super(DioClient().dio);
@@ -64,6 +65,9 @@ class CollectionRepository extends BaseRepository {
 
   Future<void> addToCollection(CollectionType type, int releaseId) async {
     try {
+      if (releaseId.toString().startsWith(kodikIdPattern)) {
+        CollectionStorage.updateCollection(releaseId, type);
+      }
       final body = [
         {
           'type_of_collection': type.name.toUpperCase(),
@@ -89,8 +93,19 @@ class CollectionRepository extends BaseRepository {
               .where((c) => c.status == type.name.toUpperCase())
               .map((c) => c.id)
               .toList();
+      final collectionIds = await CollectionStorage.getCollectionIds();
 
-      return collection;
+      collectionIds
+          .where((c) => c.status == type.asQueryParam.toUpperCase())
+          .map((c) => c.id)
+          .toList();
+
+      return [
+        ...collection,
+        ...collectionIds
+            .where((c) => c.status == type.asQueryParam.toUpperCase())
+            .map((c) => c.id),
+      ];
     } catch (e) {
       rethrow;
     }

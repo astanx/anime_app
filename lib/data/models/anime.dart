@@ -1,3 +1,4 @@
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/models/shikimori_anime.dart';
@@ -20,6 +21,14 @@ class Anime {
     this.sponsor,
     required this.episodes,
   });
+
+  int get uniqueId {
+    if (release.id != -1) return release.id;
+    if (release.shikimoriId != null) {
+      return int.parse('$kodikIdPattern${release.shikimoriId}');
+    }
+    return -1;
+  }
 
   factory Anime.fromJson(Map<String, dynamic> json) => Anime(
     release: AnimeRelease.fromJson(json),

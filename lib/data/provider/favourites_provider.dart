@@ -1,4 +1,3 @@
-import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/repositories/favourite_repository.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +12,9 @@ class FavouritesProvider extends ChangeNotifier {
   bool _hasMore = true;
 
   List<Anime> get favourites => _favourites;
+
+  bool get isLoadingMore => _isLoadingMore;
+  bool get hasMore => _hasMore;
 
   Future<void> fetchFavourites() async {
     if (!_hasFetched) {
@@ -34,7 +36,13 @@ class FavouritesProvider extends ChangeNotifier {
     if (newFavourites.isEmpty) {
       _hasMore = false;
     } else {
-      _favourites.addAll(newFavourites);
+      final existingIds = _favourites.map((a) => a.uniqueId).toSet();
+      final uniqueNew =
+          newFavourites
+              .where((a) => !existingIds.contains(a.uniqueId))
+              .toList();
+
+      _favourites.addAll(uniqueNew);
       _page = nextPage;
     }
 
@@ -42,60 +50,33 @@ class FavouritesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool get isLoadingMore => _isLoadingMore;
-  bool get hasMore => _hasMore;
-
-  bool isFavourite(int animeId) {
-    return _favourites.any((anime) => anime.release.id == animeId);
+  bool isFavourite(Anime anime) {
+    return _favourites.any((a) => a.uniqueId == anime.uniqueId);
   }
 
-  bool isFavouriteKodik(String? shikimoriId) {
-    return _favourites.any((anime) => anime.release.shikimoriId == shikimoriId);
-  }
+  Future<void> addToFavourites(Anime anime) async {
+    final uniqueId = anime.uniqueId;
+    await _repository.addToFavourite(uniqueId);
 
-  Future<void> addToFavourites(Anime anime, [int? id]) async {
-    await _repository.addToFavourite(id ?? anime.release.id);
-    if (id == null && anime.release.shikimoriId != null) {
-      final animeId = int.parse(
-        '$kodikIdPattern${anime.release.kodikResult?.shikimoriId}',
-      );
-      await _repository.addToFavourite(animeId);
+    if (!_favourites.any((a) => a.uniqueId == uniqueId)) {
+      _favourites.add(anime);
     }
-    _favourites.add(anime);
+
     notifyListeners();
   }
 
-  Future<void> removeFromFavourites(int animeId) async {
-    await _repository.removeFromFavourites(animeId);
-    _favourites.removeWhere((anime) => anime.release.id == animeId);
-    notifyListeners();
-  }
-
-  Future<void> removeFromFavouritesKodik(String? shikimoriId) async {
-    await _repository.removeFromFavourites(int.parse(shikimoriId ?? '0'));
-    _favourites.removeWhere(
-      (anime) => anime.release.shikimoriId == shikimoriId,
-    );
+  Future<void> removeFromFavourites(Anime anime) async {
+    final uniqueId = anime.uniqueId;
+    await _repository.removeFromFavourites(uniqueId);
+    _favourites.removeWhere((a) => a.uniqueId == uniqueId);
     notifyListeners();
   }
 
   Future<void> toggleFavourite(Anime anime) async {
-    if (isFavourite(anime.release.id)) {
-      await removeFromFavourites(anime.release.id);
+    if (isFavourite(anime)) {
+      await removeFromFavourites(anime);
     } else {
       await addToFavourites(anime);
-    }
-  }
-
-  Future<void> toggleKodikFavourite(Anime kodikAnime) async {
-    final id = int.parse(
-      '$kodikIdPattern${kodikAnime.release.kodikResult?.shikimoriId}',
-    );
-    final shikimoriId = kodikAnime.release.kodikResult?.shikimoriId;
-    if (isFavouriteKodik(shikimoriId)) {
-      await removeFromFavouritesKodik(shikimoriId);
-    } else {
-      await addToFavourites(kodikAnime, id);
     }
   }
 }

@@ -62,6 +62,17 @@ class CollectionId {
   factory CollectionId.fromList(List<dynamic> list) {
     return CollectionId(id: list[0] as int, status: list[1] as String);
   }
+
+  factory CollectionId.fromJson(Map<String, dynamic> json) {
+    return CollectionId(
+      id: json['id'] as int,
+      status: json['status'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'status': status};
+  }
 }
 
 enum CollectionType {
