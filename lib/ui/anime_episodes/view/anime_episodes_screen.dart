@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
@@ -17,6 +19,7 @@ import 'package:anime_app/ui/core/ui/anime_player.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:animated_flip_counter/animated_flip_counter.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class AnimeEpisodesScreen extends StatefulWidget {
@@ -31,6 +34,9 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
   String? _kodikPlayerUrl;
   final repository = AnimeRepository();
   late WebViewController _webViewController;
+  int? _lastWatchedEpisode;
+  Timer? _historyUpdateTimer;
+  int? _episodeIndex;
 
   @override
   void initState() {
@@ -58,6 +64,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       final Anime anime = arguments['anime'] as Anime;
       final KodikResult? kodikResult = arguments['kodikResult'] as KodikResult?;
       final bool? showKodik = arguments['showKodik'] as bool?;
+      final int episodeIndex = arguments['episodeIndex'];
 
       if ((anime.release.id == -1 && kodikResult != null) ||
           ((showKodik ?? false) && kodikResult != null)) {
@@ -65,6 +72,11 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
           _showKodikPlayer = true;
           _kodikPlayerUrl = 'https:${kodikResult.link}';
           _webViewController.loadHtmlString(getIframeHtml(_kodikPlayerUrl!));
+          _lastWatchedEpisode =
+              anime.release.id != -1
+                  ? anime.episodes[episodeIndex].ordinal.toInt()
+                  : episodeIndex;
+          _episodeIndex = anime.release.id != -1 ? episodeIndex : -1;
         });
       }
     });
@@ -98,6 +110,52 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
     </body>
   </html>
   ''';
+  }
+
+  void _debounceHistory(Anime anime, KodikResult kodikResult) {
+    _historyUpdateTimer?.cancel();
+    _historyUpdateTimer = Timer(Duration(seconds: 2), () {
+      final history = History(
+        animeId: anime.release.id,
+        lastWatchedEpisode:
+            _episodeIndex != -1 ? _episodeIndex! : _lastWatchedEpisode!,
+        isWatched: true,
+        kodikResult: kodikResult,
+      );
+      HistoryStorage.updateHistory(history);
+    });
+  }
+
+  void _incrementEpisode(Anime anime, KodikResult kodikResult) {
+    setState(() {
+      _lastWatchedEpisode =
+          _lastWatchedEpisode! < anime.release.episodesTotal
+              ? _lastWatchedEpisode! + 1
+              : 1;
+      _episodeIndex =
+          _episodeIndex != -1
+              ? _episodeIndex! < anime.episodes.length - 1
+                  ? _episodeIndex! + 1
+                  : 0
+              : -1;
+    });
+    _debounceHistory(anime, kodikResult);
+  }
+
+  void _decrementEpisode(Anime anime, KodikResult kodikResult) {
+    setState(() {
+      _lastWatchedEpisode =
+          _lastWatchedEpisode! > 1
+              ? _lastWatchedEpisode! - 1
+              : anime.release.episodesTotal;
+      _episodeIndex =
+          _episodeIndex != -1
+              ? _episodeIndex! > 0
+                  ? _episodeIndex! - 1
+                  : anime.episodes.length - 1
+              : -1;
+    });
+    _debounceHistory(anime, kodikResult);
   }
 
   @override
@@ -174,19 +232,6 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                         ).loadEpisode(anime, 0, context, kodikResult);
                       }
                     });
-                  },
-                ),
-              if (kodikResult != null && anime.episodes.isEmpty)
-                IconButton(
-                  icon: const Icon(Icons.history),
-                  onPressed: () {
-                    final history = History(
-                      animeId: -1,
-                      lastWatchedEpisode: 0,
-                      isWatched: true,
-                      kodikResult: kodikResult,
-                    );
-                    HistoryStorage.updateHistory(history);
                   },
                 ),
               IconButton(
@@ -444,7 +489,74 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                             ),
                           ),
                         ),
-                      if (_showKodikPlayer && _kodikPlayerUrl != null)
+
+                      if (_showKodikPlayer &&
+                          _kodikPlayerUrl != null &&
+                          kodikResult != null &&
+                          _lastWatchedEpisode != null) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            AnimatedFlipCounter(
+                              value: _lastWatchedEpisode ?? 1,
+                              prefix: l10n.last_watched_episode(''),
+                              textStyle: TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    _incrementEpisode(anime, kodikResult);
+                                  },
+                                  child: Container(
+                                    width: 38,
+                                    height: 38,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFAD1CB4),
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.3),
+                                          offset: Offset(2, 2),
+                                          blurRadius: 4,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Icon(Icons.add, size: 18),
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                GestureDetector(
+                                  onTap: () {
+                                    _decrementEpisode(anime, kodikResult);
+                                  },
+                                  child: Container(
+                                    width: 38,
+                                    height: 38,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFAD1CB4),
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.3),
+                                          offset: Offset(2, 2),
+                                          blurRadius: 4,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Icon(Icons.remove, size: 18),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
                         Column(
                           children: [
                             Text(
@@ -461,6 +573,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                             const SizedBox(height: 16),
                           ],
                         ),
+                      ],
                       if (!_showKodikPlayer && anime.release.episodesTotal == 0)
                         AnimePlayer(anime: anime, kodikResult: kodikResult)
                       else if (anime.release.episodesTotal > 0 &&

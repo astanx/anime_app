@@ -28,6 +28,7 @@ class HistoryCard extends StatelessWidget {
       arguments: {
         'anime': anime.anime,
         'kodikResult': anime.kodikResult,
+        'episodeIndex': anime.lastWatchedEpisode,
         'showKodik': true,
       },
     );
@@ -234,6 +235,31 @@ class HistoryCard extends StatelessWidget {
                                         .anime
                                         .episodes[anime.lastWatchedEpisode]
                                         .ordinal /
+                                    anime.anime.release.episodesTotal
+                                : 0.0,
+                        minHeight: 6,
+                        backgroundColor: Colors.grey[300],
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Color(0xFFAD1CB4),
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  if (anime.anime.release.id == -1 &&
+                      anime.anime.release.episodesTotal > 0) ...[
+                    Text(
+                      '${anime.lastWatchedEpisode} / ${l10n.episode_count(anime.anime.release.episodesTotal)}',
+                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 4),
+
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value:
+                            anime.anime.release.episodesTotal > 0
+                                ? anime.lastWatchedEpisode /
                                     anime.anime.release.episodesTotal
                                 : 0.0,
                         minHeight: 6,
