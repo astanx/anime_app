@@ -501,7 +501,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                               value: _lastWatchedEpisode ?? 1,
                               prefix: l10n.last_watched_episode(''),
                               textStyle: TextStyle(
-                                fontSize: 36,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -514,8 +514,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                     _incrementEpisode(anime, kodikResult);
                                   },
                                   child: Container(
-                                    width: 38,
-                                    height: 38,
+                                    width: 35,
+                                    height: 35,
                                     decoration: BoxDecoration(
                                       color: Color(0xFFAD1CB4),
                                       shape: BoxShape.circle,
@@ -536,8 +536,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                     _decrementEpisode(anime, kodikResult);
                                   },
                                   child: Container(
-                                    width: 38,
-                                    height: 38,
+                                    width: 35,
+                                    height: 35,
                                     decoration: BoxDecoration(
                                       color: Color(0xFFAD1CB4),
                                       shape: BoxShape.circle,
