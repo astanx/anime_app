@@ -164,6 +164,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
     final Anime anime = arguments['anime'] as Anime;
     final KodikResult? kodikResult = arguments['kodikResult'] as KodikResult?;
     final theme = Theme.of(context);
+    final int episodeIndex = arguments['episodeIndex'];
 
     double screenWidth = MediaQuery.of(context).size.width;
     int crossAxisCount = 2;
@@ -224,6 +225,12 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                         _webViewController.loadHtmlString(
                           getIframeHtml(_kodikPlayerUrl!),
                         );
+                        _lastWatchedEpisode =
+                            anime.release.id != -1
+                                ? anime.episodes[episodeIndex].ordinal.toInt()
+                                : episodeIndex;
+                        _episodeIndex =
+                            anime.release.id != -1 ? episodeIndex : -1;
                       } else {
                         Provider.of<VideoControllerProvider>(
                           context,
@@ -575,7 +582,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                       ],
                       if (!_showKodikPlayer && anime.release.episodesTotal == 0)
                         AnimePlayer(anime: anime, kodikResult: kodikResult)
-                      else if (anime.release.episodesTotal > 0 &&
+                      else if (!_showKodikPlayer &&
+                          anime.release.episodesTotal > 0 &&
                           anime.release.id != -1)
                         Column(
                           children: [

@@ -12,10 +12,50 @@ class AnimeRepository extends BaseRepository {
   AnimeRepository() : super(DioClient().dio);
   String _normalizeTitle(String? title) {
     if (title == null) return '';
-    return title
-        .toLowerCase()
-        .replaceAll(RegExp(r'[^\wа-яё]', caseSensitive: false), '')
-        .replaceAll(' ', '');
+
+    List<String> words = title.toLowerCase().split(
+      RegExp(r'[^\wа-яё]+', caseSensitive: false),
+    );
+
+    const noiseWords = {
+      'tv',
+      'tb',
+      'ova',
+      'ona',
+      'special',
+      'movie',
+      'bd',
+      'dvd',
+      'hd',
+      'sd',
+      'remastered',
+      'dc',
+      'se',
+      'edition',
+      'part',
+      'тв',
+      'тб',
+      'спешл',
+      'фильм',
+      'сезон',
+      'серия',
+      'озвучка',
+      'субтитры',
+      'ремастер',
+      'хд',
+      'сд',
+      'двд',
+      'бд',
+      's',
+      'season',
+    };
+
+    words =
+        words
+            .where((word) => word.isNotEmpty && !noiseWords.contains(word))
+            .toList();
+
+    return words.join();
   }
 
   Future<List<AnimeRelease>> getWeekSchedule() async {
