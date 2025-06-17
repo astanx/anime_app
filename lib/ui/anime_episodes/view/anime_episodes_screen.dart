@@ -58,14 +58,13 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
             ),
           );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final arguments =
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
       final Anime anime = arguments['anime'] as Anime;
       final KodikResult? kodikResult = arguments['kodikResult'] as KodikResult?;
       final bool? showKodik = arguments['showKodik'] as bool?;
       final int episodeIndex = arguments['episodeIndex'];
-
       if ((anime.release.id == -1 && kodikResult != null) ||
           ((showKodik ?? false) && kodikResult != null)) {
         setState(() {

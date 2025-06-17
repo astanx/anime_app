@@ -1,3 +1,4 @@
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 
@@ -6,6 +7,14 @@ class History {
   final int lastWatchedEpisode;
   final bool isWatched;
   final KodikResult? kodikResult;
+
+  int get uniqueId {
+    if (animeId != -1) return animeId;
+    if (kodikResult != null) {
+      return int.parse('$kodikIdPattern${kodikResult!.shikimoriId}');
+    }
+    return -1;
+  }
 
   History({
     required this.animeId,

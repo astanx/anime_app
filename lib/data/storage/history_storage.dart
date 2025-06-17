@@ -41,4 +41,25 @@ class HistoryStorage {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
   }
+
+  static Future<int> getEpisodeIndex(int animeId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_key);
+
+    if (jsonString == null) return 0;
+
+    final List<dynamic> jsonList = jsonDecode(jsonString);
+    return jsonList
+        .map((e) => History.fromJson(e as Map<String, dynamic>))
+        .firstWhere(
+          (h) => h.uniqueId == animeId,
+          orElse:
+              () => History(
+                isWatched: false,
+                lastWatchedEpisode: 0,
+                animeId: animeId,
+              ),
+        )
+        .lastWatchedEpisode;
+  }
 }
