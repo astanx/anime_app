@@ -292,7 +292,10 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                         ),
                       const SizedBox(height: 4),
                       Text(
-                        anime.release.episodesTotal > 0
+                        (anime.release.id != -1 &&
+                                    anime.release.episodesTotal > 0) ||
+                                (anime.release.id == -1 &&
+                                    anime.release.episodesTotal > 1)
                             ? '${l10n!.episode_count(anime.release.episodesTotal)} ${anime.release.isOngoing ? '| ${l10n.ongoing}' : ''}'
                             : kodikResult?.type == 'anime'
                             ? l10n!.movie
@@ -500,68 +503,73 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                           _kodikPlayerUrl != null &&
                           kodikResult != null &&
                           _lastWatchedEpisode != null) ...[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            AnimatedFlipCounter(
-                              value: _lastWatchedEpisode ?? 1,
-                              prefix: l10n.last_watched_episode(''),
-                              textStyle: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                        if (kodikResult.type != 'anime')
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AnimatedFlipCounter(
+                                value: _lastWatchedEpisode ?? 1,
+                                prefix: l10n.last_watched_episode(''),
+                                textStyle: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            SizedBox(width: 16),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    _incrementEpisode(anime, kodikResult);
-                                  },
-                                  child: Container(
-                                    width: 35,
-                                    height: 35,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFAD1CB4),
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.3),
-                                          offset: Offset(2, 2),
-                                          blurRadius: 4,
-                                        ),
-                                      ],
+                              SizedBox(width: 16),
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      _incrementEpisode(anime, kodikResult);
+                                    },
+                                    child: Container(
+                                      width: 35,
+                                      height: 35,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFAD1CB4),
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.3,
+                                            ),
+                                            offset: Offset(2, 2),
+                                            blurRadius: 4,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Icon(Icons.add, size: 18),
                                     ),
-                                    child: Icon(Icons.add, size: 18),
                                   ),
-                                ),
-                                SizedBox(height: 8),
-                                GestureDetector(
-                                  onTap: () {
-                                    _decrementEpisode(anime, kodikResult);
-                                  },
-                                  child: Container(
-                                    width: 35,
-                                    height: 35,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFAD1CB4),
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.3),
-                                          offset: Offset(2, 2),
-                                          blurRadius: 4,
-                                        ),
-                                      ],
+                                  SizedBox(height: 8),
+                                  GestureDetector(
+                                    onTap: () {
+                                      _decrementEpisode(anime, kodikResult);
+                                    },
+                                    child: Container(
+                                      width: 35,
+                                      height: 35,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFAD1CB4),
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.3,
+                                            ),
+                                            offset: Offset(2, 2),
+                                            blurRadius: 4,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Icon(Icons.remove, size: 18),
                                     ),
-                                    child: Icon(Icons.remove, size: 18),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                                ],
+                              ),
+                            ],
+                          ),
 
                         Column(
                           children: [
