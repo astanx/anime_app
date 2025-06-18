@@ -213,31 +213,38 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                 onPressed: () => favouritesProvider.toggleFavourite(anime),
               ),
               if (kodikResult != null && anime.episodes.isNotEmpty)
-                IconButton(
-                  icon: Icon(
-                    _showKodikPlayer ? Icons.movie : Icons.play_circle_fill,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _showKodikPlayer = !_showKodikPlayer;
-                      if (_showKodikPlayer) {
-                        _kodikPlayerUrl = 'https:${kodikResult.link}';
-                        _webViewController.loadHtmlString(
-                          getIframeHtml(_kodikPlayerUrl!),
-                        );
-                        _lastWatchedEpisode =
-                            anime.release.id != -1
-                                ? anime.episodes[episodeIndex].ordinal.toInt()
-                                : episodeIndex;
-                        _episodeIndex =
-                            anime.release.id != -1 ? episodeIndex : -1;
-                      } else {
-                        Provider.of<VideoControllerProvider>(
-                          context,
-                          listen: false,
-                        ).loadEpisode(anime, 0, context, kodikResult);
-                      }
-                    });
+                Consumer<VideoControllerProvider>(
+                  builder: (context, videoProvider, _) {
+                    return IconButton(
+                      icon: Icon(
+                        _showKodikPlayer ? Icons.movie : Icons.play_circle_fill,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showKodikPlayer = !_showKodikPlayer;
+                          if (_showKodikPlayer) {
+                            _kodikPlayerUrl = 'https:${kodikResult.link}';
+                            _webViewController.loadHtmlString(
+                              getIframeHtml(_kodikPlayerUrl!),
+                            );
+                            _lastWatchedEpisode =
+                                anime.release.id != -1
+                                    ? anime.episodes[episodeIndex].ordinal
+                                        .toInt()
+                                    : episodeIndex;
+                            _episodeIndex =
+                                anime.release.id != -1 ? episodeIndex : -1;
+                          } else {
+                            videoProvider.loadEpisode(
+                              anime,
+                              0,
+                              context,
+                              kodikResult,
+                            );
+                          }
+                        });
+                      },
+                    );
                   },
                 ),
               IconButton(
