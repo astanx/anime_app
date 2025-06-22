@@ -1,5 +1,6 @@
 import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/history.dart';
+import 'package:anime_app/data/storage/history_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
@@ -85,16 +86,21 @@ class HistoryCard extends StatelessWidget {
                     width: 500,
                     height: 50,
                     child: TextButton(
-                      onPressed:
-                          () => {
-                            Navigator.of(context).pushNamed(
-                              '/anime/episodes',
-                              arguments: {
-                                'anime': anime.anime,
-                                'kodikResult': anime.kodikResult,
-                              },
-                            ),
+                      onPressed: () async {
+                        final episodeIndex =
+                            await HistoryStorage.getEpisodeIndex(
+                              anime.anime.uniqueId,
+                            );
+                        Navigator.of(context).pushNamed(
+                          '/anime/episodes',
+                          arguments: {
+                            'anime': anime.anime,
+                            'kodikResult': anime.anime.release.kodikResult,
+
+                            'episodeIndex': episodeIndex,
                           },
+                        );
+                      },
                       style: TextButton.styleFrom(
                         backgroundColor: const Color(0xFF6B5252),
                         foregroundColor: Colors.white,

@@ -3,6 +3,7 @@
   "prev_episode": "Previous episode",
   "next_episode": "Next episode",
   "skip_opening": "Skip opening",
+  "skip_ending": "skip ending",
   "episode_count": "{count, plural, =0{No episodes} =1{1 episode} other{{count} episodes}}",
   "ongoing": "Ongoing",
   "movie": "Movie",

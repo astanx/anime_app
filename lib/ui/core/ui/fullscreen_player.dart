@@ -301,24 +301,49 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                             ),
                                           ),
                                         ),
-                                        onPressed: () {
-                                          provider.seek(
-                                            Duration(
-                                              seconds:
-                                                  anime
-                                                      .episodes[episodeIndex]
-                                                      .duration,
-                                            ),
-                                          );
-                                          provider.loadEpisode(
-                                            anime,
-                                            episodeIndex + 1,
-                                            context,
-                                            kodikResult,
-                                          );
-                                        },
+                                        onPressed:
+                                            duration ==
+                                                        (provider.endingEnd ??
+                                                            Duration(
+                                                              seconds: 0,
+                                                            )) ||
+                                                    duration == position
+                                                ? () {
+                                                  provider.seek(
+                                                    Duration(
+                                                      seconds:
+                                                          anime
+                                                              .episodes[episodeIndex]
+                                                              .duration,
+                                                    ),
+                                                  );
+                                                  provider.loadEpisode(
+                                                    anime,
+                                                    episodeIndex + 1,
+                                                    context,
+                                                    kodikResult,
+                                                  );
+                                                }
+                                                : () {
+                                                  provider.seek(
+                                                    Duration(
+                                                      seconds:
+                                                          anime
+                                                              .episodes[episodeIndex]
+                                                              .ending!
+                                                              .stop!,
+                                                    ),
+                                                  );
+                                                },
                                         child: Text(
-                                          l10n!.next_episode,
+                                          duration ==
+                                                      (provider.endingEnd ??
+                                                          Duration(
+                                                            seconds: 0,
+                                                          )) ||
+                                                  duration == position
+                                              ? l10n!.next_episode
+                                              : l10n!.skip_ending,
                                           style: TextStyle(color: Colors.black),
                                         ),
                                       ),

@@ -18,6 +18,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get skip_opening => 'Пропустить опенинг';
 
   @override
+  String get skip_ending => 'Пропустить эндинг';
+
+  @override
   String episode_count(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

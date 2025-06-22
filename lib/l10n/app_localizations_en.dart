@@ -18,6 +18,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get skip_opening => 'Skip opening';
 
   @override
+  String get skip_ending => 'skip ending';
+
+  @override
   String episode_count(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

@@ -1,6 +1,7 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/data/storage/history_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
@@ -31,9 +32,16 @@ class ReleasesCarousel extends StatelessWidget {
                       final animeTitle = await repository.getAnimeById(
                         anime.id,
                       );
+                      final episodeIndex = await HistoryStorage.getEpisodeIndex(
+                        animeTitle.uniqueId,
+                      );
                       Navigator.of(context).pushNamed(
                         '/anime/episodes',
-                        arguments: {'anime': animeTitle},
+                        arguments: {
+                          'anime': animeTitle,
+                          'kodikResult': anime.kodikResult,
+                          'episodeIndex': episodeIndex,
+                        },
                       );
                     },
                   ),

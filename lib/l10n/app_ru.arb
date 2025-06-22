@@ -3,6 +3,7 @@
   "prev_episode": "Предыдущий эпизод",
   "next_episode": "Следующий эпизод",
   "skip_opening": "Пропустить опенинг",
+  "skip_ending": "Пропустить эндинг",
   "episode_count": "{count, plural, =0{Нет эпизодов} =1{1 эпизод} other{{count} эпизодов}}",
   "ongoing": "Выпускается",
   "movie": "Фильм",

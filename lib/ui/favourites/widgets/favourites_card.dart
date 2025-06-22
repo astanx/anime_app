@@ -1,5 +1,6 @@
 import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/storage/history_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -67,16 +68,21 @@ class FavouritesCard extends StatelessWidget {
                     width: 500,
                     height: 50,
                     child: TextButton(
-                      onPressed:
-                          () => {
-                            Navigator.of(context).pushNamed(
-                              '/anime/episodes',
-                              arguments: {
-                                'anime': anime,
-                                'kodikResult': anime.release.kodikResult,
-                              },
-                            ),
+                      onPressed: () async {
+                        final episodeIndex =
+                            await HistoryStorage.getEpisodeIndex(
+                              anime.uniqueId,
+                            );
+                        Navigator.of(context).pushNamed(
+                          '/anime/episodes',
+                          arguments: {
+                            'anime': anime,
+                            'kodikResult': anime.release.kodikResult,
+
+                            'episodeIndex': episodeIndex,
                           },
+                        );
+                      },
                       style: TextButton.styleFrom(
                         backgroundColor: const Color(0xFF6B5252),
                         foregroundColor: Colors.white,

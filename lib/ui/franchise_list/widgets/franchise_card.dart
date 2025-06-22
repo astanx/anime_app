@@ -1,5 +1,6 @@
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/storage/history_storage.dart';
 import 'package:flutter/material.dart';
 
 class FranchiseCard extends StatelessWidget {
@@ -9,12 +10,20 @@ class FranchiseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap:
-          () => {
-            Navigator.of(
-              context,
-            ).pushNamed('/anime/episodes', arguments: {'anime': anime}),
+      onTap: () async {
+        final episodeIndex = await HistoryStorage.getEpisodeIndex(
+          anime.uniqueId,
+        );
+        Navigator.of(context).pushNamed(
+          '/anime/episodes',
+          arguments: {
+            'anime': anime,
+            'kodikResult': anime.release.kodikResult,
+
+            'episodeIndex': episodeIndex,
           },
+        );
+      },
       child: Card(
         elevation: 4,
         margin: const EdgeInsets.symmetric(vertical: 8),

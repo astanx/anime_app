@@ -113,6 +113,12 @@ abstract class AppLocalizations {
   /// **'Skip opening'**
   String get skip_opening;
 
+  /// No description provided for @skip_ending.
+  ///
+  /// In en, this message translates to:
+  /// **'skip ending'**
+  String get skip_ending;
+
   /// No description provided for @episode_count.
   ///
   /// In en, this message translates to:
