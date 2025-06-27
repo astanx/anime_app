@@ -148,13 +148,13 @@ class AnimePlayer extends StatelessWidget {
                           else
                             const SizedBox.shrink(),
                           if (episodeIndex != null &&
-                              episodeIndex < anime.episodes.length - 1 &&
-                              ((provider.endingStart != null &&
+                              (episodeIndex < anime.episodes.length - 1 &&
+                                      position == duration ||
+                                  ((provider.endingStart != null &&
                                       position >= provider.endingStart! &&
                                       position <=
                                           provider.endingStart! +
-                                              const Duration(seconds: 20)) ||
-                                  position == duration))
+                                              const Duration(seconds: 20)))))
                             TextButton(
                               style: TextButton.styleFrom(
                                 backgroundColor: const Color.fromARGB(

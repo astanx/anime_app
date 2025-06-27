@@ -143,7 +143,6 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
               duration.inMilliseconds > 0
                   ? bufferedEnd / duration.inMilliseconds.toDouble()
                   : 0.0;
-
           return Scaffold(
             backgroundColor: Colors.black,
             body:
@@ -273,16 +272,15 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                     else
                                       const SizedBox.shrink(),
                                     if (episodeIndex <
-                                            anime.episodes.length - 1 &&
+                                                anime.episodes.length - 1 &&
+                                            position == duration ||
                                         ((provider.endingStart != null &&
-                                                position >=
-                                                    provider.endingStart! &&
-                                                position <=
-                                                    provider.endingStart! +
-                                                        const Duration(
-                                                          seconds: 20,
-                                                        )) ||
-                                            position == duration))
+                                            position >= provider.endingStart! &&
+                                            position <=
+                                                provider.endingStart! +
+                                                    const Duration(
+                                                      seconds: 20,
+                                                    ))))
                                       TextButton(
                                         style: TextButton.styleFrom(
                                           backgroundColor: const Color.fromARGB(
