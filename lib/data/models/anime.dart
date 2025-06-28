@@ -30,6 +30,26 @@ class Anime {
     return -1;
   }
 
+  Anime copyWith({
+    AnimeRelease? release,
+    String? notification,
+    String? externalPlayer,
+    List<Member>? members,
+    List<Torrent>? torrents,
+    Sponsor? sponsor,
+    List<LatestEpisode>? episodes,
+  }) {
+    return Anime(
+      release: release ?? this.release,
+      notification: notification ?? this.notification,
+      externalPlayer: externalPlayer ?? this.externalPlayer,
+      members: members ?? this.members,
+      torrents: torrents ?? this.torrents,
+      sponsor: sponsor ?? this.sponsor,
+      episodes: episodes ?? this.episodes,
+    );
+  }
+
   factory Anime.fromJson(Map<String, dynamic> json) => Anime(
     release: AnimeRelease.fromJson(json),
     notification: json['notification'] as String?,

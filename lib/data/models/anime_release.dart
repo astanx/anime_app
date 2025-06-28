@@ -53,6 +53,62 @@ class AnimeRelease {
     this.shikimoriId,
     this.kodikResult,
   });
+  AnimeRelease copyWith({
+    int? id,
+    AnimeType? type,
+    int? year,
+    AnimeNames? names,
+    String? alias,
+    AnimeSeason? season,
+    Poster? poster,
+    DateTime? freshAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? isOngoing,
+    AgeRating? ageRating,
+    PublishDay? publishDay,
+    String? description,
+    int? episodesTotal,
+    bool? isInProduction,
+    bool? isBlockedByGeo,
+    bool? isBlockedByCopyrights,
+    int? addedInUsersFavorites,
+    int? averageDurationOfEpisode,
+    List<Genre>? genres,
+    LatestEpisode? latestEpisode,
+    String? shikimoriId,
+    KodikResult? kodikResult,
+  }) {
+    return AnimeRelease(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      year: year ?? this.year,
+      names: names ?? this.names,
+      alias: alias ?? this.alias,
+      season: season ?? this.season,
+      poster: poster ?? this.poster,
+      freshAt: freshAt ?? this.freshAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      isOngoing: isOngoing ?? this.isOngoing,
+      ageRating: ageRating ?? this.ageRating,
+      publishDay: publishDay ?? this.publishDay,
+      description: description ?? this.description,
+      episodesTotal: episodesTotal ?? this.episodesTotal,
+      isInProduction: isInProduction ?? this.isInProduction,
+      isBlockedByGeo: isBlockedByGeo ?? this.isBlockedByGeo,
+      isBlockedByCopyrights:
+          isBlockedByCopyrights ?? this.isBlockedByCopyrights,
+      addedInUsersFavorites:
+          addedInUsersFavorites ?? this.addedInUsersFavorites,
+      averageDurationOfEpisode:
+          averageDurationOfEpisode ?? this.averageDurationOfEpisode,
+      genres: genres ?? this.genres,
+      latestEpisode: latestEpisode ?? this.latestEpisode,
+      shikimoriId: shikimoriId ?? this.shikimoriId,
+      kodikResult: kodikResult ?? this.kodikResult,
+    );
+  }
 
   factory AnimeRelease.fromJson(Map<String, dynamic> json) => AnimeRelease(
     id: json['id'] ?? 0,
