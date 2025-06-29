@@ -7,7 +7,6 @@ class CollectionStorage {
 
   static Future<void> updateCollection(int id, CollectionType type) async {
     final List<CollectionId> collectionIds = await getCollectionIds();
-    print(id);
 
     collectionIds.removeWhere((c) {
       return c.id == id;

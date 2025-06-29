@@ -131,9 +131,7 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                             _genreReleases!.isEmpty
                                 ? Center(
                                   child: Text(
-                                    l10n.no_anime_found(
-                                          _query
-                                    ),
+                                    l10n.no_anime_found(_query ?? ''),
                                     style: TextStyle(
                                       fontSize: 18,
                                       color: Colors.grey,

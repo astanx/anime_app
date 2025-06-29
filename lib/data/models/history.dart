@@ -23,6 +23,20 @@ class History {
     this.kodikResult,
   });
 
+  History copyWith({
+    int? animeId,
+    int? lastWatchedEpisode,
+    bool? isWatched,
+    KodikResult? kodikResult,
+  }) {
+    return History(
+      animeId: animeId ?? this.animeId,
+      lastWatchedEpisode: lastWatchedEpisode ?? this.lastWatchedEpisode,
+      isWatched: isWatched ?? this.isWatched,
+      kodikResult: kodikResult ?? this.kodikResult,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     'animeId': animeId,
     'lastWatchedEpisode': lastWatchedEpisode,
