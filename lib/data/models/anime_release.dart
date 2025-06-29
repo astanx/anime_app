@@ -257,7 +257,10 @@ class AnimeRelease {
       ageRating: _getAgeRating(shikimori.rating),
       publishDay: _getPublishDay(shikimori.airedOn),
       description: shikimori.description,
-      episodesTotal: shikimori.episodes,
+      episodesTotal:
+          shikimori.episodesAired > shikimori.episodes
+              ? shikimori.episodesAired
+              : shikimori.episodes,
       isInProduction:
           shikimori.status == 'ongoing' || shikimori.status == 'anons',
       isBlockedByGeo: false,

@@ -531,8 +531,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                       _incrementEpisode(anime, kodikResult);
                                     },
                                     child: Container(
-                                      width: 35,
-                                      height: 35,
+                                      width: 30,
+                                      height: 30,
                                       decoration: BoxDecoration(
                                         color: Color(0xFFAD1CB4),
                                         shape: BoxShape.circle,
@@ -555,8 +555,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                       _decrementEpisode(anime, kodikResult);
                                     },
                                     child: Container(
-                                      width: 35,
-                                      height: 35,
+                                      width: 30,
+                                      height: 30,
                                       decoration: BoxDecoration(
                                         color: Color(0xFFAD1CB4),
                                         shape: BoxShape.circle,
