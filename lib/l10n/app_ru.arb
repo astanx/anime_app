@@ -20,7 +20,7 @@
   "kodik_player": "Плеер Kodik",
   "episode": "{count, plural, =0{Эпизод} other{Эпизоды}}",
   "anime_search_placeholder": "Введите название аниме",
-  "no_anime_found": "Аниме с названием{query} не найдено.",
+  "no_anime_found": "Аниме с названием {query} не найдено.",
   "my_collections": "Мои коллекции",
   "loading_your_collection": "Загрузка вашей коллекции...",
   "no_collection": "В этой коллекции нет элементов",

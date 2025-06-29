@@ -20,7 +20,7 @@
   "kodik_player": "Kodik player",
   "episode": "{count, plural, =0{Episode} other{Episodes}}",
   "anime_search_placeholder": "Enter anime title",
-  "no_anime_found": "No anime found{query}.",
+  "no_anime_found": "No anime found for {query}.",
   "my_collections": "My Collections",
   "loading_your_collection": "Loading your collection...",
   "no_collection": "No items found in this collection",

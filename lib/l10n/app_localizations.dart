@@ -218,7 +218,7 @@ abstract class AppLocalizations {
   /// No description provided for @no_anime_found.
   ///
   /// In en, this message translates to:
-  /// **'No anime found{query}.'**
+  /// **'No anime found for {query}.'**
   String no_anime_found(Object query);
 
   /// No description provided for @my_collections.

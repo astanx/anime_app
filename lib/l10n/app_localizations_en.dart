@@ -87,7 +87,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String no_anime_found(Object query) {
-    return 'No anime found$query.';
+    return 'No anime found for $query.';
   }
 
   @override

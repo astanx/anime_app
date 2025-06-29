@@ -87,7 +87,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String no_anime_found(Object query) {
-    return 'Аниме с названием$query не найдено.';
+    return 'Аниме с названием $query не найдено.';
   }
 
   @override

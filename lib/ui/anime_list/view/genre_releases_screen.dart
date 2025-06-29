@@ -132,9 +132,7 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                                 ? Center(
                                   child: Text(
                                     l10n.no_anime_found(
-                                      (_query != null && _query!.isNotEmpty)
-                                          ? ' for "$_query"'
-                                          : '',
+                                          _query
                                     ),
                                     style: TextStyle(
                                       fontSize: 18,
