@@ -31,7 +31,7 @@
   "continue_with_kodik": "Продолжить с Kodik",
   "continue_with_episode": "Продолжить с эпизода {episode} ",
   "continue_watching_episode": "Продолжить просмотр эпизода {episode} ",
-  "no_new_episodes": "Новых эпизодов нет :(",
+  "no_new_episodes": "Новых эпизодов нет",
   "login_title": "Войти через Anilibria",
   "login_label": "Логин",
   "password_label": "Пароль",

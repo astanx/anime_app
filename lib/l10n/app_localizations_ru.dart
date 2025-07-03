@@ -127,7 +127,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get no_new_episodes => 'Новых эпизодов нет :(';
+  String get no_new_episodes => 'Новых эпизодов нет';
 
   @override
   String get login_title => 'Войти через Anilibria';

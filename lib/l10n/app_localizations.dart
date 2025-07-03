@@ -284,7 +284,7 @@ abstract class AppLocalizations {
   /// No description provided for @no_new_episodes.
   ///
   /// In en, this message translates to:
-  /// **'There are no new episodes :('**
+  /// **'There are no new episodes'**
   String get no_new_episodes;
 
   /// No description provided for @login_title.

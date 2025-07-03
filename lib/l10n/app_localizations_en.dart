@@ -127,7 +127,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get no_new_episodes => 'There are no new episodes :(';
+  String get no_new_episodes => 'There are no new episodes';
 
   @override
   String get login_title => 'Login with Anilibria';
