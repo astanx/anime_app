@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
@@ -8,10 +7,10 @@ import 'package:anime_app/data/models/history.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/collections_provider.dart';
 import 'package:anime_app/data/provider/favourites_provider.dart';
+import 'package:anime_app/data/provider/history_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
-import 'package:anime_app/data/storage/history_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/l10n/collection_localization.dart';
 import 'package:anime_app/ui/anime_episodes/widgets/widgets.dart';
@@ -33,6 +32,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
   bool _showKodikPlayer = false;
   String? _kodikPlayerUrl;
   final repository = AnimeRepository();
+  HistoryProvider? _historyProvider;
   late WebViewController _webViewController;
   int? _lastWatchedEpisode;
   Timer? _historyUpdateTimer;
@@ -65,6 +65,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       final KodikResult? kodikResult = arguments['kodikResult'] as KodikResult?;
       final bool? showKodik = arguments['showKodik'] as bool?;
       final int episodeIndex = arguments['episodeIndex'];
+      _historyProvider = Provider.of<HistoryProvider>(context, listen: false);
 
       if ((anime.release.id == -1 && kodikResult != null) ||
           ((showKodik ?? false) && kodikResult != null)) {
@@ -113,16 +114,17 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
   }
 
   void _debounceHistory(Anime anime, KodikResult kodikResult) {
+    if (_historyProvider == null) return;
     _historyUpdateTimer?.cancel();
     _historyUpdateTimer = Timer(Duration(seconds: 1), () {
-      final history = History(
-        animeId: anime.release.id,
+      final history = AnimeWithHistory(
+        anime: anime,
         lastWatchedEpisode:
             _episodeIndex != -1 ? _episodeIndex! : _lastWatchedEpisode!,
         isWatched: true,
         kodikResult: kodikResult,
       );
-      HistoryStorage.updateHistory(history);
+      _historyProvider!.updateHistory(history);
     });
   }
 

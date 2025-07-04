@@ -9,13 +9,7 @@ class HistoryStorage {
     final List<History> histories = await getHistory();
 
     histories.removeWhere((h) {
-      if (history.animeId != -1 && h.animeId != -1) {
-        return h.animeId == history.animeId;
-      }
-
-      final kodikId1 = history.kodikResult?.id;
-      final kodikId2 = h.kodikResult?.id;
-      return kodikId1 != null && kodikId2 != null && kodikId1 == kodikId2;
+      return h.uniqueId == history.uniqueId;
     });
 
     histories.add(history);

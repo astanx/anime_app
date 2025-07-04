@@ -2,8 +2,8 @@ import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/history.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/models/timecode.dart';
+import 'package:anime_app/data/provider/history_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
-import 'package:anime_app/data/storage/history_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
@@ -14,6 +14,7 @@ class VideoControllerProvider extends ChangeNotifier {
   Anime? _anime;
   KodikResult? _kodikResult;
   TimecodeProvider? _timecodeProvider;
+  HistoryProvider? _historyProvider;
   bool _isDisposing = false;
   Duration? openingStart;
   Duration? openingEnd;
@@ -36,6 +37,7 @@ class VideoControllerProvider extends ChangeNotifier {
     _episodeIndex = index;
     _kodikResult = kodikResult;
     _timecodeProvider = Provider.of<TimecodeProvider>(context, listen: false);
+    _historyProvider = Provider.of<HistoryProvider>(context, listen: false);
 
     await _timecodeProvider!.fetchTimecodes();
     final episode = anime.episodes[index];
@@ -108,6 +110,7 @@ class VideoControllerProvider extends ChangeNotifier {
     if (_controller == null ||
         _anime == null ||
         _timecodeProvider == null ||
+        _historyProvider == null ||
         _episodeIndex == null) {
       return;
     }
@@ -128,8 +131,8 @@ class VideoControllerProvider extends ChangeNotifier {
       );
 
       _timecodeProvider!.updateTimecode(timecode, notify: !_isDisposing);
-      final history = History(
-        animeId: _anime!.release.id,
+      final history = AnimeWithHistory(
+        anime: _anime!,
         lastWatchedEpisode: _episodeIndex!,
         isWatched:
             time >=
@@ -141,7 +144,7 @@ class VideoControllerProvider extends ChangeNotifier {
         kodikResult: _kodikResult,
       );
 
-      HistoryStorage.updateHistory(history);
+      _historyProvider!.updateHistory(history);
     }
   }
 }
