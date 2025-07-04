@@ -86,26 +86,24 @@ class CollectionRepository extends BaseRepository {
       final response = await dio.get('accounts/users/me/collections/ids');
       final data = response.data as List<dynamic>;
 
-      final collection =
+      final apiCollectionIds =
           data
               .map((entry) => CollectionId.fromList(entry as List<dynamic>))
               .where((c) => c.id.toString().startsWith(kodikIdPattern))
               .where((c) => c.status == type.name.toUpperCase())
               .map((c) => c.id)
-              .toList();
-      final collectionIds = await CollectionStorage.getCollectionIds();
+              .toSet();
 
-      collectionIds
-          .where((c) => c.status == type.asQueryParam.toUpperCase())
-          .map((c) => c.id)
-          .toList();
+      final storageCollectionIds = await CollectionStorage.getCollectionIds();
+      final storageIds =
+          storageCollectionIds
+              .where((c) => c.status == type.asQueryParam.toUpperCase())
+              .map((c) => c.id)
+              .toSet();
 
-      return [
-        ...collection,
-        ...collectionIds
-            .where((c) => c.status == type.asQueryParam.toUpperCase())
-            .map((c) => c.id),
-      ];
+      final combinedIds = [...apiCollectionIds, ...storageIds].toSet().toList();
+
+      return combinedIds;
     } catch (e) {
       rethrow;
     }
