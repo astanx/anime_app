@@ -1,3 +1,4 @@
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/history.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
@@ -7,7 +8,7 @@ import 'package:flutter/material.dart';
 class HistoryProvider extends ChangeNotifier {
   final _repository = AnimeRepository();
   bool _hasFetched = false;
-  List<AnimeWithHistory> _history = [];
+  List<AnimeWithHistory>? _history;
 
   List<AnimeWithHistory>? get history => _history;
 
@@ -18,7 +19,8 @@ class HistoryProvider extends ChangeNotifier {
 
     final futures =
         history.map((h) async {
-          if (h.animeId == -1 && h.kodikResult?.shikimoriId != null) {
+          if (h.animeId.toString().startsWith(kodikIdPattern) &&
+              h.kodikResult?.shikimoriId != null) {
             final shikimori = await _repository.getShikimoriAnimeById(
               h.kodikResult!.shikimoriId!,
             );
@@ -36,11 +38,14 @@ class HistoryProvider extends ChangeNotifier {
   }
 
   Future<void> updateHistory(AnimeWithHistory historyAnime) async {
-    _history.removeWhere((h) {
+    if (_history == null) {
+      await fetchHistory();
+    }
+    _history!.removeWhere((h) {
       return h.anime.uniqueId == historyAnime.anime.uniqueId;
     });
 
-    _history.add(historyAnime);
+    _history!.add(historyAnime);
     final history = History(
       animeId: historyAnime.anime.uniqueId,
       lastWatchedEpisode: historyAnime.lastWatchedEpisode,

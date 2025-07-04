@@ -17,8 +17,8 @@ class HistoryScreen extends StatelessWidget {
       listen: false,
     );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      historyProvider.fetchHistory();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await historyProvider.fetchHistory();
     });
 
     return Scaffold(
