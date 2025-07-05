@@ -1,3 +1,4 @@
+import 'package:anime_app/core/utils/is_ongoing.dart';
 import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/storage/history_storage.dart';
@@ -50,7 +51,7 @@ class CollectionCard extends StatelessWidget {
                   ),
                   Text(
                     anime.release.episodesTotal > 0
-                        ? '${l10n.episode_count(anime.release.episodesTotal)} ${anime.release.isOngoing ? '| ${l10n.ongoing}' : ''}'
+                        ? '${l10n.episode_count(anime.release.episodesTotal)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}'
                         : anime.release.kodikResult?.type == 'anime' ||
                             anime.release.id != -1
                         ? l10n.movie
@@ -79,7 +80,6 @@ class CollectionCard extends StatelessWidget {
                           arguments: {
                             'anime': anime,
                             'kodikResult': anime.release.kodikResult,
-
                             'episodeIndex': episodeIndex,
                           },
                         );

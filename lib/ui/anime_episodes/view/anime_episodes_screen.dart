@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:anime_app/core/constants.dart';
+import 'package:anime_app/core/utils/is_ongoing.dart';
 import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
@@ -289,7 +290,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                       const SizedBox(height: 4),
                       Text(
                         anime.release.episodesTotal > 0
-                            ? '${l10n!.episode_count(anime.release.episodesTotal)} ${anime.release.isOngoing ? '| ${l10n.ongoing}' : ''}'
+                            ? '${l10n!.episode_count(anime.release.episodesTotal)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}'
                             : kodikResult?.type == 'anime'
                             ? l10n!.movie
                             : l10n!.series,
