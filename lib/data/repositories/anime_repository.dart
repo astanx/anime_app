@@ -178,6 +178,16 @@ class AnimeRepository extends BaseRepository {
     }
   }
 
+  Future<KodikResult?> matchKodikWithAnilibria(Anime anime) async {
+    try {
+      final kodikAnimes = await searchKodik(anime.release.names.main);
+      final matched = matchAnimeWithKodik([anime], kodikAnimes);
+      return matched.matched.first.release.kodikResult;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<List<KodikResult>> searchKodik(String query) async {
     try {
       final response = await dio.get(
@@ -225,7 +235,7 @@ class AnimeRepository extends BaseRepository {
     }
   }
 
-  Future<Anime> getAnimeById(int id) async {
+  Future<Anime> getAnimeById(int id, [KodikResult? kodik]) async {
     try {
       final response = await dio.get('anime/releases/$id');
       final data = response.data;
@@ -233,7 +243,12 @@ class AnimeRepository extends BaseRepository {
       log(data.toString());
 
       final anime = Anime.fromJson(data);
-
+      if (kodik == null) {
+        final kodikResult = await matchKodikWithAnilibria(anime);
+        return kodikResult != null
+            ? Anime.fromAnilibriaAndKodik(kodikResult, anime)
+            : anime;
+      }
       return anime;
     } catch (e) {
       rethrow;

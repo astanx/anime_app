@@ -36,7 +36,10 @@ class AnimeCard extends StatelessWidget {
             },
           );
         } else {
-          final animeTitle = await repository.getAnimeById(anime.id);
+          final animeTitle = await repository.getAnimeById(
+            anime.id,
+            anime.kodikResult,
+          );
           final episodeIndex = await HistoryStorage.getEpisodeIndex(
             animeTitle.uniqueId,
           );
@@ -44,7 +47,8 @@ class AnimeCard extends StatelessWidget {
             '/anime/episodes',
             arguments: {
               'anime': animeTitle,
-              'kodikResult': anime.kodikResult,
+              'kodikResult':
+                  anime.kodikResult ?? animeTitle.release.kodikResult,
               'episodeIndex': episodeIndex,
             },
           );

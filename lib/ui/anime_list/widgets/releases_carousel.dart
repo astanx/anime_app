@@ -31,6 +31,7 @@ class ReleasesCarousel extends StatelessWidget {
                     onTap: () async {
                       final animeTitle = await repository.getAnimeById(
                         anime.id,
+                        anime.kodikResult,
                       );
                       final episodeIndex = await HistoryStorage.getEpisodeIndex(
                         animeTitle.uniqueId,
@@ -39,7 +40,9 @@ class ReleasesCarousel extends StatelessWidget {
                         '/anime/episodes',
                         arguments: {
                           'anime': animeTitle,
-                          'kodikResult': anime.kodikResult,
+                          'kodikResult':
+                              anime.kodikResult ??
+                              animeTitle.release.kodikResult,
                           'episodeIndex': episodeIndex,
                         },
                       );
