@@ -108,4 +108,19 @@ class CollectionRepository extends BaseRepository {
       rethrow;
     }
   }
+
+  Future<void> removeFromCollection(CollectionType type, int releaseId) async {
+    try {
+      if (releaseId.toString().startsWith(kodikIdPattern)) {
+        CollectionStorage.removeFromCollection(releaseId, type);
+      }
+      final body = [
+        {'release_id': releaseId},
+      ];
+      dio.delete('accounts/users/me/collections', data: body);
+      return;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

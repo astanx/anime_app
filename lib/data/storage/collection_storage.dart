@@ -37,4 +37,16 @@ class CollectionStorage {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
   }
+
+  static Future<void> removeFromCollection(int id, CollectionType type) async {
+    final List<CollectionId> collectionIds = await getCollectionIds();
+
+    collectionIds.removeWhere((c) {
+      return c.id == id && c.status == type.asQueryParam.toUpperCase();
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    final jsonList = collectionIds.map((c) => c.toJson()).toList();
+    await prefs.setString(_key, jsonEncode(jsonList));
+  }
 }

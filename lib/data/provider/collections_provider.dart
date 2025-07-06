@@ -105,4 +105,24 @@ class CollectionsProvider extends ChangeNotifier {
     }
     return null;
   }
+
+  Future<void> removeFromCollection(
+    CollectionType type,
+    Anime anime, [
+    KodikResult? kodikResult,
+  ]) async {
+    final uniqueId = anime.uniqueId;
+
+    for (final entry in _collections.entries) {
+      entry.value.data.removeWhere((a) => a.uniqueId == uniqueId);
+    }
+
+    await _repository.removeFromCollection(type, uniqueId);
+
+    if (_collections[type] != null) {
+      _collections[type]!.data.removeWhere((a) => a.uniqueId == uniqueId);
+    }
+
+    notifyListeners();
+  }
 }

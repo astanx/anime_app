@@ -446,6 +446,13 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                                                     anime,
                                                                     kodikResult,
                                                                   );
+                                                            } else {
+                                                              await collectionProvider
+                                                                  .removeFromCollection(
+                                                                    type,
+                                                                    anime,
+                                                                    kodikResult,
+                                                                  );
                                                             }
                                                             Navigator.pop(
                                                               context,
