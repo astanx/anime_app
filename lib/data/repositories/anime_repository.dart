@@ -13,7 +13,9 @@ class AnimeRepository extends BaseRepository {
   String _normalizeTitle(String? title) {
     if (title == null) return '';
 
-    List<String> words = title.toLowerCase().split(
+    String noParentheses = title.replaceAll(RegExp(r'\([^)]*\)'), '');
+
+    List<String> words = noParentheses.toLowerCase().split(
       RegExp(r'[^\wа-яё]+', caseSensitive: false),
     );
 
