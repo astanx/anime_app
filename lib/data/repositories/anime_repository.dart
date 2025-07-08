@@ -26,6 +26,7 @@ class AnimeRepository extends BaseRepository {
       'ona',
       'special',
       'movie',
+      'usj',
       'bd',
       'dvd',
       'hd',
@@ -245,11 +246,12 @@ class AnimeRepository extends BaseRepository {
       log(data.toString());
 
       final anime = Anime.fromJson(data);
+
       if (kodik == null) {
-        final kodikResult = await matchKodikWithAnilibria(anime);
-        return kodikResult != null
-            ? Anime.fromAnilibriaAndKodik(kodikResult, anime)
-            : anime;
+        final kodikResults = await searchKodik(anime.release.names.main);
+        final matchResult = matchAnimeWithKodik([anime], kodikResults);
+        final matchedAnime = matchResult.matched.firstOrNull;
+        return matchedAnime ?? anime;
       }
       return anime;
     } catch (e) {
@@ -349,6 +351,21 @@ class AnimeRepository extends BaseRepository {
     final matchedReleases = <Anime>[];
     final matchedKodikIds = <String>{};
 
+    // Create a map of normalized Kodik titles to KodikResult for faster lookup
+    final kodikTitleMap = <String, KodikResult>{};
+    for (var k in kodikResults) {
+      final kodikTitles =
+          [
+            k.title,
+            k.titleOrig,
+            k.otherTitle,
+          ].where((t) => t.isNotEmpty).map(_normalizeTitle).toList();
+
+      for (var title in kodikTitles) {
+        kodikTitleMap[title] = k;
+      }
+    }
+
     for (var anime in anilibriaAnimes) {
       final names =
           [
@@ -361,17 +378,9 @@ class AnimeRepository extends BaseRepository {
               .toList();
 
       KodikResult? matchedKodik;
-      for (var k in kodikResults) {
-        final kodikTitles =
-            [
-              k.title,
-              k.titleOrig,
-              k.otherTitle,
-            ].where((t) => t.isNotEmpty).map(_normalizeTitle).toList();
-
-        final hasMatch = names.any((n) => kodikTitles.contains(n));
-        if (hasMatch) {
-          matchedKodik = k;
+      for (var name in names) {
+        if (kodikTitleMap.containsKey(name)) {
+          matchedKodik = kodikTitleMap[name];
           break;
         }
       }
