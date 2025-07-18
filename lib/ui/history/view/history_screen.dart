@@ -34,14 +34,15 @@ class HistoryScreen extends StatelessWidget {
               if (provider.history!.isEmpty) {
                 return Center(child: Text(l10n!.no_history_found));
               }
+              final history = provider.history!.reversed.toList();
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: ListView.builder(
-                      itemCount: provider.history!.length,
+                      itemCount: history.length,
                       itemBuilder: (context, index) {
-                        return HistoryCard(anime: provider.history![index]);
+                        return HistoryCard(anime: history[index]);
                       },
                     ),
                   ),
