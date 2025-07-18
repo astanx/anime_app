@@ -48,7 +48,13 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
   }
 
   void _checkPipAvailability() {
-    isPipAvailable = Platform.isAndroid || Platform.isIOS;
+    if (Platform.isAndroid) {
+      isPipAvailable = true;
+    } else if (Platform.isIOS) {
+      isPipAvailable = false;
+    } else {
+      isPipAvailable = false;
+    }
     setState(() {});
   }
 
