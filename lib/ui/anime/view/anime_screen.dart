@@ -3,7 +3,7 @@ import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
-import 'package:anime_app/ui/core/ui/anime_player/view/anime_player.dart';
+import 'package:anime_app/ui/core/ui/anime_player/anime_player.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

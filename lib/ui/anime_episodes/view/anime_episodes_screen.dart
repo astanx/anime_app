@@ -15,7 +15,7 @@ import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/l10n/collection_localization.dart';
 import 'package:anime_app/ui/anime_episodes/widgets/widgets.dart';
-import 'package:anime_app/ui/core/ui/anime_player/view/anime_player.dart';
+import 'package:anime_app/ui/core/ui/anime_player/anime_player.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';

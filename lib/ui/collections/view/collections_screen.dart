@@ -22,7 +22,9 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
   void initState() {
     super.initState();
     final provider = Provider.of<CollectionsProvider>(context, listen: false);
-    provider.fetchCollection(_type);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await provider.fetchCollection(_type);
+    });
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=

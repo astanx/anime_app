@@ -14,11 +14,18 @@ class FavouritesScreen extends StatefulWidget {
 
 class _FavouritesScreenState extends State<FavouritesScreen> {
   final ScrollController _scrollController = ScrollController();
+  bool _isLoading = true;
 
   @override
   void initState() {
     final provider = Provider.of<FavouritesProvider>(context, listen: false);
-    provider.fetchFavourites();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await provider.fetchFavourites();
+      setState(() {
+        _isLoading = false;
+      });
+    });
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -48,6 +55,9 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
             builder: (context, provider, _) {
               final favourites = provider.favourites;
 
+              if (_isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
               if (favourites.isEmpty && !provider.isLoadingMore) {
                 return Center(child: Text(l10n.no_favourites_found));
               }
@@ -62,12 +72,13 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                       itemBuilder: (context, index) {
                         if (index < favourites.length) {
                           return FavouritesCard(anime: favourites[index]);
-                        } else {
+                        } else if (_isLoading || provider.isLoadingMore) {
                           return const Padding(
                             padding: EdgeInsets.all(16.0),
                             child: Center(child: CircularProgressIndicator()),
                           );
                         }
+                        return const SizedBox.shrink();
                       },
                     ),
                   ),

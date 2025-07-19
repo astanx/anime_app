@@ -60,7 +60,7 @@ class _PlayerControlsState extends State<PlayerControls> {
                 ),
                 child: Text(
                   _isReversedTimer
-                      ? '-${formatDuration(duration - Duration(seconds: sliderValue.toInt()))}'
+                      ? '${position - duration < Duration(seconds: 0) ? '-' : ''}${formatDuration(duration - Duration(seconds: sliderValue.toInt()))}'
                       : formatDuration(duration),
                   style: const TextStyle(
                     fontSize: 10,

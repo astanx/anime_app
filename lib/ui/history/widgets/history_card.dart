@@ -23,6 +23,17 @@ class HistoryCard extends StatelessWidget {
     );
   }
 
+  void _openMovie(BuildContext context) {
+    Navigator.of(context).pushNamed(
+      '/anime/episodes',
+      arguments: {
+        'anime': anime.anime,
+        'kodikResult': anime.kodikResult,
+        'episodeIndex': 0,
+      },
+    );
+  }
+
   void _openKodik(BuildContext context) {
     Navigator.of(context).pushNamed(
       '/anime/episodes',
@@ -121,7 +132,10 @@ class HistoryCard extends StatelessWidget {
                       width: 500,
                       height: 50,
                       child: TextButton(
-                        onPressed: () => _openNextEpisode(context),
+                        onPressed:
+                            anime.anime.isSeries
+                                ? () => _openNextEpisode(context)
+                                : () => _openMovie(context),
                         style: TextButton.styleFrom(
                           backgroundColor: const Color(0xFF6B5252),
                           foregroundColor: Colors.white,
