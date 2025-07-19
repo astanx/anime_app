@@ -22,6 +22,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   List<AnimeRelease>? _animeList;
   List<AnimeRelease>? _weekSchedule;
   List<Genre>? _genres;
+  bool isLoading = true;
   final repository = AnimeRepository();
 
   @override
@@ -42,6 +43,9 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
         listen: false,
       ).fetchCollection(type, 1);
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> _fetchAnime() async {
@@ -78,7 +82,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
     }
 
     return Scaffold(
-      bottomNavigationBar: AnimeBar(),
+      bottomNavigationBar: AnimeBar(isBlocked: isLoading),
       body:
           _animeList == null
               ? const Center(child: CircularProgressIndicator())

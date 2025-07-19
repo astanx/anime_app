@@ -2,7 +2,8 @@ import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
-import 'package:anime_app/ui/core/ui/fullscreen_player.dart';
+import 'package:anime_app/ui/core/ui/anime_player/widgets/fullscreen_player.dart';
+import 'package:anime_app/ui/core/ui/anime_player/widgets/player_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
@@ -17,16 +18,6 @@ class AnimePlayer extends StatelessWidget {
     required this.kodikResult,
   });
 
-  String formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
-    final seconds = duration.inSeconds.remainder(60);
-    return hours > 0
-        ? '${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}'
-        : '${twoDigits(minutes)}:${twoDigits(seconds)}';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<VideoControllerProvider>(
@@ -35,7 +26,7 @@ class AnimePlayer extends StatelessWidget {
         final position = controller?.value.position ?? Duration.zero;
         final duration = controller?.value.duration ?? Duration.zero;
         final episodeIndex = provider.episodeIndex;
-        final l10n = AppLocalizations.of(context);
+        final l10n = AppLocalizations.of(context)!;
 
         if (!(controller?.value.isInitialized ?? false)) {
           return const Center(child: CircularProgressIndicator());
@@ -138,7 +129,7 @@ class AnimePlayer extends StatelessWidget {
                               onPressed:
                                   () => provider.seek(provider.openingEnd!),
                               child: Text(
-                                l10n!.skip_opening,
+                                l10n.skip_opening,
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 8,
@@ -208,8 +199,8 @@ class AnimePlayer extends StatelessWidget {
                                             (provider.endingEnd ??
                                                 Duration(seconds: 0)) ||
                                         duration == position
-                                    ? l10n!.next_episode
-                                    : l10n!.skip_ending,
+                                    ? l10n.next_episode
+                                    : l10n.skip_ending,
                                 style: TextStyle(color: Colors.black),
                               ),
                             )
@@ -218,41 +209,7 @@ class AnimePlayer extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            formatDuration(position),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                          Text(
-                            formatDuration(duration),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Slider(
-                      activeColor: Colors.white,
-                      inactiveColor: Colors.grey[600],
-                      value: position.inSeconds.toDouble().clamp(
-                        0,
-                        duration.inSeconds.toDouble(),
-                      ),
-                      min: 0,
-                      max: duration.inSeconds.toDouble(),
-                      onChanged:
-                          (value) =>
-                              provider.seek(Duration(seconds: value.toInt())),
-                    ),
+                    PlayerControls(provider: provider),
                   ],
                 ),
               ),

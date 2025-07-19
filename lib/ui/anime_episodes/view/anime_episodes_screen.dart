@@ -15,7 +15,7 @@ import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/l10n/collection_localization.dart';
 import 'package:anime_app/ui/anime_episodes/widgets/widgets.dart';
-import 'package:anime_app/ui/core/ui/anime_player.dart';
+import 'package:anime_app/ui/core/ui/anime_player/view/anime_player.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -121,7 +121,9 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       final history = AnimeWithHistory(
         anime: anime,
         lastWatchedEpisode:
-            _episodeIndex != -1 ? _episodeIndex! : _lastWatchedEpisode,
+            _episodeIndex != -1 && _episodeIndex != null
+                ? _episodeIndex!
+                : _lastWatchedEpisode,
         isWatched: true,
         kodikResult: kodikResult,
       );
@@ -183,7 +185,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       context,
       listen: false,
     );
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final isFavourite = favouritesProvider.isFavourite(anime);
 
     final collection = collectionProvider.getCollectionType(anime);
@@ -211,6 +213,14 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                       style: theme.textTheme.titleLarge,
                     ),
                   ),
+                  if (anime.isMovie &&
+                      anime.release.id != -1 &&
+                      _showKodikPlayer &&
+                      kodikResult != null)
+                    IconButton(
+                      onPressed: () => _debounceHistory(anime, kodikResult),
+                      icon: Icon(Icons.history),
+                    ),
                   IconButton(
                     icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
                     color: isFavourite ? theme.colorScheme.secondary : null,
@@ -293,10 +303,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                           const SizedBox(height: 4),
                           Text(
                             anime.release.episodesTotal > 0
-                                ? '${l10n!.episode_count(anime.release.episodesTotal)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}'
-                                : kodikResult?.type == 'anime'
-                                ? l10n!.movie
-                                : l10n!.series,
+                                ? '${l10n.episode_count(anime.release.episodesTotal)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}'
+                                : anime.typeLabel(l10n),
                             style: theme.textTheme.bodySmall?.copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -344,7 +352,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                   ],
                                 ),
                               const SizedBox(width: 8),
-                              if (anime.release.id != -1)
+                              if (anime.release.id != -1 &&
+                                  anime.torrents.isNotEmpty)
                                 Column(
                                   children: [
                                     ElevatedButton(
@@ -516,72 +525,73 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                           if (_showKodikPlayer &&
                               _kodikPlayerUrl != null &&
                               kodikResult != null) ...[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                AnimatedFlipCounter(
-                                  value: _lastWatchedEpisode,
-                                  prefix: l10n.last_watched_episode(''),
-                                  textStyle: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                            if (anime.isSeries)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  AnimatedFlipCounter(
+                                    value: _lastWatchedEpisode,
+                                    prefix: l10n.last_watched_episode(''),
+                                    textStyle: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(width: 16),
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        _incrementEpisode(anime, kodikResult);
-                                      },
-                                      child: Container(
-                                        width: 32,
-                                        height: 32,
-                                        decoration: BoxDecoration(
-                                          color: Color(0xFFAD1CB4),
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(
-                                                0.3,
+                                  SizedBox(width: 16),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          _incrementEpisode(anime, kodikResult);
+                                        },
+                                        child: Container(
+                                          width: 32,
+                                          height: 32,
+                                          decoration: BoxDecoration(
+                                            color: Color(0xFFAD1CB4),
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(
+                                                  0.3,
+                                                ),
+                                                offset: Offset(2, 2),
+                                                blurRadius: 4,
                                               ),
-                                              offset: Offset(2, 2),
-                                              blurRadius: 4,
-                                            ),
-                                          ],
+                                            ],
+                                          ),
+                                          child: Icon(Icons.add, size: 18),
                                         ),
-                                        child: Icon(Icons.add, size: 18),
                                       ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    GestureDetector(
-                                      onTap: () {
-                                        _decrementEpisode(anime, kodikResult);
-                                      },
-                                      child: Container(
-                                        width: 32,
-                                        height: 32,
-                                        decoration: BoxDecoration(
-                                          color: Color(0xFFAD1CB4),
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(
-                                                0.3,
+                                      SizedBox(height: 8),
+                                      GestureDetector(
+                                        onTap: () {
+                                          _decrementEpisode(anime, kodikResult);
+                                        },
+                                        child: Container(
+                                          width: 32,
+                                          height: 32,
+                                          decoration: BoxDecoration(
+                                            color: Color(0xFFAD1CB4),
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(
+                                                  0.3,
+                                                ),
+                                                offset: Offset(2, 2),
+                                                blurRadius: 4,
                                               ),
-                                              offset: Offset(2, 2),
-                                              blurRadius: 4,
-                                            ),
-                                          ],
+                                            ],
+                                          ),
+                                          child: Icon(Icons.remove, size: 18),
                                         ),
-                                        child: Icon(Icons.remove, size: 18),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                                    ],
+                                  ),
+                                ],
+                              ),
 
                             Column(
                               children: [

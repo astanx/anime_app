@@ -16,6 +16,7 @@ class VideoControllerProvider extends ChangeNotifier {
   TimecodeProvider? _timecodeProvider;
   HistoryProvider? _historyProvider;
   bool _isDisposing = false;
+  bool _wasStarted = false;
   Duration? openingStart;
   Duration? openingEnd;
   Duration? endingStart;
@@ -36,6 +37,7 @@ class VideoControllerProvider extends ChangeNotifier {
     _anime = anime;
     _episodeIndex = index;
     _kodikResult = kodikResult;
+    _wasStarted = false;
     _timecodeProvider = Provider.of<TimecodeProvider>(context, listen: false);
     _historyProvider = Provider.of<HistoryProvider>(context, listen: false);
 
@@ -85,6 +87,9 @@ class VideoControllerProvider extends ChangeNotifier {
       _controller?.pause();
     } else {
       _controller?.play();
+      if (!_wasStarted) {
+        _wasStarted = true;
+      }
     }
     _saveTimecode();
     notifyListeners();
@@ -111,7 +116,8 @@ class VideoControllerProvider extends ChangeNotifier {
         _anime == null ||
         _timecodeProvider == null ||
         _historyProvider == null ||
-        _episodeIndex == null) {
+        _episodeIndex == null ||
+        !_wasStarted) {
       return;
     }
 

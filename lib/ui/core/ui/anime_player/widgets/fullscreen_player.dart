@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
+import 'package:anime_app/ui/core/ui/anime_player/widgets/player_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -80,16 +81,6 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
     });
   }
 
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
-    final seconds = duration.inSeconds.remainder(60);
-    return hours > 0
-        ? '${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}'
-        : '${twoDigits(minutes)}:${twoDigits(seconds)}';
-  }
-
   void _handleDoubleTap(double xPosition, VideoControllerProvider provider) {
     final position = provider.controller?.value.position ?? Duration.zero;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -134,21 +125,9 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
           final kodikResult = widget.kodikResult;
           final position = controller?.value.position ?? Duration.zero;
           final duration = controller?.value.duration ?? Duration.zero;
-          final buffered = controller?.value.buffered ?? [];
 
           final l10n = AppLocalizations.of(context);
 
-          double bufferedEnd = buffered.fold<double>(
-            0.0,
-            (max, range) =>
-                range.end.inMilliseconds > max
-                    ? range.end.inMilliseconds.toDouble()
-                    : max,
-          );
-          double bufferedValue =
-              duration.inMilliseconds > 0
-                  ? bufferedEnd / duration.inMilliseconds.toDouble()
-                  : 0.0;
           return Scaffold(
             backgroundColor: Colors.black,
             body:
@@ -172,7 +151,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () {
-                              setState(() => _showControls = true);
+                              setState(() => _showControls = !_showControls);
                               _startHideTimer();
                             },
                             onDoubleTapDown:
@@ -360,77 +339,8 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                 duration: const Duration(milliseconds: 300),
                                 child: IgnorePointer(
                                   ignoring: !_showControls,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16.0,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              _formatDuration(position),
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            Text(
-                                              _formatDuration(duration),
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Container(
-                                        height: 24,
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                        ),
-                                        child: Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            LinearProgressIndicator(
-                                              value: bufferedValue,
-                                              backgroundColor: Colors.grey[800],
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
-                                                    Colors.grey[600]!,
-                                                  ),
-                                              minHeight: 3,
-                                            ),
-                                            Slider(
-                                              activeColor: Colors.white,
-                                              inactiveColor: Colors.grey[600],
-                                              value:
-                                                  position.inSeconds.toDouble(),
-                                              min: 0,
-                                              max:
-                                                  duration.inSeconds.toDouble(),
-                                              onChanged: (value) {
-                                                provider.seek(
-                                                  Duration(
-                                                    seconds: value.toInt(),
-                                                  ),
-                                                );
-                                                _startHideTimer();
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                    ],
-                                  ),
+
+                                  child: PlayerControls(provider: provider),
                                 ),
                               ),
                             ],

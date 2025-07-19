@@ -187,5 +187,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get view_anime => 'Смотреть аниме';
 
   @override
+  String get view_film => 'Смотреть фильм';
+
+  @override
   String get continue_watching_movie => 'Продолжить просмотр фильма';
 }

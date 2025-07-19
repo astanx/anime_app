@@ -2,6 +2,7 @@ import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/models/shikimori_anime.dart';
+import 'package:anime_app/l10n/app_localizations.dart';
 
 class Anime {
   final AnimeRelease release;
@@ -28,6 +29,35 @@ class Anime {
       return int.parse('$kodikIdPattern${release.shikimoriId}');
     }
     return -1;
+  }
+
+  KodikResult? get kodikResult => release.kodikResult;
+  bool get isMovie {
+    if (release.id != -1 && release.episodesTotal == 1) return true;
+
+    if (kodikResult?.type == 'movie') return true;
+
+    if (release.type.value == 'MOVIE') return true;
+
+    return false;
+  }
+
+  bool get isSeries {
+    if (release.type.value == 'MOVIE') return false;
+
+    if (release.episodesTotal > 1) return true;
+
+    if (kodikResult?.type == 'tv-series' || kodikResult?.type == 'anime') {
+      return true;
+    }
+
+    return false;
+  }
+
+  String typeLabel(AppLocalizations l10n) {
+    if (isMovie) return l10n.movie;
+    if (isSeries) return l10n.series;
+    return '';
   }
 
   Anime copyWith({

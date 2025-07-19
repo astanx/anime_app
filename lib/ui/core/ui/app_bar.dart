@@ -2,7 +2,8 @@ import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class AnimeBar extends StatelessWidget {
-  const AnimeBar({super.key});
+  final bool isBlocked;
+  const AnimeBar({super.key, this.isBlocked = false});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class AnimeBar extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
-              if (!isActive) {
+              if (!isActive && !isBlocked) {
                 Navigator.pushReplacementNamed(context, route);
               }
             },

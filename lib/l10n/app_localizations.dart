@@ -401,6 +401,12 @@ abstract class AppLocalizations {
   /// **'View anime'**
   String get view_anime;
 
+  /// No description provided for @view_film.
+  ///
+  /// In en, this message translates to:
+  /// **'View film'**
+  String get view_film;
+
   /// No description provided for @continue_watching_movie.
   ///
   /// In en, this message translates to:

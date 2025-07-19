@@ -187,5 +187,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get view_anime => 'View anime';
 
   @override
+  String get view_film => 'View film';
+
+  @override
   String get continue_watching_movie => 'Continue watching movie';
 }
