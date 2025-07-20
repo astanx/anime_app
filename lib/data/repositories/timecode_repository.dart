@@ -19,8 +19,21 @@ class TimecodeRepository extends BaseRepository {
       final response = await dio.get('accounts/users/me/views/timecodes');
       final data = response.data as List<dynamic>;
 
-      final timecodes = data.map((t) => Timecode.fromJson(t as List)).toList();
+      final timecodes =
+          data.map((t) => Timecode.fromJsonList(t as List)).toList();
       return timecodes;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Timecode> getTimecodeForEpisode(String episodeId) async {
+    try {
+      final response = await dio.get(
+        'anime/releases/episodes/$episodeId/timecode',
+      );
+      final data = response.data as Map<String, dynamic>;
+      return Timecode.fromJsonMap(data);
     } catch (e) {
       rethrow;
     }

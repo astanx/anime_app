@@ -1,7 +1,6 @@
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
-import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/core/ui/anime_player/widgets/fullscreen_player.dart';
 import 'package:anime_app/ui/core/ui/anime_player/widgets/player_controls.dart';
 import 'package:flutter/material.dart';
@@ -24,9 +23,6 @@ class AnimePlayer extends StatelessWidget {
       builder: (context, provider, _) {
         final controller = provider.controller;
         final position = controller?.value.position ?? Duration.zero;
-        final duration = controller?.value.duration ?? Duration.zero;
-        final episodeIndex = provider.episodeIndex;
-        final l10n = AppLocalizations.of(context)!;
 
         if (!(controller?.value.isInitialized ?? false)) {
           return const Center(child: CircularProgressIndicator());
@@ -101,111 +97,6 @@ class AnimePlayer extends StatelessWidget {
                                   ),
                                 ),
                           ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          if (provider.openingStart != null &&
-                              position >= provider.openingStart! &&
-                              position <=
-                                  provider.openingStart! +
-                                      const Duration(seconds: 20))
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(
-                                  179,
-                                  158,
-                                  158,
-                                  158,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              onPressed:
-                                  () => provider.seek(provider.openingEnd!),
-                              child: Text(
-                                l10n.skip_opening,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 8,
-                                ),
-                              ),
-                            )
-                          else
-                            const SizedBox.shrink(),
-                          if (episodeIndex != null &&
-                              (episodeIndex < anime.episodes.length - 1 &&
-                                      position == duration ||
-                                  ((provider.endingStart != null &&
-                                      position >= provider.endingStart! &&
-                                      position <=
-                                          provider.endingStart! +
-                                              const Duration(seconds: 20)))))
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(
-                                  179,
-                                  158,
-                                  158,
-                                  158,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              onPressed:
-                                  duration ==
-                                              (provider.endingEnd ??
-                                                  Duration(seconds: 0)) ||
-                                          duration == position
-                                      ? () {
-                                        provider.seek(
-                                          Duration(
-                                            seconds:
-                                                anime
-                                                    .episodes[episodeIndex]
-                                                    .duration,
-                                          ),
-                                        );
-                                        provider.loadEpisode(
-                                          anime,
-                                          episodeIndex + 1,
-                                          context,
-                                          kodikResult,
-                                        );
-                                      }
-                                      : () {
-                                        provider.seek(
-                                          Duration(
-                                            seconds:
-                                                anime
-                                                    .episodes[episodeIndex]
-                                                    .ending!
-                                                    .stop!,
-                                          ),
-                                        );
-                                      },
-                              child: Text(
-                                duration ==
-                                            (provider.endingEnd ??
-                                                Duration(seconds: 0)) ||
-                                        duration == position
-                                    ? l10n.next_episode
-                                    : l10n.skip_ending,
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            )
-                          else
-                            const SizedBox.shrink(),
                         ],
                       ),
                     ),

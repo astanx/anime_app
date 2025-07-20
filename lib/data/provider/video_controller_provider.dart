@@ -21,7 +21,10 @@ class VideoControllerProvider extends ChangeNotifier {
   Duration? openingEnd;
   Duration? endingStart;
   Duration? endingEnd;
-
+  String? hls1080;
+  String? hls720;
+  String? hls480;
+  String? currentQuality;
   VideoPlayerController? get controller => _controller;
   int? get episodeIndex => _episodeIndex;
   Anime? get anime => _anime;
@@ -41,14 +44,18 @@ class VideoControllerProvider extends ChangeNotifier {
     _timecodeProvider = Provider.of<TimecodeProvider>(context, listen: false);
     _historyProvider = Provider.of<HistoryProvider>(context, listen: false);
 
-    await _timecodeProvider!.fetchTimecodes();
     final episode = anime.episodes[index];
-    final timecode = _timecodeProvider!.getTimecodeForEpisode(episode.id);
-
-    final videoUrl = Uri.parse(
-      episode.hls1080.isNotEmpty ? episode.hls1080 : episode.hls720,
-    );
-
+    final timecode = await _timecodeProvider!.getTimecodeForEpisode(episode.id);
+    hls1080 = episode.hls1080.isNotEmpty ? episode.hls1080 : null;
+    hls720 = episode.hls720.isNotEmpty ? episode.hls720 : null;
+    hls480 = episode.hls480;
+    final videoUrl = Uri.parse(hls1080 ?? hls720 ?? hls480!);
+    currentQuality =
+        hls1080 != null
+            ? '1080'
+            : hls720 != null
+            ? '720'
+            : '480';
     await _controller?.dispose();
     _controller = VideoPlayerController.networkUrl(
       videoUrl,
@@ -78,6 +85,41 @@ class VideoControllerProvider extends ChangeNotifier {
             ? Duration(seconds: episode.ending!.stop!)
             : null;
 
+    _controller!.addListener(_notify);
+    notifyListeners();
+  }
+
+  Future<void> changeQuality(String quality) async {
+    if (_controller == null ||
+        anime == null ||
+        quality.isEmpty ||
+        _episodeIndex == null ||
+        currentQuality == quality)
+      return;
+    Uri videoUrl;
+    _saveTimecode();
+    await _controller?.dispose();
+    if (quality == '1080' && hls1080 != null) {
+      videoUrl = Uri.parse(hls1080!);
+      currentQuality = '1080';
+    } else if (quality == '720' && hls720 != null) {
+      videoUrl = Uri.parse(hls720!);
+      currentQuality = '720';
+    } else {
+      videoUrl = Uri.parse(hls480!);
+      currentQuality = '480';
+    }
+    final episode = anime!.episodes[_episodeIndex!];
+    final timecode = await _timecodeProvider!.getTimecodeForEpisode(episode.id);
+    _controller = VideoPlayerController.networkUrl(
+      videoUrl,
+      videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true),
+    );
+
+    await _controller!.initialize();
+    if (timecode > 0) {
+      await _controller!.seekTo(Duration(seconds: timecode));
+    }
     _controller!.addListener(_notify);
     notifyListeners();
   }

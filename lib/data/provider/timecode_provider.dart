@@ -17,18 +17,17 @@ class TimecodeProvider extends ChangeNotifier {
     }
   }
 
-  int getTimecodeForEpisode(String episodeId) {
-    return _timecodes
-        .firstWhere(
-          (t) => t.releaseEpisodeId == episodeId,
-          orElse:
-              () => Timecode(
-                time: 0,
-                isWatched: false,
-                releaseEpisodeId: episodeId,
-              ),
-        )
-        .time;
+  Future<int> getTimecodeForEpisode(String episodeId) async {
+    try {
+      var timecode = _timecodes.firstWhere(
+        (t) => t.releaseEpisodeId == episodeId,
+      );
+      return timecode.time;
+    } catch (e) {
+      var timecode = await _repository.getTimecodeForEpisode(episodeId);
+      updateTimecode(timecode, notify: false);
+      return timecode.time;
+    }
   }
 
   Future<void> updateTimecode(Timecode timecode, {bool notify = true}) async {

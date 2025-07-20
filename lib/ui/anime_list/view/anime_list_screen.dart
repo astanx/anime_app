@@ -1,12 +1,10 @@
 import 'package:anime_app/data/models/anime_release.dart';
-import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/repositories/user_repository.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class AnimeListScreen extends StatefulWidget {
   const AnimeListScreen({super.key});
@@ -32,7 +30,6 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
     super.initState();
     _fetchAnime();
     _fetchGenres();
-    Provider.of<TimecodeProvider>(context, listen: false).fetchTimecodes();
     setState(() {
       isLoading = false;
     });

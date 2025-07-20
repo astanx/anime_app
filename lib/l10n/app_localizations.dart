@@ -412,6 +412,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue watching movie'**
   String get continue_watching_movie;
+
+  /// No description provided for @select_payback_speed.
+  ///
+  /// In en, this message translates to:
+  /// **'Select playback speed'**
+  String get select_payback_speed;
+
+  /// No description provided for @playback_speed.
+  ///
+  /// In en, this message translates to:
+  /// **'Playback speed'**
+  String get playback_speed;
+
+  /// No description provided for @quality.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality'**
+  String get quality;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

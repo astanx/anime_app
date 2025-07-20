@@ -54,5 +54,8 @@
   "search_anime": "Search anime",
   "view_anime": "View anime",
   "view_film": "View film",
-  "continue_watching_movie": "Continue watching movie"
+  "continue_watching_movie": "Continue watching movie",
+  "select_payback_speed": "Select playback speed",
+  "playback_speed": "Playback speed",
+  "quality": "Quality"
 }
