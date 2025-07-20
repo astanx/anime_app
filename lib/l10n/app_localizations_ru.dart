@@ -200,4 +200,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get quality => 'Качество';
+
+  @override
+  String get retry => 'Попробовать снова';
+
+  @override
+  String get server_unavailable => 'Сервер временно недоступен';
 }

@@ -57,5 +57,7 @@
   "continue_watching_movie": "Continue watching movie",
   "select_payback_speed": "Select playback speed",
   "playback_speed": "Playback speed",
-  "quality": "Quality"
+  "quality": "Quality",
+"retry": "Retry",
+  "server_unavailable": "Server is currently unavailable"
 }

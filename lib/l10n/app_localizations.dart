@@ -430,6 +430,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Quality'**
   String get quality;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @server_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Server is currently unavailable'**
+  String get server_unavailable;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

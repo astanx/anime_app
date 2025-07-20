@@ -200,4 +200,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quality => 'Quality';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get server_unavailable => 'Server is currently unavailable';
 }

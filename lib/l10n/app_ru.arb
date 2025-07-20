@@ -57,5 +57,7 @@
   "continue_watching_movie": "Продолжить просмотр фильма",
   "select_payback_speed": "Выбрать скорость воспроизведения",
   "playback_speed": "Скорость воспроизведения",
-  "quality": "Качество"
+  "quality": "Качество",
+  "retry": "Попробовать снова",
+  "server_unavailable": "Сервер временно недоступен"
 }
