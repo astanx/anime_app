@@ -193,14 +193,14 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                       ),
                                       onPressed: () => Navigator.pop(context),
                                     ),
-                                    IconButton(
-                                      onPressed:
-                                          isPipAvailable ? _enablePip : null,
-                                      icon: const Icon(
-                                        Icons.picture_in_picture,
-                                        color: Colors.white,
+                                    if (isPipAvailable)
+                                      IconButton(
+                                        onPressed: _enablePip,
+                                        icon: const Icon(
+                                          Icons.picture_in_picture,
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                    ),
                                   ],
                                 ),
                               ),
