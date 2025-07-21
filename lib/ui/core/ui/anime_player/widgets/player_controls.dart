@@ -77,7 +77,14 @@ class _PlayerControlsState extends State<PlayerControls> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: () => provider.seek(provider.openingEnd!),
+                  onPressed: () {
+                    setState(() {
+                      _isDragging = true;
+                      _desiredPosition =
+                          provider.openingEnd!.inSeconds.toDouble();
+                    });
+                    provider.seek(provider.openingEnd!);
+                  },
                   child: Text(
                     l10n.skip_opening,
                     style: TextStyle(
@@ -111,6 +118,12 @@ class _PlayerControlsState extends State<PlayerControls> {
                                       Duration(seconds: 0)) ||
                               duration == position
                           ? () {
+                            setState(() {
+                              _isDragging = true;
+                              _desiredPosition =
+                                  anime.episodes[episodeIndex].duration
+                                      .toDouble();
+                            });
                             provider.seek(
                               Duration(
                                 seconds: anime.episodes[episodeIndex].duration,
@@ -124,6 +137,12 @@ class _PlayerControlsState extends State<PlayerControls> {
                             );
                           }
                           : () {
+                            setState(() {
+                              _isDragging = true;
+                              _desiredPosition =
+                                  anime.episodes[episodeIndex].ending!.stop!
+                                      .toDouble();
+                            });
                             provider.seek(
                               Duration(
                                 seconds:
