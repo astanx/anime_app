@@ -35,7 +35,7 @@ class TimecodeRepository extends BaseRepository {
       final data = response.data as Map<String, dynamic>;
       return Timecode.fromJsonMap(data);
     } catch (e) {
-      rethrow;
+      return Timecode(releaseEpisodeId: episodeId, time: 0, isWatched: false);
     }
   }
 }

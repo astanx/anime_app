@@ -213,8 +213,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                       style: theme.textTheme.titleLarge,
                     ),
                   ),
-                  if (anime.isMovie &&
-                      anime.release.id != -1 &&
+                  if ((anime.isMovie || anime.release.episodesTotal == 1) &&
                       _showKodikPlayer &&
                       kodikResult != null)
                     IconButton(
@@ -525,7 +524,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                           if (_showKodikPlayer &&
                               _kodikPlayerUrl != null &&
                               kodikResult != null) ...[
-                            if (anime.isSeries)
+                            if (anime.isSeries &&
+                                anime.release.episodesTotal != 1)
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
