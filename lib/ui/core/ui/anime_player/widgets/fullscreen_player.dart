@@ -82,18 +82,36 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
     });
   }
 
-  void _handleDoubleTap(double xPosition, VideoControllerProvider provider) {
+  void seekForward(VideoControllerProvider provider) {
     final position = provider.controller?.value.position ?? Duration.zero;
+    final seekPos =
+        position + const Duration(seconds: 10) <
+                provider.controller!.value.duration
+            ? position + const Duration(seconds: 10)
+            : provider.controller!.value.duration;
+    provider.seek(seekPos);
+  }
+
+  void seekBackward(VideoControllerProvider provider) {
+    final position = provider.controller?.value.position ?? Duration.zero;
+    final seekPos =
+        position - const Duration(seconds: 10) > Duration.zero
+            ? position - const Duration(seconds: 10)
+            : Duration.zero;
+    provider.seek(seekPos);
+  }
+
+  void _handleDoubleTap(double xPosition, VideoControllerProvider provider) {
     final screenWidth = MediaQuery.of(context).size.width;
 
     if (xPosition < screenWidth / 2) {
-      provider.seek(position - const Duration(seconds: 10));
+      seekBackward(provider);
       setState(() {
         _seekIcon = Icons.replay_10;
         _showSeekIcon = true;
       });
     } else {
-      provider.seek(position + const Duration(seconds: 10));
+      seekForward(provider);
       setState(() {
         _seekIcon = Icons.forward_10;
         _showSeekIcon = true;
@@ -122,7 +140,6 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
         builder: (context, provider, _) {
           final controller = provider.controller;
           final episodeIndex = provider.episodeIndex;
-          final position = controller?.value.position ?? Duration.zero;
           final l10n = AppLocalizations.of(context)!;
 
           return Scaffold(
@@ -165,233 +182,245 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                           child: AnimatedOpacity(
                             opacity: _showControls ? 1.0 : 0.0,
                             duration: const Duration(milliseconds: 300),
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [Colors.black54, Colors.transparent],
+                            child: IgnorePointer(
+                              ignoring: !_showControls,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.black54,
+                                      Colors.transparent,
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0,
-                                  vertical: 8,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 28,
-                                      ),
-                                      onPressed: () => Navigator.pop(context),
-                                    ),
-                                    if (isPipAvailable)
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                    vertical: 8,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
                                       IconButton(
-                                        onPressed: _enablePip,
                                         icon: const Icon(
-                                          Icons.picture_in_picture,
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 28,
+                                        ),
+                                        onPressed: () => Navigator.pop(context),
+                                      ),
+                                      if (isPipAvailable)
+                                        IconButton(
+                                          onPressed: _enablePip,
+                                          icon: const Icon(
+                                            Icons.picture_in_picture,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      PopupMenuButton<String>(
+                                        icon: const Icon(
+                                          Icons.settings,
                                           color: Colors.white,
                                         ),
-                                      ),
-                                    PopupMenuButton<String>(
-                                      icon: const Icon(
-                                        Icons.settings,
-                                        color: Colors.white,
-                                      ),
-                                      onSelected: (String value) {
-                                        switch (value) {
-                                          case 'speed':
-                                            showDialog(
-                                              context: context,
-                                              builder:
-                                                  (context) => AlertDialog(
-                                                    title: Text(
-                                                      l10n.select_payback_speed,
+                                        onSelected: (String value) {
+                                          switch (value) {
+                                            case 'speed':
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (context) => AlertDialog(
+                                                      title: Text(
+                                                        l10n.select_payback_speed,
+                                                      ),
+                                                      content: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          ListTile(
+                                                            title: const Text(
+                                                              '0.5x',
+                                                            ),
+                                                            onTap: () {
+                                                              provider
+                                                                  .controller
+                                                                  ?.setPlaybackSpeed(
+                                                                    0.5,
+                                                                  );
+                                                              Navigator.pop(
+                                                                context,
+                                                              );
+                                                            },
+                                                          ),
+                                                          ListTile(
+                                                            title: const Text(
+                                                              '1.0x',
+                                                            ),
+                                                            onTap: () {
+                                                              provider
+                                                                  .controller
+                                                                  ?.setPlaybackSpeed(
+                                                                    1.0,
+                                                                  );
+                                                              Navigator.pop(
+                                                                context,
+                                                              );
+                                                            },
+                                                          ),
+                                                          ListTile(
+                                                            title: const Text(
+                                                              '1.5x',
+                                                            ),
+                                                            onTap: () {
+                                                              provider
+                                                                  .controller
+                                                                  ?.setPlaybackSpeed(
+                                                                    1.5,
+                                                                  );
+                                                              Navigator.pop(
+                                                                context,
+                                                              );
+                                                            },
+                                                          ),
+                                                          ListTile(
+                                                            title: const Text(
+                                                              '2x',
+                                                            ),
+                                                            onTap: () {
+                                                              provider
+                                                                  .controller
+                                                                  ?.setPlaybackSpeed(
+                                                                    2,
+                                                                  );
+                                                              Navigator.pop(
+                                                                context,
+                                                              );
+                                                            },
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
-                                                    content: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        ListTile(
-                                                          title: const Text(
-                                                            '0.5x',
-                                                          ),
-                                                          onTap: () {
-                                                            provider.controller
-                                                                ?.setPlaybackSpeed(
-                                                                  0.5,
+                                              );
+                                              break;
+                                            case 'quality':
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (context) => AlertDialog(
+                                                      title: Text(
+                                                        l10n.select_payback_speed,
+                                                      ),
+                                                      content: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          if (provider
+                                                                  .hls1080 !=
+                                                              null)
+                                                            ListTile(
+                                                              title: Text(
+                                                                '1080p',
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      provider.currentQuality ==
+                                                                              '1080'
+                                                                          ? Color(
+                                                                            0xFFAD1CB4,
+                                                                          )
+                                                                          : Colors
+                                                                              .white,
+                                                                ),
+                                                              ),
+                                                              onTap: () {
+                                                                provider
+                                                                    .changeQuality(
+                                                                      '1080',
+                                                                    );
+                                                                Navigator.pop(
+                                                                  context,
                                                                 );
-                                                            Navigator.pop(
-                                                              context,
-                                                            );
-                                                          },
-                                                        ),
-                                                        ListTile(
-                                                          title: const Text(
-                                                            '1.0x',
-                                                          ),
-                                                          onTap: () {
-                                                            provider.controller
-                                                                ?.setPlaybackSpeed(
-                                                                  1.0,
+                                                              },
+                                                            ),
+                                                          if (provider.hls720 !=
+                                                              null)
+                                                            ListTile(
+                                                              title: Text(
+                                                                '720p',
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      provider.currentQuality ==
+                                                                              '720'
+                                                                          ? Color(
+                                                                            0xFFAD1CB4,
+                                                                          )
+                                                                          : Colors
+                                                                              .white,
+                                                                ),
+                                                              ),
+                                                              onTap: () {
+                                                                provider
+                                                                    .changeQuality(
+                                                                      '720',
+                                                                    );
+                                                                Navigator.pop(
+                                                                  context,
                                                                 );
-                                                            Navigator.pop(
-                                                              context,
-                                                            );
-                                                          },
-                                                        ),
-                                                        ListTile(
-                                                          title: const Text(
-                                                            '1.5x',
-                                                          ),
-                                                          onTap: () {
-                                                            provider.controller
-                                                                ?.setPlaybackSpeed(
-                                                                  1.5,
+                                                              },
+                                                            ),
+                                                          if (provider.hls480 !=
+                                                              null)
+                                                            ListTile(
+                                                              title: Text(
+                                                                '480p',
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      provider.currentQuality ==
+                                                                              '480'
+                                                                          ? Color(
+                                                                            0xFFAD1CB4,
+                                                                          )
+                                                                          : Colors
+                                                                              .white,
+                                                                ),
+                                                              ),
+                                                              onTap: () {
+                                                                provider
+                                                                    .changeQuality(
+                                                                      '480',
+                                                                    );
+                                                                Navigator.pop(
+                                                                  context,
                                                                 );
-                                                            Navigator.pop(
-                                                              context,
-                                                            );
-                                                          },
-                                                        ),
-                                                        ListTile(
-                                                          title: const Text(
-                                                            '2x',
-                                                          ),
-                                                          onTap: () {
-                                                            provider.controller
-                                                                ?.setPlaybackSpeed(
-                                                                  2,
-                                                                );
-                                                            Navigator.pop(
-                                                              context,
-                                                            );
-                                                          },
-                                                        ),
-                                                      ],
+                                                              },
+                                                            ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                              );
+                                              break;
+                                            default:
+                                              break;
+                                          }
+                                        },
+                                        itemBuilder:
+                                            (BuildContext context) =>
+                                                <PopupMenuEntry<String>>[
+                                                  PopupMenuItem<String>(
+                                                    value: 'speed',
+                                                    child: Text(
+                                                      l10n.playback_speed,
                                                     ),
                                                   ),
-                                            );
-                                            break;
-                                          case 'quality':
-                                            showDialog(
-                                              context: context,
-                                              builder:
-                                                  (context) => AlertDialog(
-                                                    title: Text(
-                                                      l10n.select_payback_speed,
-                                                    ),
-                                                    content: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        if (provider.hls1080 !=
-                                                            null)
-                                                          ListTile(
-                                                            title: Text(
-                                                              '1080p',
-                                                              style: TextStyle(
-                                                                color:
-                                                                    provider.currentQuality ==
-                                                                            '1080'
-                                                                        ? Color(
-                                                                          0xFFAD1CB4,
-                                                                        )
-                                                                        : Colors
-                                                                            .white,
-                                                              ),
-                                                            ),
-                                                            onTap: () {
-                                                              provider
-                                                                  .changeQuality(
-                                                                    '1080',
-                                                                  );
-                                                              Navigator.pop(
-                                                                context,
-                                                              );
-                                                            },
-                                                          ),
-                                                        if (provider.hls720 !=
-                                                            null)
-                                                          ListTile(
-                                                            title: Text(
-                                                              '720p',
-                                                              style: TextStyle(
-                                                                color:
-                                                                    provider.currentQuality ==
-                                                                            '720'
-                                                                        ? Color(
-                                                                          0xFFAD1CB4,
-                                                                        )
-                                                                        : Colors
-                                                                            .white,
-                                                              ),
-                                                            ),
-                                                            onTap: () {
-                                                              provider
-                                                                  .changeQuality(
-                                                                    '720',
-                                                                  );
-                                                              Navigator.pop(
-                                                                context,
-                                                              );
-                                                            },
-                                                          ),
-                                                        if (provider.hls480 !=
-                                                            null)
-                                                          ListTile(
-                                                            title: Text(
-                                                              '480p',
-                                                              style: TextStyle(
-                                                                color:
-                                                                    provider.currentQuality ==
-                                                                            '480'
-                                                                        ? Color(
-                                                                          0xFFAD1CB4,
-                                                                        )
-                                                                        : Colors
-                                                                            .white,
-                                                              ),
-                                                            ),
-                                                            onTap: () {
-                                                              provider
-                                                                  .changeQuality(
-                                                                    '480',
-                                                                  );
-                                                              Navigator.pop(
-                                                                context,
-                                                              );
-                                                            },
-                                                          ),
-                                                      ],
-                                                    ),
+                                                  PopupMenuItem<String>(
+                                                    value: 'quality',
+                                                    child: Text(l10n.quality),
                                                   ),
-                                            );
-                                            break;
-                                          default:
-                                            break;
-                                        }
-                                      },
-                                      itemBuilder:
-                                          (
-                                            BuildContext context,
-                                          ) => <PopupMenuEntry<String>>[
-                                            PopupMenuItem<String>(
-                                              value: 'speed',
-                                              child: Text(l10n.playback_speed),
-                                            ),
-                                            PopupMenuItem<String>(
-                                              value: 'quality',
-                                              child: Text(l10n.quality),
-                                            ),
-                                          ],
-                                    ),
-                                  ],
+                                                ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -428,9 +457,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                     icon: const Icon(Icons.replay_10, size: 40),
                                     color: Colors.white,
                                     onPressed: () {
-                                      provider.seek(
-                                        position - const Duration(seconds: 10),
-                                      );
+                                      seekBackward(provider);
                                       _startHideTimer();
                                     },
                                   ),
@@ -472,9 +499,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                     ),
                                     color: Colors.white,
                                     onPressed: () {
-                                      provider.seek(
-                                        position + const Duration(seconds: 10),
-                                      );
+                                      seekForward(provider);
                                       _startHideTimer();
                                     },
                                   ),
