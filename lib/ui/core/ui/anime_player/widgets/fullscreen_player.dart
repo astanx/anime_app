@@ -89,6 +89,8 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                 provider.controller!.value.duration
             ? position + const Duration(seconds: 10)
             : provider.controller!.value.duration;
+    provider.updateDesiredPosition(seekPos.inSeconds.toDouble());
+    provider.updateIsDragging(true);
     provider.seek(seekPos);
   }
 
@@ -98,6 +100,8 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
         position - const Duration(seconds: 10) > Duration.zero
             ? position - const Duration(seconds: 10)
             : Duration.zero;
+    provider.updateDesiredPosition(seekPos.inSeconds.toDouble());
+    provider.updateIsDragging(true);
     provider.seek(seekPos);
   }
 
