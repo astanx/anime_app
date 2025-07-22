@@ -15,6 +15,9 @@ class VideoControllerProvider extends ChangeNotifier {
   KodikResult? _kodikResult;
   TimecodeProvider? _timecodeProvider;
   HistoryProvider? _historyProvider;
+  double desiredPosition = 0.0;
+  bool isDragging = false;
+  bool isReversedTimer = true;
   bool _isDisposing = false;
   bool _wasStarted = false;
   Duration? openingStart;
@@ -29,6 +32,21 @@ class VideoControllerProvider extends ChangeNotifier {
   int? get episodeIndex => _episodeIndex;
   Anime? get anime => _anime;
   KodikResult? get kodikResult => _kodikResult;
+
+  void updateIsDragging(bool dragging) {
+    isDragging = dragging;
+    notifyListeners();
+  }
+
+  void updateDesiredPosition(double position) {
+    desiredPosition = position;
+    notifyListeners();
+  }
+
+  void reverseTimer() {
+    isReversedTimer = !isReversedTimer;
+    notifyListeners();
+  }
 
   Future<void> loadEpisode(
     Anime anime,

@@ -20,9 +20,33 @@ class PlayerControls extends StatefulWidget {
 }
 
 class _PlayerControlsState extends State<PlayerControls> {
-  bool _isDragging = false;
-  bool _isReversedTimer = true;
-  double _desiredPosition = 0.0;
+  @override
+  void initState() {
+    super.initState();
+    widget.provider.controller?.addListener(_updateDraggingState);
+  }
+
+  void _updateDraggingState() {
+    final provider = widget.provider;
+    final position = provider.controller?.value.position;
+    final isDragging = provider.isDragging;
+    final desiredPosition = provider.desiredPosition;
+
+    if (position != null && isDragging) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        provider.updateIsDragging(
+          position.inSeconds.toDouble() >= desiredPosition + 10 ||
+              position.inSeconds.toDouble() <= desiredPosition - 10,
+        );
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.provider.controller?.removeListener(_updateDraggingState);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,16 +67,12 @@ class _PlayerControlsState extends State<PlayerControls> {
 
     final position = controller.value.position;
     final duration = controller.value.duration;
+    final isReversedTimer = provider.isReversedTimer;
+    final isDragging = provider.isDragging;
+    final desiredPosition = provider.desiredPosition;
 
-    if (_isDragging) {
-      setState(() {
-        _isDragging =
-            position.inSeconds.toDouble() >= _desiredPosition + 10 ||
-            position.inSeconds.toDouble() <= _desiredPosition - 10;
-      });
-    }
     double sliderValue =
-        _isDragging ? _desiredPosition : position.inSeconds.toDouble();
+        isDragging ? desiredPosition : position.inSeconds.toDouble();
     sliderValue = sliderValue.clamp(0.0, duration.inSeconds.toDouble());
 
     return IgnorePointer(
@@ -80,11 +100,11 @@ class _PlayerControlsState extends State<PlayerControls> {
                       ),
                     ),
                     onPressed: () {
-                      setState(() {
-                        _isDragging = true;
-                        _desiredPosition =
-                            provider.openingEnd!.inSeconds.toDouble();
-                      });
+                      provider.updateIsDragging(true);
+                      provider.updateDesiredPosition(
+                        provider.openingEnd!.inSeconds.toDouble(),
+                      );
+
                       provider.seek(provider.openingEnd!);
                     },
                     child: Text(
@@ -121,12 +141,11 @@ class _PlayerControlsState extends State<PlayerControls> {
                                         Duration(seconds: 0)) ||
                                 duration == position
                             ? () {
-                              setState(() {
-                                _isDragging = true;
-                                _desiredPosition =
-                                    anime.episodes[episodeIndex].duration
-                                        .toDouble();
-                              });
+                              provider.updateIsDragging(true);
+                              provider.updateDesiredPosition(
+                                anime.episodes[episodeIndex].duration
+                                    .toDouble(),
+                              );
                               provider.seek(
                                 Duration(
                                   seconds:
@@ -141,12 +160,12 @@ class _PlayerControlsState extends State<PlayerControls> {
                               );
                             }
                             : () {
-                              setState(() {
-                                _isDragging = true;
-                                _desiredPosition =
-                                    anime.episodes[episodeIndex].ending!.stop!
-                                        .toDouble();
-                              });
+                              provider.updateIsDragging(true);
+                              provider.updateDesiredPosition(
+                                anime.episodes[episodeIndex].ending!.stop!
+                                    .toDouble(),
+                              );
+
                               provider.seek(
                                 Duration(
                                   seconds:
@@ -198,12 +217,10 @@ class _PlayerControlsState extends State<PlayerControls> {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                         onPressed: () {
-                          setState(() {
-                            _isReversedTimer = !_isReversedTimer;
-                          });
+                          provider.reverseTimer();
                         },
                         child: Text(
-                          _isReversedTimer
+                          isReversedTimer
                               ? '${position - duration < Duration.zero ? '-' : ''}${formatDuration(duration - Duration(seconds: sliderValue.toInt()))}'
                               : formatDuration(duration),
                           style: const TextStyle(
@@ -223,13 +240,11 @@ class _PlayerControlsState extends State<PlayerControls> {
                   min: 0,
                   max: duration.inSeconds.toDouble(),
                   onChanged: (value) {
-                    setState(() {
-                      _isDragging = true;
-                      _desiredPosition = value;
-                    });
+                    provider.updateIsDragging(true);
+                    provider.updateDesiredPosition(value);
                   },
                   onChangeEnd: (value) {
-                    widget.provider.seek(Duration(seconds: value.toInt()));
+                    provider.seek(Duration(seconds: value.toInt()));
                   },
                 ),
               ],
