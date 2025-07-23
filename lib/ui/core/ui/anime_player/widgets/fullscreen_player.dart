@@ -82,40 +82,17 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
     });
   }
 
-  void seekForward(VideoControllerProvider provider) {
-    final position = provider.controller?.value.position ?? Duration.zero;
-    final seekPos =
-        position + const Duration(seconds: 10) <
-                provider.controller!.value.duration
-            ? position + const Duration(seconds: 10)
-            : provider.controller!.value.duration;
-    provider.updateDesiredPosition(seekPos.inSeconds.toDouble());
-    provider.updateIsDragging(true);
-    provider.seek(seekPos);
-  }
-
-  void seekBackward(VideoControllerProvider provider) {
-    final position = provider.controller?.value.position ?? Duration.zero;
-    final seekPos =
-        position - const Duration(seconds: 10) > Duration.zero
-            ? position - const Duration(seconds: 10)
-            : Duration.zero;
-    provider.updateDesiredPosition(seekPos.inSeconds.toDouble());
-    provider.updateIsDragging(true);
-    provider.seek(seekPos);
-  }
-
   void _handleDoubleTap(double xPosition, VideoControllerProvider provider) {
     final screenWidth = MediaQuery.of(context).size.width;
 
     if (xPosition < screenWidth / 2) {
-      seekBackward(provider);
+      provider.seekBackward();
       setState(() {
         _seekIcon = Icons.replay_10;
         _showSeekIcon = true;
       });
     } else {
-      seekForward(provider);
+      provider.seekForward();
       setState(() {
         _seekIcon = Icons.forward_10;
         _showSeekIcon = true;
@@ -461,7 +438,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                     icon: const Icon(Icons.replay_10, size: 40),
                                     color: Colors.white,
                                     onPressed: () {
-                                      seekBackward(provider);
+                                      provider.seekBackward();
                                       _startHideTimer();
                                     },
                                   ),
@@ -503,7 +480,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                     ),
                                     color: Colors.white,
                                     onPressed: () {
-                                      seekForward(provider);
+                                      provider.seekForward();
                                       _startHideTimer();
                                     },
                                   ),

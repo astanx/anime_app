@@ -48,6 +48,28 @@ class VideoControllerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void seekForward() {
+    final position = controller?.value.position ?? Duration.zero;
+    final seekPos =
+        position + const Duration(seconds: 10) < controller!.value.duration
+            ? position + const Duration(seconds: 10)
+            : controller!.value.duration;
+    updateDesiredPosition(seekPos.inSeconds.toDouble());
+    updateIsDragging(true);
+    seek(seekPos);
+  }
+
+  void seekBackward() {
+    final position = controller?.value.position ?? Duration.zero;
+    final seekPos =
+        position - const Duration(seconds: 10) > Duration.zero
+            ? position - const Duration(seconds: 10)
+            : Duration.zero;
+    updateDesiredPosition(seekPos.inSeconds.toDouble());
+    updateIsDragging(true);
+    seek(seekPos);
+  }
+
   Future<void> loadEpisode(
     Anime anime,
     int index,
