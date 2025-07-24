@@ -71,7 +71,6 @@ class HistoryCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
@@ -82,9 +81,11 @@ class HistoryCard extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
+
             const SizedBox(width: 12),
             Expanded(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
                     anime.anime.release.names.main,

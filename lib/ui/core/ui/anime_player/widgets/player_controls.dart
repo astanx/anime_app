@@ -21,34 +21,6 @@ class PlayerControls extends StatefulWidget {
 
 class _PlayerControlsState extends State<PlayerControls> {
   @override
-  void initState() {
-    super.initState();
-    widget.provider.controller?.addListener(_updateDraggingState);
-  }
-
-  void _updateDraggingState() {
-    final provider = widget.provider;
-    final position = provider.controller?.value.position;
-    final isDragging = provider.isDragging;
-    final desiredPosition = provider.desiredPosition;
-
-    if (position != null && isDragging) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        provider.updateIsDragging(
-          position.inSeconds.toDouble() >= desiredPosition + 10 ||
-              position.inSeconds.toDouble() <= desiredPosition - 10,
-        );
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    widget.provider.controller?.removeListener(_updateDraggingState);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final controller = widget.provider.controller;
     final isFullscreen = widget.isFullscreen;
