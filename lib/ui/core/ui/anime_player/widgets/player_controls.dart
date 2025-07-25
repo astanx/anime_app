@@ -37,134 +37,125 @@ class _PlayerControlsState extends State<PlayerControls> {
     final provider = widget.provider;
     final l10n = AppLocalizations.of(context)!;
 
-    final position = controller.value.position;
     final duration = controller.value.duration;
     final isReversedTimer = provider.isReversedTimer;
     final isDragging = provider.isDragging;
     final desiredPosition = provider.desiredPosition;
+    final position =
+        isDragging
+            ? Duration(seconds: desiredPosition.toInt())
+            : controller.value.position;
 
-    double sliderValue =
-        isDragging ? desiredPosition : position.inSeconds.toDouble();
-    sliderValue = sliderValue.clamp(0.0, duration.inSeconds.toDouble());
-
-    return IgnorePointer(
-      ignoring: !showControls,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (provider.openingStart != null &&
-                    position >= provider.openingStart! &&
-                    position <=
-                        provider.openingStart! + const Duration(seconds: 20))
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(179, 158, 158, 158),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (provider.openingStart != null &&
+                  position >= provider.openingStart! &&
+                  position <=
+                      provider.openingStart! + const Duration(seconds: 20))
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(179, 158, 158, 158),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
                     ),
-                    onPressed: () {
-                      provider.updateIsDragging(true);
-                      provider.updateDesiredPosition(
-                        provider.openingEnd!.inSeconds.toDouble(),
-                      );
-
-                      provider.seek(provider.openingEnd!);
-                    },
-                    child: Text(
-                      l10n.skip_opening,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: isFullscreen ? 16 : 8,
-                      ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  )
-                else
-                  const SizedBox.shrink(),
-                if (episodeIndex < anime.episodes.length - 1 &&
-                        position == duration ||
-                    ((provider.endingStart != null &&
-                        position >= provider.endingStart! &&
-                        position <=
-                            provider.endingStart! +
-                                const Duration(seconds: 20))))
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(179, 158, 158, 158),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed:
-                        duration ==
-                                    (provider.endingEnd ??
-                                        Duration(seconds: 0)) ||
-                                duration == position
-                            ? () {
-                              provider.updateIsDragging(true);
-                              provider.updateDesiredPosition(
-                                anime.episodes[episodeIndex].duration
-                                    .toDouble(),
-                              );
-                              provider.seek(
-                                Duration(
-                                  seconds:
-                                      anime.episodes[episodeIndex].duration,
-                                ),
-                              );
-                              provider.loadEpisode(
-                                anime,
-                                episodeIndex + 1,
-                                context,
-                                kodikResult,
-                              );
-                            }
-                            : () {
-                              provider.updateIsDragging(true);
-                              provider.updateDesiredPosition(
-                                anime.episodes[episodeIndex].ending!.stop!
-                                    .toDouble(),
-                              );
+                  ),
+                  onPressed: () {
+                    provider.updateIsDragging(true);
+                    provider.updateDesiredPosition(
+                      provider.openingEnd!.inSeconds.toDouble(),
+                    );
 
-                              provider.seek(
-                                Duration(
-                                  seconds:
-                                      anime
-                                          .episodes[episodeIndex]
-                                          .ending!
-                                          .stop!,
-                                ),
-                              );
-                            },
-                    child: Text(
+                    provider.seek(provider.openingEnd!);
+                  },
+                  child: Text(
+                    l10n.skip_opening,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: isFullscreen ? 16 : 8,
+                    ),
+                  ),
+                )
+              else
+                const SizedBox.shrink(),
+              if (episodeIndex < anime.episodes.length - 1 &&
+                      position == duration ||
+                  ((provider.endingStart != null &&
+                      position >= provider.endingStart! &&
+                      position <=
+                          provider.endingStart! + const Duration(seconds: 20))))
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(179, 158, 158, 158),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed:
                       duration ==
                                   (provider.endingEnd ??
                                       Duration(seconds: 0)) ||
                               duration == position
-                          ? l10n.next_episode
-                          : l10n.skip_ending,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: isFullscreen ? 16 : 8,
-                      ),
+                          ? () {
+                            provider.updateIsDragging(true);
+                            provider.updateDesiredPosition(
+                              anime.episodes[episodeIndex].duration.toDouble(),
+                            );
+                            provider.seek(
+                              Duration(
+                                seconds: anime.episodes[episodeIndex].duration,
+                              ),
+                            );
+                            provider.loadEpisode(
+                              anime,
+                              episodeIndex + 1,
+                              context,
+                              kodikResult,
+                            );
+                          }
+                          : () {
+                            provider.updateIsDragging(true);
+                            provider.updateDesiredPosition(
+                              anime.episodes[episodeIndex].ending!.stop!
+                                  .toDouble(),
+                            );
+
+                            provider.seek(
+                              Duration(
+                                seconds:
+                                    anime.episodes[episodeIndex].ending!.stop!,
+                              ),
+                            );
+                          },
+                  child: Text(
+                    duration == (provider.endingEnd ?? Duration(seconds: 0)) ||
+                            duration == position
+                        ? l10n.next_episode
+                        : l10n.skip_ending,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: isFullscreen ? 16 : 8,
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
-          AnimatedOpacity(
+        ),
+        IgnorePointer(
+          ignoring: !showControls,
+          child: AnimatedOpacity(
             opacity: showControls ? 1.0 : 0.0,
             duration: const Duration(milliseconds: 300),
             child: Column(
@@ -175,7 +166,7 @@ class _PlayerControlsState extends State<PlayerControls> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        formatDuration(Duration(seconds: sliderValue.toInt())),
+                        formatDuration(position),
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w300,
@@ -193,7 +184,7 @@ class _PlayerControlsState extends State<PlayerControls> {
                         },
                         child: Text(
                           isReversedTimer
-                              ? '${position - duration < Duration.zero ? '-' : ''}${formatDuration(duration - Duration(seconds: sliderValue.toInt()))}'
+                              ? '${position - duration < Duration.zero ? '-' : ''}${formatDuration(duration - position)}'
                               : formatDuration(duration),
                           style: const TextStyle(
                             fontSize: 10,
@@ -208,7 +199,7 @@ class _PlayerControlsState extends State<PlayerControls> {
                 Slider(
                   activeColor: Colors.white,
                   inactiveColor: Colors.grey[600],
-                  value: sliderValue,
+                  value: position.inSeconds.toDouble(),
                   min: 0,
                   max: duration.inSeconds.toDouble(),
                   onChanged: (value) {
@@ -222,8 +213,8 @@ class _PlayerControlsState extends State<PlayerControls> {
               ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

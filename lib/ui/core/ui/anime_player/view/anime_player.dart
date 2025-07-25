@@ -16,28 +16,7 @@ class AnimePlayer extends StatelessWidget {
     required this.anime,
     required this.kodikResult,
   });
-  void seekForward(VideoControllerProvider provider) {
-    final position = provider.controller?.value.position ?? Duration.zero;
-    final seekPos =
-        position + const Duration(seconds: 10) <
-                provider.controller!.value.duration
-            ? position + const Duration(seconds: 10)
-            : provider.controller!.value.duration;
-    provider.updateDesiredPosition(seekPos.inSeconds.toDouble());
-    provider.updateIsDragging(true);
-    provider.seek(seekPos);
-  }
-
-  void seekBackward(VideoControllerProvider provider) {
-    final position = provider.controller?.value.position ?? Duration.zero;
-    final seekPos =
-        position - const Duration(seconds: 10) > Duration.zero
-            ? position - const Duration(seconds: 10)
-            : Duration.zero;
-    provider.updateDesiredPosition(seekPos.inSeconds.toDouble());
-    provider.updateIsDragging(true);
-    provider.seek(seekPos);
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +55,7 @@ class AnimePlayer extends StatelessWidget {
                               Icons.replay_10,
                               color: Colors.white,
                             ),
-                            onPressed: () => seekBackward(provider),
+                            onPressed: () => provider.seekBackward(),
                           ),
                           IconButton(
                             icon: Icon(
@@ -92,7 +71,7 @@ class AnimePlayer extends StatelessWidget {
                               Icons.forward_10,
                               color: Colors.white,
                             ),
-                            onPressed: () => seekForward(provider),
+                            onPressed: () => provider.seekForward(),
                           ),
                           IconButton(
                             icon: const Icon(
