@@ -55,9 +55,9 @@
   "view_anime": "View anime",
   "view_film": "View film",
   "continue_watching_movie": "Continue watching movie",
-  "select_payback_speed": "Select playback speed",
+  "select_playback_speed": "Select playback speed",
   "playback_speed": "Playback speed",
   "quality": "Quality",
-"retry": "Retry",
+  "retry": "Retry",
   "server_unavailable": "Server is currently unavailable"
 }

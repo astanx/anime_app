@@ -193,7 +193,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get continue_watching_movie => 'Продолжить просмотр фильма';
 
   @override
-  String get select_payback_speed => 'Выбрать скорость воспроизведения';
+  String get select_playback_speed => 'Выбрать скорость воспроизведения';
 
   @override
   String get playback_speed => 'Скорость воспроизведения';

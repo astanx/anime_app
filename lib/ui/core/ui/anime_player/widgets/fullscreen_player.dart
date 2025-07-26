@@ -107,6 +107,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
   @override
   void dispose() {
     _hideTimer?.cancel();
+    _displayTimer?.cancel();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     WakelockPlus.disable();
@@ -214,73 +215,38 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                                 builder:
                                                     (context) => AlertDialog(
                                                       title: Text(
-                                                        l10n.select_payback_speed,
+                                                        l10n.select_playback_speed,
                                                       ),
-                                                      content: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: [
-                                                          ListTile(
-                                                            title: const Text(
-                                                              '0.5x',
-                                                            ),
-                                                            onTap: () {
+                                                      content: SizedBox(
+                                                        height: 300,
+                                                        width: double.maxFinite,
+                                                        child: ListView.builder(
+                                                          shrinkWrap: true,
+                                                          itemCount:
                                                               provider
-                                                                  .controller
-                                                                  ?.setPlaybackSpeed(
-                                                                    0.5,
-                                                                  );
-                                                              Navigator.pop(
+                                                                  .playbackSpeeds
+                                                                  .length,
+                                                          itemBuilder:
+                                                              (
                                                                 context,
-                                                              );
-                                                            },
-                                                          ),
-                                                          ListTile(
-                                                            title: const Text(
-                                                              '1.0x',
-                                                            ),
-                                                            onTap: () {
-                                                              provider
-                                                                  .controller
-                                                                  ?.setPlaybackSpeed(
-                                                                    1.0,
+                                                                index,
+                                                              ) => ListTile(
+                                                                title: Text(
+                                                                  '${provider.playbackSpeeds[index]}x',
+                                                                ),
+                                                                onTap: () {
+                                                                  provider
+                                                                      .controller
+                                                                      ?.setPlaybackSpeed(
+                                                                        provider
+                                                                            .playbackSpeeds[index],
+                                                                      );
+                                                                  Navigator.pop(
+                                                                    context,
                                                                   );
-                                                              Navigator.pop(
-                                                                context,
-                                                              );
-                                                            },
-                                                          ),
-                                                          ListTile(
-                                                            title: const Text(
-                                                              '1.5x',
-                                                            ),
-                                                            onTap: () {
-                                                              provider
-                                                                  .controller
-                                                                  ?.setPlaybackSpeed(
-                                                                    1.5,
-                                                                  );
-                                                              Navigator.pop(
-                                                                context,
-                                                              );
-                                                            },
-                                                          ),
-                                                          ListTile(
-                                                            title: const Text(
-                                                              '2x',
-                                                            ),
-                                                            onTap: () {
-                                                              provider
-                                                                  .controller
-                                                                  ?.setPlaybackSpeed(
-                                                                    2,
-                                                                  );
-                                                              Navigator.pop(
-                                                                context,
-                                                              );
-                                                            },
-                                                          ),
-                                                        ],
+                                                                },
+                                                              ),
+                                                        ),
                                                       ),
                                                     ),
                                               );
@@ -290,93 +256,35 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                                 context: context,
                                                 builder:
                                                     (context) => AlertDialog(
-                                                      title: Text(
-                                                        l10n.select_payback_speed,
-                                                      ),
-                                                      content: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: [
-                                                          if (provider
-                                                                  .hls1080 !=
-                                                              null)
-                                                            ListTile(
-                                                              title: Text(
-                                                                '1080p',
-                                                                style: TextStyle(
-                                                                  color:
-                                                                      provider.currentQuality ==
-                                                                              '1080'
-                                                                          ? Color(
-                                                                            0xFFAD1CB4,
-                                                                          )
-                                                                          : Colors
-                                                                              .white,
+                                                      title: Text(l10n.quality),
+                                                      content: SizedBox(
+                                                        height: 150,
+                                                        width: double.maxFinite,
+                                                        child: ListView.builder(
+                                                          shrinkWrap: true,
+                                                          itemCount:
+                                                              provider
+                                                                  .qualities
+                                                                  .length,
+                                                          itemBuilder:
+                                                              (
+                                                                context,
+                                                                index,
+                                                              ) => ListTile(
+                                                                title: Text(
+                                                                  '${provider.qualities[index]}p',
                                                                 ),
+                                                                onTap: () {
+                                                                  provider.changeQuality(
+                                                                    provider
+                                                                        .qualities[index],
+                                                                  );
+                                                                  Navigator.pop(
+                                                                    context,
+                                                                  );
+                                                                },
                                                               ),
-                                                              onTap: () {
-                                                                provider
-                                                                    .changeQuality(
-                                                                      '1080',
-                                                                    );
-                                                                Navigator.pop(
-                                                                  context,
-                                                                );
-                                                              },
-                                                            ),
-                                                          if (provider.hls720 !=
-                                                              null)
-                                                            ListTile(
-                                                              title: Text(
-                                                                '720p',
-                                                                style: TextStyle(
-                                                                  color:
-                                                                      provider.currentQuality ==
-                                                                              '720'
-                                                                          ? Color(
-                                                                            0xFFAD1CB4,
-                                                                          )
-                                                                          : Colors
-                                                                              .white,
-                                                                ),
-                                                              ),
-                                                              onTap: () {
-                                                                provider
-                                                                    .changeQuality(
-                                                                      '720',
-                                                                    );
-                                                                Navigator.pop(
-                                                                  context,
-                                                                );
-                                                              },
-                                                            ),
-                                                          if (provider.hls480 !=
-                                                              null)
-                                                            ListTile(
-                                                              title: Text(
-                                                                '480p',
-                                                                style: TextStyle(
-                                                                  color:
-                                                                      provider.currentQuality ==
-                                                                              '480'
-                                                                          ? Color(
-                                                                            0xFFAD1CB4,
-                                                                          )
-                                                                          : Colors
-                                                                              .white,
-                                                                ),
-                                                              ),
-                                                              onTap: () {
-                                                                provider
-                                                                    .changeQuality(
-                                                                      '480',
-                                                                    );
-                                                                Navigator.pop(
-                                                                  context,
-                                                                );
-                                                              },
-                                                            ),
-                                                        ],
+                                                        ),
                                                       ),
                                                     ),
                                               );

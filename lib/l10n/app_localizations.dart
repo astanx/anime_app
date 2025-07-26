@@ -413,11 +413,11 @@ abstract class AppLocalizations {
   /// **'Continue watching movie'**
   String get continue_watching_movie;
 
-  /// No description provided for @select_payback_speed.
+  /// No description provided for @select_playback_speed.
   ///
   /// In en, this message translates to:
   /// **'Select playback speed'**
-  String get select_payback_speed;
+  String get select_playback_speed;
 
   /// No description provided for @playback_speed.
   ///

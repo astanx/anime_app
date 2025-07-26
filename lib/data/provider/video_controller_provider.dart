@@ -32,6 +32,8 @@ class VideoControllerProvider extends ChangeNotifier {
   int? get episodeIndex => _episodeIndex;
   Anime? get anime => _anime;
   KodikResult? get kodikResult => _kodikResult;
+  List<String> qualities = [];
+  List<double> playbackSpeeds = [0.5, 1.0, 1.25, 1.5, 2.0];
 
   void updateIsDragging(bool dragging) {
     isDragging = dragging;
@@ -111,8 +113,15 @@ class VideoControllerProvider extends ChangeNotifier {
 
     final episode = anime.episodes[index];
     final timecode = await _timecodeProvider!.getTimecodeForEpisode(episode.id);
-    hls1080 = episode.hls1080.isNotEmpty ? episode.hls1080 : null;
-    hls720 = episode.hls720.isNotEmpty ? episode.hls720 : null;
+    if (episode.hls1080 != null) {
+      hls1080 = episode.hls1080;
+      qualities.add('1080');
+    }
+    if (episode.hls720 != null) {
+      hls720 = episode.hls720;
+      qualities.add('720');
+    }
+    qualities.add('480');
     hls480 = episode.hls480;
     final videoUrl = Uri.parse(hls1080 ?? hls720 ?? hls480!);
     currentQuality =

@@ -497,9 +497,9 @@ class LatestEpisode {
   final String? name;
   final double ordinal;
   final EpisodePreview preview;
-  final String hls480;
-  final String hls720;
-  final String hls1080;
+  final String? hls480;
+  final String? hls720;
+  final String? hls1080;
   final int duration;
   final Opening? opening;
   final Ending? ending;
@@ -512,12 +512,13 @@ class LatestEpisode {
     required this.ordinal,
     required this.preview,
     required this.hls480,
-    required this.hls720,
-    required this.hls1080,
+
     required this.duration,
     this.opening,
     this.ending,
     this.nameEnglish,
+    this.hls720,
+    this.hls1080,
   });
 
   factory LatestEpisode.fromJson(Map<String, dynamic> json) => LatestEpisode(
@@ -527,9 +528,9 @@ class LatestEpisode {
     ordinal:
         json['ordinal'] != null ? (json['ordinal'] as num).toDouble() : 0.0,
     preview: EpisodePreview.fromJson(json['preview'] ?? {}),
-    hls480: json['hls_480'] ?? '',
-    hls720: json['hls_720'] ?? '',
-    hls1080: json['hls_1080'] ?? '',
+    hls480: json['hls_480'],
+    hls720: json['hls_720'],
+    hls1080: json['hls_1080'],
     duration: json['duration'] ?? 0,
     opening: json['opening'] != null ? Opening.fromJson(json['opening']) : null,
     ending: json['ending'] != null ? Ending.fromJson(json['ending']) : null,

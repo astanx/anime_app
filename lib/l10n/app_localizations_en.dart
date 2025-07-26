@@ -193,7 +193,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continue_watching_movie => 'Continue watching movie';
 
   @override
-  String get select_payback_speed => 'Select playback speed';
+  String get select_playback_speed => 'Select playback speed';
 
   @override
   String get playback_speed => 'Playback speed';
