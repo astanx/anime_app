@@ -172,6 +172,13 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
     _debounceHistory(anime, kodikResult);
   }
 
+  Future<void> _downloadTorrent(int torrentId) async {
+    final uri = Uri.parse('$baseUrl/api/v1/anime/torrents/$torrentId/file');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final arguments =
@@ -368,24 +375,43 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                         shape: const CircleBorder(),
                                         padding: const EdgeInsets.all(16),
                                       ),
-                                      onPressed: () async {
-                                        final uri = Uri.parse(
-                                          '$baseUrl/api/v1/anime/torrents/${anime.torrents.first.id}/file',
-                                        );
-                                        if (await canLaunchUrl(uri)) {
-                                          await launchUrl(uri);
-                                        } else {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(l10n.url_error),
-                                              backgroundColor:
-                                                  theme.colorScheme.error,
-                                            ),
-                                          );
-                                        }
-                                      },
+                                      onPressed:
+                                          () => showDialog(
+                                            context: context,
+                                            builder:
+                                                (context) => AlertDialog(
+                                                  content: SizedBox(
+                                                    height: 300,
+                                                    width: double.maxFinite,
+                                                    child: ListView.builder(
+                                                      shrinkWrap: true,
+                                                      itemCount:
+                                                          anime.torrents.length,
+                                                      itemBuilder:
+                                                          (
+                                                            context,
+                                                            index,
+                                                          ) => ListTile(
+                                                            title: Text(
+                                                              anime
+                                                                  .torrents[index]
+                                                                  .label,
+                                                            ),
+                                                            onTap: () {
+                                                              Navigator.pop(
+                                                                context,
+                                                              );
+                                                              _downloadTorrent(
+                                                                anime
+                                                                    .torrents[index]
+                                                                    .id,
+                                                              );
+                                                            },
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ),
+                                          ),
                                       child: const Icon(
                                         Icons.download_rounded,
                                         size: 28,
