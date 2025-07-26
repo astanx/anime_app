@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class TimecodeProvider extends ChangeNotifier {
   List<Timecode> _timecodes = [];
   bool _hasFetched = false;
+  final Map<int, bool> _hasFetchedForRelease = {};
   final _repository = TimecodeRepository();
 
   List<Timecode> get timecodes => _timecodes;
@@ -19,14 +20,23 @@ class TimecodeProvider extends ChangeNotifier {
 
   Future<int> getTimecodeForEpisode(String episodeId) async {
     try {
-      var timecode = _timecodes.firstWhere(
+      final timecode = _timecodes.firstWhere(
         (t) => t.releaseEpisodeId == episodeId,
       );
       return timecode.time;
     } catch (e) {
-      var timecode = await _repository.getTimecodeForEpisode(episodeId);
-      updateTimecode(timecode, notify: false);
+      final timecode = await _repository.getTimecodeForEpisode(episodeId);
+      _timecodes.add(timecode);
       return timecode.time;
+    }
+  }
+
+  Future<void> fetchTimecodesForRelease(int releaseId) async {
+    if (!(_hasFetchedForRelease[releaseId] ?? false)) {
+      final timecodes = await _repository.getTimecodesForRelease(releaseId);
+      _timecodes.addAll(timecodes);
+      _hasFetchedForRelease[releaseId] = true;
+      notifyListeners();
     }
   }
 

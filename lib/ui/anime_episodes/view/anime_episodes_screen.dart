@@ -34,6 +34,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
   String? _kodikPlayerUrl;
   final repository = AnimeRepository();
   HistoryProvider? _historyProvider;
+  TimecodeProvider? _timecodeProvider;
   late WebViewController _webViewController;
   int _lastWatchedEpisode = 0;
   Timer? _historyUpdateTimer;
@@ -59,15 +60,23 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
             ),
           );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final arguments =
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
       final Anime anime = arguments['anime'] as Anime;
       final KodikResult? kodikResult = arguments['kodikResult'] as KodikResult?;
       final bool? showKodik = arguments['showKodik'] as bool?;
       final int episodeIndex = arguments['episodeIndex'];
-      _historyProvider = Provider.of<HistoryProvider>(context, listen: false);
 
+      final timecodeProvider = Provider.of<TimecodeProvider>(
+        context,
+        listen: false,
+      );
+      await timecodeProvider.fetchTimecodesForRelease(anime.release.id);
+      setState(() {
+        _historyProvider = Provider.of<HistoryProvider>(context, listen: false);
+        _timecodeProvider = timecodeProvider;
+      });
       if ((anime.release.id == -1 && kodikResult != null) ||
           ((showKodik ?? false) && kodikResult != null)) {
         setState(() {
@@ -177,17 +186,12 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
     if (screenWidth >= 900) crossAxisCount = 4;
 
     final favouritesProvider = Provider.of<FavouritesProvider>(context);
-    final timecodeProvider = Provider.of<TimecodeProvider>(
-      context,
-      listen: false,
-    );
     final collectionProvider = Provider.of<CollectionsProvider>(
       context,
       listen: false,
     );
     final l10n = AppLocalizations.of(context)!;
     final isFavourite = favouritesProvider.isFavourite(anime);
-
     final collection = collectionProvider.getCollectionType(anime);
     return ChangeNotifierProvider(
       create: (context) {
@@ -623,7 +627,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                   style: theme.textTheme.titleMedium,
                                 ),
                                 const SizedBox(height: 16),
-                                if (anime.release.id != -1)
+                                if (anime.release.id != -1 &&
+                                    _timecodeProvider != null)
                                   GridView.builder(
                                     shrinkWrap: true,
                                     physics:
@@ -640,7 +645,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                         (context, index) => EpisodeCard(
                                           anime: anime,
                                           episodeIndex: index,
-                                          timecodeProvider: timecodeProvider,
+                                          timecodeProvider: _timecodeProvider!,
                                           kodikResult: kodikResult,
                                         ),
                                   )

@@ -3,7 +3,7 @@ import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
 
-class PlayerControls extends StatefulWidget {
+class PlayerControls extends StatelessWidget {
   final VideoControllerProvider provider;
   final bool isFullscreen;
   final bool showControls;
@@ -14,27 +14,19 @@ class PlayerControls extends StatefulWidget {
     this.isFullscreen = false,
     this.showControls = true,
   });
-
-  @override
-  State<PlayerControls> createState() => _PlayerControlsState();
-}
-
-class _PlayerControlsState extends State<PlayerControls> {
   @override
   Widget build(BuildContext context) {
-    final controller = widget.provider.controller;
-    final isFullscreen = widget.isFullscreen;
-    final showControls = widget.showControls;
-    final anime = widget.provider.anime;
-    final episodeIndex = widget.provider.episodeIndex;
-    final kodikResult = widget.provider.kodikResult;
+    final controller = provider.controller;
+    final anime = provider.anime;
+    final episodeIndex = provider.episodeIndex;
+    final kodikResult = provider.kodikResult;
     if (controller == null ||
         !controller.value.isInitialized ||
         anime == null ||
         episodeIndex == null) {
       return const SizedBox.shrink();
     }
-    final provider = widget.provider;
+
     final l10n = AppLocalizations.of(context)!;
 
     final duration = controller.value.duration;
