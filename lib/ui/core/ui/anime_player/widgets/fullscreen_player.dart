@@ -62,11 +62,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
   Future<void> _enablePip(VideoControllerProvider provider) async {
     if (!isPipAvailable) return;
     try {
-      await pipChannel.invokeMethod('enablePip', {
-        'url': Uri.parse(
-          provider.hls1080 ?? provider.hls480 ?? provider.hls720 ?? '',
-        ),
-      });
+      await pipChannel.invokeMethod('enablePip');
     } on PlatformException catch (e) {
       print("Failed to enable PiP: '${e.message}'.");
     }
