@@ -59,10 +59,14 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
     setState(() {});
   }
 
-  Future<void> _enablePip() async {
+  Future<void> _enablePip(VideoControllerProvider provider) async {
     if (!isPipAvailable) return;
     try {
-      await pipChannel.invokeMethod('enablePip');
+      await pipChannel.invokeMethod('enablePip', {
+        'url': Uri.parse(
+          provider.hls1080 ?? provider.hls480 ?? provider.hls720 ?? '',
+        ),
+      });
     } on PlatformException catch (e) {
       print("Failed to enable PiP: '${e.message}'.");
     }
@@ -194,108 +198,121 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                         ),
                                         onPressed: () => Navigator.pop(context),
                                       ),
-                                      if (isPipAvailable)
-                                        IconButton(
-                                          onPressed: _enablePip,
-                                          icon: const Icon(
-                                            Icons.picture_in_picture,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      PopupMenuButton<String>(
-                                        icon: const Icon(
-                                          Icons.settings,
-                                          color: Colors.white,
-                                        ),
-                                        onSelected: (String value) {
-                                          switch (value) {
-                                            case 'speed':
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (context) => AlertDialog(
-                                                      title: Text(
-                                                        l10n.select_playback_speed,
-                                                      ),
-                                                      content: SizedBox(
-                                                        height: 300,
-                                                        width: double.maxFinite,
-                                                        child: ListView.builder(
-                                                          shrinkWrap: true,
-                                                          itemCount:
-                                                              provider
-                                                                  .playbackSpeeds
-                                                                  .length,
-                                                          itemBuilder:
-                                                              (
-                                                                context,
-                                                                index,
-                                                              ) => ListTile(
-                                                                title: Text(
-                                                                  '${provider.playbackSpeeds[index]}x',
-                                                                ),
-                                                                onTap: () {
+                                      Row(
+                                        children: [
+                                          if (isPipAvailable)
+                                            IconButton(
+                                              onPressed:
+                                                  () => _enablePip(provider),
+                                              icon: const Icon(
+                                                Icons.picture_in_picture,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          PopupMenuButton<String>(
+                                            icon: const Icon(
+                                              Icons.settings,
+                                              color: Colors.white,
+                                            ),
+                                            onSelected: (String value) {
+                                              switch (value) {
+                                                case 'speed':
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (
+                                                          context,
+                                                        ) => AlertDialog(
+                                                          title: Text(
+                                                            l10n.select_playback_speed,
+                                                          ),
+                                                          content: SizedBox(
+                                                            height: 300,
+                                                            width:
+                                                                double
+                                                                    .maxFinite,
+                                                            child: ListView.builder(
+                                                              shrinkWrap: true,
+                                                              itemCount:
                                                                   provider
-                                                                      .controller
-                                                                      ?.setPlaybackSpeed(
-                                                                        provider
-                                                                            .playbackSpeeds[index],
+                                                                      .playbackSpeeds
+                                                                      .length,
+                                                              itemBuilder:
+                                                                  (
+                                                                    context,
+                                                                    index,
+                                                                  ) => ListTile(
+                                                                    title: Text(
+                                                                      '${provider.playbackSpeeds[index]}x',
+                                                                    ),
+                                                                    onTap: () {
+                                                                      provider
+                                                                          .controller
+                                                                          ?.setPlaybackSpeed(
+                                                                            provider.playbackSpeeds[index],
+                                                                          );
+                                                                      Navigator.pop(
+                                                                        context,
                                                                       );
-                                                                  Navigator.pop(
-                                                                    context,
-                                                                  );
-                                                                },
-                                                              ),
+                                                                    },
+                                                                  ),
+                                                            ),
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ),
-                                              );
-                                              break;
-                                            case 'quality':
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (context) => AlertDialog(
-                                                      title: Text(l10n.quality),
-                                                      content: SizedBox(
-                                                        height: 150,
-                                                        width: double.maxFinite,
-                                                        child: ListView.builder(
-                                                          shrinkWrap: true,
-                                                          itemCount:
-                                                              provider
-                                                                  .qualities
-                                                                  .length,
-                                                          itemBuilder:
-                                                              (
-                                                                context,
-                                                                index,
-                                                              ) => ListTile(
-                                                                title: Text(
-                                                                  '${provider.qualities[index]}p',
-                                                                ),
-                                                                onTap: () {
-                                                                  provider.changeQuality(
-                                                                    provider
-                                                                        .qualities[index],
-                                                                  );
-                                                                  Navigator.pop(
+                                                  );
+                                                  break;
+                                                case 'quality':
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (
+                                                          context,
+                                                        ) => AlertDialog(
+                                                          title: Text(
+                                                            l10n.quality,
+                                                          ),
+                                                          content: SizedBox(
+                                                            height: 150,
+                                                            width:
+                                                                double
+                                                                    .maxFinite,
+                                                            child: ListView.builder(
+                                                              shrinkWrap: true,
+                                                              itemCount:
+                                                                  provider
+                                                                      .qualities
+                                                                      .length,
+                                                              itemBuilder:
+                                                                  (
                                                                     context,
-                                                                  );
-                                                                },
-                                                              ),
+                                                                    index,
+                                                                  ) => ListTile(
+                                                                    title: Text(
+                                                                      '${provider.qualities[index]}p',
+                                                                    ),
+                                                                    onTap: () {
+                                                                      provider.changeQuality(
+                                                                        provider
+                                                                            .qualities[index],
+                                                                      );
+                                                                      Navigator.pop(
+                                                                        context,
+                                                                      );
+                                                                    },
+                                                                  ),
+                                                            ),
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ),
-                                              );
-                                              break;
-                                            default:
-                                              break;
-                                          }
-                                        },
-                                        itemBuilder:
-                                            (BuildContext context) =>
-                                                <PopupMenuEntry<String>>[
+                                                  );
+                                                  break;
+                                                default:
+                                                  break;
+                                              }
+                                            },
+                                            itemBuilder:
+                                                (
+                                                  BuildContext context,
+                                                ) => <PopupMenuEntry<String>>[
                                                   PopupMenuItem<String>(
                                                     value: 'speed',
                                                     child: Text(
@@ -307,6 +324,8 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                                     child: Text(l10n.quality),
                                                   ),
                                                 ],
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
