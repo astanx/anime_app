@@ -58,7 +58,7 @@ class FavouritesProvider extends ChangeNotifier {
   Future<void> addToFavourites(Anime anime) async {
     final uniqueId = anime.uniqueId;
 
-    if (anime.kodikResult != null) {
+    if (anime.kodikResult != null && anime.release.shikimoriId != null) {
       await _repository.addToFavourite(
         int.parse('$kodikIdPattern${anime.release.shikimoriId}'),
       );
@@ -76,7 +76,7 @@ class FavouritesProvider extends ChangeNotifier {
 
   Future<void> removeFromFavourites(Anime anime) async {
     final uniqueId = anime.uniqueId;
-    if (anime.kodikResult != null) {
+    if (anime.kodikResult != null && anime.release.shikimoriId != null) {
       await _repository.removeFromFavourites(
         int.parse('$kodikIdPattern${anime.release.shikimoriId}'),
       );
