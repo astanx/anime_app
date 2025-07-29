@@ -1,3 +1,4 @@
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
 import 'package:anime_app/data/models/kodik_result.dart';
@@ -77,8 +78,15 @@ class CollectionsProvider extends ChangeNotifier {
     for (final entry in _collections.entries) {
       entry.value.data.removeWhere((a) => a.uniqueId == uniqueId);
     }
-
-    await _repository.addToCollection(type, uniqueId);
+    if (kodikResult != null) {
+      await _repository.addToCollection(
+        type,
+        int.parse('$kodikIdPattern${anime.release.shikimoriId}'),
+      );
+    }
+    if (anime.release.id != -1) {
+      await _repository.addToCollection(type, anime.release.id);
+    }
 
     final animeToAdd =
         kodikResult != null
@@ -117,7 +125,15 @@ class CollectionsProvider extends ChangeNotifier {
       entry.value.data.removeWhere((a) => a.uniqueId == uniqueId);
     }
 
-    await _repository.removeFromCollection(type, uniqueId);
+    if (kodikResult != null) {
+      await _repository.removeFromCollection(
+        type,
+        int.parse('$kodikIdPattern${anime.release.shikimoriId}'),
+      );
+    }
+    if (anime.release.id != -1) {
+      await _repository.removeFromCollection(type, anime.release.id);
+    }
 
     if (_collections[type] != null) {
       _collections[type]!.data.removeWhere((a) => a.uniqueId == uniqueId);

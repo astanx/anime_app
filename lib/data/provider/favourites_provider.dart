@@ -1,3 +1,4 @@
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/repositories/favourite_repository.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +57,15 @@ class FavouritesProvider extends ChangeNotifier {
 
   Future<void> addToFavourites(Anime anime) async {
     final uniqueId = anime.uniqueId;
-    await _repository.addToFavourite(uniqueId);
+
+    if (anime.kodikResult != null) {
+      await _repository.addToFavourite(
+        int.parse('$kodikIdPattern${anime.release.shikimoriId}'),
+      );
+    }
+    if (anime.release.id != -1) {
+      await _repository.addToFavourite(anime.release.id);
+    }
 
     if (!_favourites.any((a) => a.uniqueId == uniqueId)) {
       _favourites.add(anime);
@@ -67,7 +76,14 @@ class FavouritesProvider extends ChangeNotifier {
 
   Future<void> removeFromFavourites(Anime anime) async {
     final uniqueId = anime.uniqueId;
-    await _repository.removeFromFavourites(uniqueId);
+    if (anime.kodikResult != null) {
+      await _repository.removeFromFavourites(
+        int.parse('$kodikIdPattern${anime.release.shikimoriId}'),
+      );
+    }
+    if (anime.release.id != -1) {
+      await _repository.removeFromFavourites(anime.release.id);
+    }
     _favourites.removeWhere((a) => a.uniqueId == uniqueId);
     notifyListeners();
   }

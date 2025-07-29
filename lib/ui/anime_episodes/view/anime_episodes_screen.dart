@@ -72,7 +72,9 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
         context,
         listen: false,
       );
-      await timecodeProvider.fetchTimecodesForRelease(anime.release.id);
+      if (anime.release.id != -1) {
+        await timecodeProvider.fetchTimecodesForRelease(anime.release.id);
+      }
       setState(() {
         _historyProvider = Provider.of<HistoryProvider>(context, listen: false);
         _timecodeProvider = timecodeProvider;
