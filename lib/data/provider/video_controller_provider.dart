@@ -59,25 +59,23 @@ class VideoControllerProvider extends ChangeNotifier {
         position + const Duration(seconds: 10) < controller!.value.duration
             ? position + const Duration(seconds: 10)
             : controller!.value.duration;
-    updateDesiredPosition(seekPos.inSeconds.toDouble());
-    updateIsDragging(true);
     seek(seekPos);
   }
 
   void _updateDraggingState() {
-    final position =
-        isDragging
-            ? desiredPosition
-            : controller?.value.position.inSeconds.toDouble();
+    if (_controller == null || !_controller!.value.isInitialized) return;
 
-    if (position != null && isDragging) {
+    final currentPosition = _controller!.value.position.inSeconds.toDouble();
+
+    if (isDragging) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final isDragging =
-            position >= desiredPosition + 10 ||
-            position <= desiredPosition - 10;
-        updateIsDragging(isDragging);
+        final isDragging = (currentPosition - desiredPosition).abs() > 2.0;
+        if (isDragging != isDragging) {
+          updateIsDragging(isDragging);
+        }
+
         if (!isDragging) {
-          updateDesiredPosition(position);
+          updateDesiredPosition(currentPosition);
         }
       });
     }
@@ -92,8 +90,6 @@ class VideoControllerProvider extends ChangeNotifier {
         position - const Duration(seconds: 10) > Duration.zero
             ? position - const Duration(seconds: 10)
             : Duration.zero;
-    updateDesiredPosition(seekPos.inSeconds.toDouble());
-    updateIsDragging(true);
     seek(seekPos);
   }
 
@@ -213,6 +209,8 @@ class VideoControllerProvider extends ChangeNotifier {
   }
 
   void seek(Duration position) {
+    updateIsDragging(true);
+    updateDesiredPosition(position.inSeconds.toDouble());
     _controller?.seekTo(position);
     notifyListeners();
   }

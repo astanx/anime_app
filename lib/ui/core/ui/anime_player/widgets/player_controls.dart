@@ -61,11 +61,6 @@ class PlayerControls extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    provider.updateIsDragging(true);
-                    provider.updateDesiredPosition(
-                      provider.openingEnd!.inSeconds.toDouble(),
-                    );
-
                     provider.seek(provider.openingEnd!);
                   },
                   child: Text(
@@ -101,10 +96,6 @@ class PlayerControls extends StatelessWidget {
                                       Duration(seconds: 0)) ||
                               duration == position
                           ? () {
-                            provider.updateIsDragging(true);
-                            provider.updateDesiredPosition(
-                              anime.episodes[episodeIndex].duration.toDouble(),
-                            );
                             provider.seek(
                               Duration(
                                 seconds: anime.episodes[episodeIndex].duration,
@@ -118,12 +109,6 @@ class PlayerControls extends StatelessWidget {
                             );
                           }
                           : () {
-                            provider.updateIsDragging(true);
-                            provider.updateDesiredPosition(
-                              anime.episodes[episodeIndex].ending!.stop!
-                                  .toDouble(),
-                            );
-
                             provider.seek(
                               Duration(
                                 seconds:
@@ -195,10 +180,6 @@ class PlayerControls extends StatelessWidget {
                   min: 0,
                   max: duration.inSeconds.toDouble(),
                   onChanged: (value) {
-                    provider.updateIsDragging(true);
-                    provider.updateDesiredPosition(value);
-                  },
-                  onChangeEnd: (value) {
                     provider.seek(Duration(seconds: value.toInt()));
                   },
                 ),
