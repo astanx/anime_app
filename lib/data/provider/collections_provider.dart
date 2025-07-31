@@ -78,6 +78,7 @@ class CollectionsProvider extends ChangeNotifier {
     for (final entry in _collections.entries) {
       entry.value.data.removeWhere((a) => a.uniqueId == uniqueId);
     }
+
     if (kodikResult != null && anime.release.shikimoriId != null) {
       await _repository.addToCollection(
         type,

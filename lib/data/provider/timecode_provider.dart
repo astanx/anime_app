@@ -26,7 +26,9 @@ class TimecodeProvider extends ChangeNotifier {
       return timecode.time;
     } catch (e) {
       final timecode = await _repository.getTimecodeForEpisode(episodeId);
-      _timecodes.add(timecode);
+      if (timecode.time > 0) {
+        _timecodes.add(timecode);
+      }
       return timecode.time;
     }
   }
