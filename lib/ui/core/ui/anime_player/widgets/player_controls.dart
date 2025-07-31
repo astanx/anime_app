@@ -91,9 +91,12 @@ class PlayerControls extends StatelessWidget {
                     ),
                   ),
                   onPressed:
-                      duration ==
-                                  (provider.endingEnd ??
-                                      Duration(seconds: 0)) ||
+                      (duration -
+                                          (provider.endingEnd ??
+                                              Duration.zero) -
+                                          Duration(seconds: 5))
+                                      .abs() <
+                                  Duration(seconds: 1) ||
                               duration == position
                           ? () {
                             provider.seek(
@@ -117,7 +120,11 @@ class PlayerControls extends StatelessWidget {
                             );
                           },
                   child: Text(
-                    duration == (provider.endingEnd ?? Duration(seconds: 0)) ||
+                    (duration -
+                                        (provider.endingEnd ?? Duration.zero) -
+                                        Duration(seconds: 5))
+                                    .abs() <
+                                Duration(seconds: 1) ||
                             duration == position
                         ? l10n.next_episode
                         : l10n.skip_ending,

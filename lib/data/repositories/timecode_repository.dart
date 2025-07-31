@@ -5,7 +5,6 @@ import 'package:anime_app/data/services/dio_client.dart';
 class TimecodeRepository extends BaseRepository {
   TimecodeRepository() : super(DioClient().dio);
   Future<void> updateTimecode(List<Timecode> timecodes) async {
-    print(1);
     try {
       final body = timecodes.map((t) => t.toJson()).toList();
 

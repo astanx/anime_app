@@ -104,6 +104,8 @@ class VideoControllerProvider extends ChangeNotifier {
     _episodeIndex = index;
     _kodikResult = kodikResult;
     _wasStarted = false;
+    isDragging = false;
+    desiredPosition = 0.0;
     _timecodeProvider = Provider.of<TimecodeProvider>(context, listen: false);
     _historyProvider = Provider.of<HistoryProvider>(context, listen: false);
 
