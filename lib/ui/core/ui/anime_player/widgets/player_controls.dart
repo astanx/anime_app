@@ -37,6 +37,19 @@ class PlayerControls extends StatelessWidget {
         isDragging
             ? Duration(seconds: desiredPosition.toInt())
             : controller.value.position;
+    final isNearEnd = position >= duration - const Duration(seconds: 1);
+    final inEndingRange =
+        provider.endingStart != null &&
+        position >= provider.endingStart! &&
+        position <= provider.endingStart! + const Duration(seconds: 20);
+    final isAccurateEnding =
+        provider.endingEnd != null &&
+        provider.endingEnd! <= duration &&
+        (duration - provider.endingEnd!).abs() < const Duration(seconds: 5);
+
+    final isEnding =
+        (episodeIndex < anime.episodes.length - 1 && isNearEnd) ||
+        inEndingRange;
 
     return Column(
       children: [
@@ -73,12 +86,7 @@ class PlayerControls extends StatelessWidget {
                 )
               else
                 const SizedBox.shrink(),
-              if (episodeIndex < anime.episodes.length - 1 &&
-                      position == duration ||
-                  ((provider.endingStart != null &&
-                      position >= provider.endingStart! &&
-                      position <=
-                          provider.endingStart! + const Duration(seconds: 20))))
+              if (isEnding)
                 TextButton(
                   style: TextButton.styleFrom(
                     backgroundColor: const Color.fromARGB(179, 158, 158, 158),
@@ -91,13 +99,7 @@ class PlayerControls extends StatelessWidget {
                     ),
                   ),
                   onPressed:
-                      (duration -
-                                          (provider.endingEnd ??
-                                              Duration.zero) -
-                                          Duration(seconds: 5))
-                                      .abs() <
-                                  Duration(seconds: 1) ||
-                              duration == position
+                      isAccurateEnding || isNearEnd
                           ? () {
                             provider.seek(
                               Duration(
@@ -120,12 +122,7 @@ class PlayerControls extends StatelessWidget {
                             );
                           },
                   child: Text(
-                    (duration -
-                                        (provider.endingEnd ?? Duration.zero) -
-                                        Duration(seconds: 5))
-                                    .abs() <
-                                Duration(seconds: 1) ||
-                            duration == position
+                    isAccurateEnding || isNearEnd
                         ? l10n.next_episode
                         : l10n.skip_ending,
                     style: TextStyle(
