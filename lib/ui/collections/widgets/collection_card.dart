@@ -51,7 +51,7 @@ class CollectionCard extends StatelessWidget {
                   ),
                   Text(
                     anime.release.episodesTotal > 0
-                        ? '${l10n.episode_count(anime.release.episodesTotal)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}'
+                        ? '${l10n.episode_count(anime.release.episodesTotal)} ${isOngoing(anime) ? '| ${l10n.ongoing}(${anime.release.publishDay.description})' : ''}'
                         : anime.typeLabel(l10n),
                     style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                   ),

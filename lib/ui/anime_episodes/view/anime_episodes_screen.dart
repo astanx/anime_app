@@ -313,15 +313,17 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                       .toList(),
                             ),
                           const SizedBox(height: 4),
+
                           Text(
                             anime.release.episodesTotal > 0
-                                ? '${l10n.episode_count(anime.release.episodesTotal)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}'
+                                ? '${l10n.episode_count(anime.release.episodesTotal)} ${isOngoing(anime) ? '| ${l10n.ongoing}(${anime.release.publishDay.description})' : ''}'
                                 : anime.typeLabel(l10n),
                             style: theme.textTheme.bodySmall?.copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
+
                           const SizedBox(height: 12),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,

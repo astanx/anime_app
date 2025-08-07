@@ -44,13 +44,11 @@ class PlayerControls extends StatelessWidget {
         position <= provider.endingStart! + const Duration(seconds: 20);
     final isAccurateEnding =
         provider.endingEnd != null &&
-        provider.endingEnd! <= duration &&
         (duration - provider.endingEnd!).abs() < const Duration(seconds: 5);
 
     final isEnding =
         (episodeIndex < anime.episodes.length - 1 && isNearEnd) ||
         inEndingRange;
-
     return Column(
       children: [
         Padding(

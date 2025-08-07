@@ -45,12 +45,16 @@ class UserRepository extends BaseRepository {
   }
 
   Future<bool> checkServerStatus() async {
-    final response = await dio.get('app/status');
+    try {
+      final response = await dio.get('app/status');
 
-    final data = response.data;
+      final data = response.data;
 
-    log(data.toString());
+      log(data.toString());
 
-    return data['is_alive'] ?? false;
+      return data['is_alive'] ?? false;
+    } catch (e) {
+      return false;
+    }
   }
 }

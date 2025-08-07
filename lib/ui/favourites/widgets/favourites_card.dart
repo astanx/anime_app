@@ -51,7 +51,7 @@ class FavouritesCard extends StatelessWidget {
                   ),
                   Text(
                     anime.release.id != -1
-                        ? '${l10n.episode_count(anime.release.episodesTotal)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}'
+                        ? '${l10n.episode_count(anime.release.episodesTotal)} ${isOngoing(anime) ? '| ${l10n.ongoing}(${anime.release.publishDay.description})' : ''}'
                         : anime.release.kodikResult?.type == 'anime'
                         ? l10n.movie
                         : l10n.series,
