@@ -49,6 +49,10 @@ class PlayerControls extends StatelessWidget {
     final isEnding =
         (episodeIndex < anime.episodes.length - 1 && isNearEnd) ||
         inEndingRange;
+
+    if (isAccurateEnding || isNearEnd) {
+      provider.saveTimecode();
+    }
     return Column(
       children: [
         Padding(

@@ -32,6 +32,7 @@ class VideoControllerProvider extends ChangeNotifier {
   int? get episodeIndex => _episodeIndex;
   Anime? get anime => _anime;
   KodikResult? get kodikResult => _kodikResult;
+  get saveTimecode => _saveTimecode;
   List<String> qualities = [];
   List<double> playbackSpeeds = [0.5, 1.0, 1.25, 1.5, 2.0];
 
@@ -241,6 +242,7 @@ class VideoControllerProvider extends ChangeNotifier {
     }
 
     final time = _controller!.value.position;
+    final duration = _controller!.value.duration;
     if (time > Duration.zero) {
       final episodeId = _anime!.episodes[_episodeIndex!].id;
       final timecode = Timecode(
@@ -260,12 +262,8 @@ class VideoControllerProvider extends ChangeNotifier {
         anime: _anime!,
         lastWatchedEpisode: _episodeIndex!,
         isWatched:
-            time >=
-            Duration(
-              seconds:
-                  _anime!.episodes[_episodeIndex!].ending?.start ??
-                  _anime!.episodes[_episodeIndex!].duration - 60,
-            ),
+            (endingEnd != null && time >= endingEnd!) ||
+            (time >= duration - const Duration(seconds: 1)),
         kodikResult: _kodikResult,
       );
 

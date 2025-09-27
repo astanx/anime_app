@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/anime_release.dart';
 import 'package:anime_app/data/models/franchise.dart';
@@ -192,6 +193,9 @@ class AnimeRepository extends BaseRepository {
   }
 
   Future<List<KodikResult>> searchKodik(String query) async {
+    if (!isTurnedKodik) {
+      return [];
+    }
     try {
       final response = await dio.get(
         'https://kodikapi.com/search',
@@ -209,6 +213,9 @@ class AnimeRepository extends BaseRepository {
   }
 
   Future<List<KodikResult>> getAnimeByKodikId(int id) async {
+    if (!isTurnedKodik) {
+      return [];
+    }
     try {
       final response = await dio.get(
         'https://kodikapi.com/search',
@@ -247,7 +254,7 @@ class AnimeRepository extends BaseRepository {
 
       final anime = Anime.fromJson(data);
 
-      if (kodik == null) {
+      if (kodik == null && isTurnedKodik) {
         final kodikResults = await searchKodik(anime.release.names.main);
         final matchResult = matchAnimeWithKodik([anime], kodikResults);
         final matchedAnime = matchResult.matched.firstOrNull;
@@ -351,7 +358,6 @@ class AnimeRepository extends BaseRepository {
     final matchedReleases = <Anime>[];
     final matchedKodikIds = <String>{};
 
-    // Create a map of normalized Kodik titles to KodikResult for faster lookup
     final kodikTitleMap = <String, KodikResult>{};
     for (var k in kodikResults) {
       final kodikTitles =

@@ -18,20 +18,31 @@ class HistoryProvider extends ChangeNotifier {
     final history = await HistoryStorage.getHistory();
 
     final futures =
-        history.map((h) async {
-          if (h.animeId.toString().startsWith(kodikIdPattern) &&
-              h.kodikResult?.shikimoriId != null) {
-            final shikimori = await _repository.getShikimoriAnimeById(
-              h.kodikResult!.shikimoriId!,
-            );
-            return AnimeWithHistory.combineWithHistory(
-              anime: Anime.fromKodikAndShikimori(h.kodikResult!, shikimori),
-              history: h,
-            );
-          }
-          final anime = await _repository.getAnimeById(h.animeId);
-          return AnimeWithHistory.combineWithHistory(anime: anime, history: h);
-        }).toList();
+        history
+            .where(
+              (h) =>
+                  !(h.animeId.toString().startsWith(kodikIdPattern) &&
+                      !isTurnedKodik),
+            )
+            .map((h) async {
+              if (h.animeId.toString().startsWith(kodikIdPattern) &&
+                  h.kodikResult?.shikimoriId != null &&
+                  isTurnedKodik) {
+                final shikimori = await _repository.getShikimoriAnimeById(
+                  h.kodikResult!.shikimoriId!,
+                );
+                return AnimeWithHistory.combineWithHistory(
+                  anime: Anime.fromKodikAndShikimori(h.kodikResult!, shikimori),
+                  history: h,
+                );
+              }
+              final anime = await _repository.getAnimeById(h.animeId);
+              return AnimeWithHistory.combineWithHistory(
+                anime: anime,
+                history: h,
+              );
+            })
+            .toList();
 
     _history = await Future.wait(futures);
     notifyListeners();
@@ -50,7 +61,7 @@ class HistoryProvider extends ChangeNotifier {
       animeId: historyAnime.anime.uniqueId,
       lastWatchedEpisode: historyAnime.lastWatchedEpisode,
       isWatched: historyAnime.isWatched,
-      kodikResult: historyAnime.kodikResult,
+      kodikResult: isTurnedKodik ? historyAnime.kodikResult : null,
     );
     await HistoryStorage.updateHistory(history);
     notifyListeners();

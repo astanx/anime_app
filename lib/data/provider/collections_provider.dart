@@ -79,7 +79,9 @@ class CollectionsProvider extends ChangeNotifier {
       entry.value.data.removeWhere((a) => a.uniqueId == uniqueId);
     }
 
-    if (kodikResult != null && anime.release.shikimoriId != null) {
+    if (kodikResult != null &&
+        anime.release.shikimoriId != null &&
+        isTurnedKodik) {
       await _repository.addToCollection(
         type,
         int.parse('$kodikIdPattern${anime.release.shikimoriId}'),
@@ -126,7 +128,9 @@ class CollectionsProvider extends ChangeNotifier {
       entry.value.data.removeWhere((a) => a.uniqueId == uniqueId);
     }
 
-    if (kodikResult != null && anime.release.shikimoriId != null) {
+    if (kodikResult != null &&
+        anime.release.shikimoriId != null &&
+        isTurnedKodik) {
       await _repository.removeFromCollection(
         type,
         int.parse('$kodikIdPattern${anime.release.shikimoriId}'),
