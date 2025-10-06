@@ -262,8 +262,8 @@ class VideoControllerProvider extends ChangeNotifier {
         anime: _anime!,
         lastWatchedEpisode: _episodeIndex!,
         isWatched:
-            (endingEnd != null && time >= endingEnd!) ||
-            (time >= duration - const Duration(seconds: 1)),
+            (endingStart != null && time >= endingStart!) ||
+            (time >= duration - const Duration(seconds: 5)),
         kodikResult: _kodikResult,
       );
 
