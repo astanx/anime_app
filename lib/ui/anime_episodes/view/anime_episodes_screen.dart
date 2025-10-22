@@ -12,6 +12,7 @@ import 'package:anime_app/data/storage/mode_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/l10n/collection_localization.dart';
 import 'package:anime_app/ui/anime_episodes/widgets/widgets.dart';
+import 'package:anime_app/ui/core/ui/anime_player/view/anime_player.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -105,7 +106,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
     return ChangeNotifierProvider(
       create: (context) {
         final provider = VideoControllerProvider(mode: mode!);
-        if (anime.totalEpisodes == 0) {
+        if (anime.totalEpisodes == 0 || anime.isMovie) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             await provider.loadEpisode(anime, 0, context);
           });
@@ -215,38 +216,41 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                 ),
                               ),
                             ),
-                          Column(
-                            children: [
-                              Text(
-                                l10n.episode(1),
-                                style: theme.textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: 16),
-                              GridView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: math.min(
-                                  _visibleEpisodes,
-                                  anime.previewEpisodes.length,
+                          if (anime.totalEpisodes > 0 && !anime.isMovie)
+                            Column(
+                              children: [
+                                Text(
+                                  l10n.episode(1),
+                                  style: theme.textTheme.titleMedium,
                                 ),
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: crossAxisCount,
-                                      crossAxisSpacing: 16,
-                                      mainAxisSpacing: 16,
-                                      childAspectRatio: 3 / 1,
-                                    ),
-                                itemBuilder: (context, index) {
-                                  return EpisodeCard(
-                                    anime: anime,
-                                    episodeIndex: index,
-                                    timecodeProvider: _timecodeProvider!,
-                                    mode: mode!,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
+                                const SizedBox(height: 16),
+                                GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: math.min(
+                                    _visibleEpisodes,
+                                    anime.previewEpisodes.length,
+                                  ),
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: crossAxisCount,
+                                        crossAxisSpacing: 16,
+                                        mainAxisSpacing: 16,
+                                        childAspectRatio: 3 / 1,
+                                      ),
+                                  itemBuilder: (context, index) {
+                                    return EpisodeCard(
+                                      anime: anime,
+                                      episodeIndex: index,
+                                      timecodeProvider: _timecodeProvider!,
+                                      mode: mode!,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          if (anime.totalEpisodes == 0 && anime.isMovie)
+                            AnimePlayer(anime: anime),
                         ],
                       ),
                     ),
