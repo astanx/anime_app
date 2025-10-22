@@ -2,54 +2,52 @@
 
 <img src="assets/icon/app_icon.png" width="120" style="float: right;">
 
-Приложение для просмотра аниме, созданное с использованием Flutter. Позволяет пользователям открывать для себя новые аниме, отслеживать просмотренное и получать информацию о сериалах.
+An anime viewing app built with Flutter. It allows users to discover new anime, track their viewing, and get information about series.
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.13.9-blue.svg)](https://flutter.dev)
 
-## ✨ Особенности
-- Просмотр популярных и новых аниме
-- Поиск по названиям и жанрам
-- Детальная информация о каждом аниме
-- Отслеживание просмотренных серий
-- Локализация (поддержка нескольких языков)
+## Peculiarities
+- Browse popular and new anime
+- Search by title
+- Detailed information about each anime
+- Track episodes watched
+- Localization (multiple language support)
 
-## 📸 Скриншоты
+##  Screenshots
 
 <table>
   <tr>
-    <td align="center">Главный экран</td>
-    <td align="center">История</td>
-    <td align="center">Детали аниме</td>
+    <td align="center">Mode selection</td>
+    <td align="center">Main screen</td>
+    <td align="center">Anime info</td>
   </tr>
   <tr>
-    <td><img src="screenshots/main.png" width="250"></td>
-    <td><img src="screenshots/history.png" width="250"></td>
-    <td><img src="screenshots/detail.png" width="250"></td>
+    <td><img src="screenshots/mode.jpg" width="250"></td>
+    <td><img src="screenshots/main_eng.jpg" width="250"></td>
+    <td><img src="screenshots/info.jpg" width="250"></td>
   </tr>
   <tr>
-    <td><img src="screenshots/main2.png" width="250"></td>
-    <td></td>
-    <td><img src="screenshots/detail2.png" width="250"></td>
+    <td><img src="screenshots/favourite.jpg" width="250"></td>
+    <td><img src="screenshots/search.jpg" width="250"></td>
+    <td><img src="screenshots/collection.jpg" width="250"></td>
   </tr>
 </table>
 
-## 🚀 Технологии
+##  Technologies
 - **Flutter**
-- **Состояние**: Provider
-- **Локализация**: intl
-- **Сетевое взаимодействие**: Dio
-- **Кэширование**: SharedPreferences
-- **API**: 
-  - [Anilibria API](https://anilibria.wtf/api/docs/v1)
-  - [Shikimori API](https://publicapi.dev/shikimori-api)
-  - [Kodik API](https://kodikapi.com)
+- **State**: Provider
+- **Localization**: intl
+- **Networking**: Dio
+- **Caching**: SharedPreferences
+- **API**:
+  - [Anime API](https://github.com/astanx/anime_api)
 
-## 🛠 Установка
+##  Download
 
 ### Android
-Скачайте последний релиз [здесь](https://github.com/astanx/anime_app/releases) или соберите приложение самостоятельно.
+Download the latest release [here](https://github.com/astanx/anime_app/releases) or build the application yourself.
 
 ### iOS
-1. Соберите приложение самостоятельно
-2. Установите .ipa файл через [AltStore](https://altstore.io)
+1. Build the app yourself
+2. Install the .ipa file via [AltStore](https://altstore.io)
 
