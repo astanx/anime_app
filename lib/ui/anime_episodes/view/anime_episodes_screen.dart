@@ -100,13 +100,14 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
     if (mode == null || _timecodeProvider == null || _isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+
     final isFavourite = favouritesProvider.isFavourite(anime);
     final collection = collectionProvider.getCollectionType(anime);
 
     return ChangeNotifierProvider(
       create: (context) {
         final provider = VideoControllerProvider(mode: mode!);
-        if (anime.totalEpisodes == 0 || anime.isMovie) {
+        if (anime.isMovie) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             await provider.loadEpisode(anime, 0, context);
           });
@@ -216,7 +217,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                 ),
                               ),
                             ),
-                          if (anime.totalEpisodes > 0 && !anime.isMovie)
+                          if (!anime.isMovie)
                             Column(
                               children: [
                                 Text(
@@ -248,8 +249,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                   },
                                 ),
                               ],
-                            ),
-                          if (anime.totalEpisodes == 0 && anime.isMovie)
+                            )
+                          else
                             AnimePlayer(anime: anime),
                         ],
                       ),
