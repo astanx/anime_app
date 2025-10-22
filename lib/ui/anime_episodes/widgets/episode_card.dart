@@ -1,5 +1,5 @@
 import 'package:anime_app/data/models/anime.dart';
-import 'package:anime_app/data/models/kodik_result.dart';
+import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
@@ -11,13 +11,13 @@ class EpisodeCard extends StatelessWidget {
     required this.anime,
     required this.episodeIndex,
     required this.timecodeProvider,
-    required this.kodikResult,
+    required this.mode,
   });
 
   final Anime anime;
   final int episodeIndex;
   final TimecodeProvider timecodeProvider;
-  final KodikResult? kodikResult;
+  final Mode mode;
 
   @override
   Widget build(BuildContext context) {
@@ -26,15 +26,14 @@ class EpisodeCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return InkWell(
       onTap: () async {
-        final animeTitle = await AnimeRepository().getAnimeById(
-          anime.release.id,
-        );
+        final repository = AnimeRepository(mode: mode);
+        final animeTitle = await repository.getAnimeById(anime.id);
         Navigator.of(context).pushNamed(
           '/anime',
           arguments: {
             'anime': animeTitle,
             'episodeIndex': episodeIndex,
-            'kodikResult': kodikResult,
+            'mode': mode,
           },
         );
       },
@@ -46,11 +45,13 @@ class EpisodeCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Text(
-            '${l10n!.episode(0)} ${anime.episodes[episodeIndex].ordinalFormatted}',
+            '${l10n!.episode(0)} ${anime.previewEpisodes[episodeIndex].ordinal}',
             textAlign: TextAlign.center,
             style: TextStyle(
               color:
-                  timecodeProvider.isWatched(anime.episodes[episodeIndex].id)
+                  timecodeProvider.isWatched(
+                        anime.previewEpisodes[episodeIndex].id,
+                      )
                       ? Colors.grey
                       : Colors.white,
             ),

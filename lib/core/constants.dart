@@ -1,3 +1,1 @@
-const String baseUrl = 'https://anilibria.top';
-const String kodikIdPattern = '1000000000';
-const bool isTurnedKodik = false;
+const String baseUrl = 'https://anime-api-rsc7.onrender.com';

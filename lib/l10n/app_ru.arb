@@ -59,5 +59,15 @@
   "playback_speed": "Скорость воспроизведения",
   "quality": "Качество",
   "retry": "Попробовать снова",
-  "server_unavailable": "Сервер временно недоступен"
+  "server_unavailable": "Сервер временно недоступен",
+
+  "subtitles": "Субтитры",
+  "anilibria_mode": "Продолжить с Anilibria (русская озвучка)",
+  "subtitle_mode": "Продолжить с субтитрами",
+  "recommended": "Рекомендация",
+  "anilibria": "Anilibria",
+  "subtitle": "Субтитры",
+  "choose_mode": "Выберите предпочитаемый режим",
+  "you_can_change_later": "Вы можете изменить мод позже",
+  "disable_subtitles": "Отключить субтитры"
 }

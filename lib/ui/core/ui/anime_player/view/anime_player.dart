@@ -1,5 +1,4 @@
 import 'package:anime_app/data/models/anime.dart';
-import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
 import 'package:anime_app/ui/core/ui/anime_player/widgets/fullscreen_player.dart';
 import 'package:anime_app/ui/core/ui/anime_player/widgets/player_controls.dart';
@@ -9,14 +8,8 @@ import 'package:video_player/video_player.dart';
 
 class AnimePlayer extends StatelessWidget {
   final Anime anime;
-  final KodikResult? kodikResult;
 
-  const AnimePlayer({
-    super.key,
-    required this.anime,
-    required this.kodikResult,
-  });
-  
+  const AnimePlayer({super.key, required this.anime});
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +79,6 @@ class AnimePlayer extends StatelessWidget {
                                         (_) => FullscreenPlayer(
                                           provider: provider,
                                           anime: anime,
-                                          kodikResult: kodikResult,
                                         ),
                                   ),
                                 ),

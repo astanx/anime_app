@@ -206,4 +206,31 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get server_unavailable => 'Сервер временно недоступен';
+
+  @override
+  String get subtitles => 'Субтитры';
+
+  @override
+  String get anilibria_mode => 'Продолжить с Anilibria (русская озвучка)';
+
+  @override
+  String get subtitle_mode => 'Продолжить с субтитрами';
+
+  @override
+  String get recommended => 'Рекомендация';
+
+  @override
+  String get anilibria => 'Anilibria';
+
+  @override
+  String get subtitle => 'Субтитры';
+
+  @override
+  String get choose_mode => 'Выберите предпочитаемый режим';
+
+  @override
+  String get you_can_change_later => 'Вы можете изменить мод позже';
+
+  @override
+  String get disable_subtitles => 'Отключить субтитры';
 }

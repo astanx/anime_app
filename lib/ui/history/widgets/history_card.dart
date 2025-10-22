@@ -1,24 +1,24 @@
-import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/history.dart';
-import 'package:anime_app/data/storage/history_storage.dart';
+import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class HistoryCard extends StatelessWidget {
-  const HistoryCard({super.key, required this.anime});
-  final AnimeWithHistory anime;
+  const HistoryCard({super.key, required this.historyData, required this.mode});
+  final AnimeWithHistory historyData;
+  final Mode mode;
 
   void _openNextEpisode(BuildContext context) {
     Navigator.of(context).pushNamed(
       '/anime',
       arguments: {
-        'anime': anime.anime,
+        'anime': historyData.anime,
         'episodeIndex':
-            anime.isWatched
-                ? anime.lastWatchedEpisode + 1
-                : anime.lastWatchedEpisode,
-        'kodikResult': anime.kodikResult,
+            historyData.history.isWatched
+                ? historyData.history.lastWatchedEpisode + 1
+                : historyData.history.lastWatchedEpisode,
+        'mode': mode,
       },
     );
   }
@@ -26,44 +26,20 @@ class HistoryCard extends StatelessWidget {
   void _openMovie(BuildContext context) {
     Navigator.of(context).pushNamed(
       '/anime/episodes',
-      arguments: {
-        'anime': anime.anime,
-        'kodikResult': anime.kodikResult,
-        'episodeIndex': 0,
-      },
-    );
-  }
-
-  void _openKodik(BuildContext context) {
-    Navigator.of(context).pushNamed(
-      '/anime/episodes',
-      arguments: {
-        'anime': anime.anime,
-        'kodikResult': anime.kodikResult,
-        'episodeIndex': anime.lastWatchedEpisode,
-        'showKodik': true,
-      },
+      arguments: {'anime': historyData.anime, 'episodeIndex': 0},
     );
   }
 
   void _openAnime(BuildContext context) async {
-    final episodeIndex = await HistoryStorage.getEpisodeIndex(
-      anime.anime.uniqueId,
-    );
-    Navigator.of(context).pushNamed(
-      '/anime/episodes',
-      arguments: {
-        'anime': anime.anime,
-        'kodikResult': anime.kodikResult,
-        'episodeIndex': episodeIndex,
-      },
-    );
+    Navigator.of(
+      context,
+    ).pushNamed('/anime/episodes', arguments: {'anime': historyData.anime});
   }
 
   @override
   Widget build(BuildContext context) {
-    final onlyKodik = anime.anime.episodes.isEmpty;
     final l10n = AppLocalizations.of(context)!;
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -75,7 +51,7 @@ class HistoryCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                getImageUrl(anime.anime),
+                historyData.anime.poster,
                 width: 130,
                 height: 200,
                 fit: BoxFit.cover,
@@ -88,7 +64,7 @@ class HistoryCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    anime.anime.release.names.main,
+                    historyData.anime.title,
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -99,10 +75,10 @@ class HistoryCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    anime.anime.typeLabel(l10n),
+                    historyData.anime.type,
                     style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 20),
                   SizedBox(
                     width: 500,
                     height: 50,
@@ -120,21 +96,23 @@ class HistoryCard extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        anime.anime.isMovie ? l10n.view_film : l10n.view_anime,
+                        historyData.anime.isMovie
+                            ? l10n.view_film
+                            : l10n.view_anime,
                       ),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 10),
 
-                  if (anime.anime.episodes.length >
-                          anime.lastWatchedEpisode + 1 ||
-                      !anime.isWatched) ...[
+                  if (historyData.anime.previewEpisodes.length >
+                          historyData.history.lastWatchedEpisode + 1 ||
+                      !historyData.history.isWatched) ...[
                     SizedBox(
                       width: 500,
                       height: 50,
                       child: TextButton(
                         onPressed:
-                            anime.anime.isSeries
+                            !historyData.anime.isMovie
                                 ? () => _openNextEpisode(context)
                                 : () => _openMovie(context),
                         style: TextButton.styleFrom(
@@ -149,23 +127,24 @@ class HistoryCard extends StatelessWidget {
                           ),
                         ),
                         child: AutoSizeText(
-                          anime.anime.isSeries
-                              ? anime.isWatched
+                          !historyData.anime.isMovie
+                              ? historyData.history.isWatched
                                   ? l10n.continue_with_episode(
-                                    int.parse(
-                                          anime
-                                              .anime
-                                              .episodes[anime
-                                                  .lastWatchedEpisode]
-                                              .ordinalFormatted,
-                                        ) +
+                                    historyData
+                                            .anime
+                                            .previewEpisodes[historyData
+                                                .history
+                                                .lastWatchedEpisode]
+                                            .ordinal +
                                         1,
                                   )
                                   : l10n.continue_watching_episode(
-                                    anime
+                                    historyData
                                         .anime
-                                        .episodes[anime.lastWatchedEpisode]
-                                        .ordinalFormatted,
+                                        .previewEpisodes[historyData
+                                            .history
+                                            .lastWatchedEpisode]
+                                        .ordinal,
                                   )
                               : l10n.continue_watching_movie,
                           maxFontSize: 14,
@@ -176,7 +155,7 @@ class HistoryCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 8),
-                  ] else if (!onlyKodik && anime.anime.isSeries) ...[
+                  ] else if (!historyData.anime.isMovie) ...[
                     SizedBox(
                       width: 500,
                       height: 50,
@@ -206,41 +185,12 @@ class HistoryCard extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                   ],
-                  if (anime.kodikResult != null)
-                    SizedBox(
-                      width: 500,
-                      height: 50,
-                      child: TextButton(
-                        onPressed: () => _openKodik(context),
-                        style: TextButton.styleFrom(
-                          backgroundColor: const Color(0xFF6B5252),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          textStyle: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        child: Text(
-                          l10n.continue_with_kodik,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                          ),
-
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
 
                   const SizedBox(height: 2),
-                  if (anime.anime.release.id != -1 &&
-                      anime.anime.release.episodesTotal > 0 &&
-                      anime.anime.isSeries) ...[
+                  if (historyData.anime.totalEpisodes > 0 &&
+                      !historyData.anime.isMovie) ...[
                     Text(
-                      '${anime.anime.episodes[anime.lastWatchedEpisode].ordinalFormatted} / ${l10n.episode_count(anime.anime.release.episodesTotal)}',
+                      '${historyData.anime.previewEpisodes[historyData.history.lastWatchedEpisode].ordinal} / ${l10n.episode_count(historyData.anime.totalEpisodes)}',
                       style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 4),
@@ -249,35 +199,13 @@ class HistoryCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value:
-                            anime
+                            historyData
                                 .anime
-                                .episodes[anime.lastWatchedEpisode]
+                                .previewEpisodes[historyData
+                                    .history
+                                    .lastWatchedEpisode]
                                 .ordinal /
-                            anime.anime.release.episodesTotal,
-                        minHeight: 6,
-                        backgroundColor: Colors.grey[300],
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Color(0xFFAD1CB4),
-                        ),
-                      ),
-                    ),
-                  ],
-
-                  if (anime.anime.release.id == -1 &&
-                      anime.anime.release.episodesTotal > 0 &&
-                      anime.anime.isSeries) ...[
-                    Text(
-                      '${anime.lastWatchedEpisode} / ${l10n.episode_count(anime.anime.release.episodesTotal)}',
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                    ),
-                    const SizedBox(height: 4),
-
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value:
-                            anime.lastWatchedEpisode /
-                            anime.anime.release.episodesTotal,
+                            historyData.anime.totalEpisodes,
                         minHeight: 6,
                         backgroundColor: Colors.grey[300],
                         valueColor: AlwaysStoppedAnimation<Color>(

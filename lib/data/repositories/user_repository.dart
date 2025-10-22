@@ -1,52 +1,35 @@
 import 'dart:developer';
-import 'package:anime_app/data/models/login.dart';
+import 'package:anime_app/data/models/device_id.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
-import 'package:anime_app/data/storage/token_storage.dart';
+import 'package:anime_app/data/storage/id_storage.dart';
+import 'package:dio/dio.dart';
 
 class UserRepository extends BaseRepository {
   UserRepository() : super(DioClient().dio);
 
-  Future<bool> login(String login, String password) async {
+  Future<void> registerDevice() async {
     try {
-      final response = await dio.post(
-        'accounts/users/auth/login',
-        data: {'login': login, 'password': password},
-      );
+      if (await IDStorage.getID() != null) return;
+
+      final response = await dio.get('/users/device');
       final data = response.data;
 
-      log(data.toString());
+      final device = DeviceID.fromJson(data);
 
-      final authData = Login.fromJson(data);
-
-      if (authData.token.isNotEmpty) {
-        await TokenStorage.saveToken(authData.token);
-
-        return true;
+      if (device.id.isNotEmpty) {
+        await IDStorage.saveID(device.id);
       }
-      return false;
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> logout() async {
+  Future<bool> checkAnilibriaServerStatus() async {
     try {
-      final response = await dio.post('accounts/users/auth/logout');
-
-      final data = response.data;
-
-      log(data.toString());
-
-      await TokenStorage.clearToken();
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<bool> checkServerStatus() async {
-    try {
-      final response = await dio.get('app/status');
+      final response = await Dio().get(
+        'https://aniliberty.top/api/v1/app/status',
+      );
 
       final data = response.data;
 

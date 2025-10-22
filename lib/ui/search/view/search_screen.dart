@@ -1,4 +1,6 @@
+import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/data/storage/mode_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:anime_app/ui/search/widgets/widgets.dart';
@@ -13,11 +15,21 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final repository = AnimeRepository();
+  late AnimeRepository repository;
+  Mode? mode;
 
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final m = await ModeStorage.getMode();
+
+      setState(() {
+        mode = m;
+        repository = AnimeRepository(mode: m);
+      });
+    });
   }
 
   @override
@@ -51,7 +63,10 @@ class _SearchScreenState extends State<SearchScreen> {
                         child: AutoSizeText(
                           l10n.search_anime.toUpperCase(),
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Allan',
+                          ),
                           maxLines: 2,
                           minFontSize: 48,
                           maxFontSize: 64,

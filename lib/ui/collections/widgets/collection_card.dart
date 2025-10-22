@@ -1,7 +1,5 @@
 import 'package:anime_app/core/utils/is_ongoing.dart';
-import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
-import 'package:anime_app/data/storage/history_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +22,7 @@ class CollectionCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                getImageUrl(anime),
+                anime.poster,
                 width: 130,
                 height: 200,
                 fit: BoxFit.cover,
@@ -35,7 +33,7 @@ class CollectionCard extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    anime.release.names.main,
+                    anime.title,
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -44,41 +42,37 @@ class CollectionCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 10),
+                  if (anime.year != null)
+                    Text(
+                      '${anime.year}',
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    ),
+                  if (anime.totalEpisodes > 0)
+                    Text(
+                      '${l10n.episode_count(anime.totalEpisodes)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}',
+                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                    ),
                   Text(
-                    '${anime.release.year}',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  ),
-                  Text(
-                    anime.release.episodesTotal > 0
-                        ? '${l10n.episode_count(anime.release.episodesTotal)} ${isOngoing(anime) ? '| ${l10n.ongoing}(${anime.release.publishDay.description})' : ''}'
-                        : anime.typeLabel(l10n),
+                    anime.type,
                     style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                   ),
-                  if (anime.release.description != null)
+                  if (anime.description.isNotEmpty)
                     Text(
-                      anime.release.description!,
+                      anime.description,
                       maxLines: 6,
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                     ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 20),
                   SizedBox(
                     width: 500,
                     height: 50,
                     child: TextButton(
-                      onPressed: () async {
-                        final episodeIndex =
-                            await HistoryStorage.getEpisodeIndex(
-                              anime.uniqueId,
-                            );
+                      onPressed: () {
                         Navigator.of(context).pushNamed(
                           '/anime/episodes',
-                          arguments: {
-                            'anime': anime,
-                            'kodikResult': anime.release.kodikResult,
-                            'episodeIndex': episodeIndex,
-                          },
+                          arguments: {'anime': anime},
                         );
                       },
                       style: TextButton.styleFrom(

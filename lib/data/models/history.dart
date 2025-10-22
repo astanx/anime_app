@@ -1,82 +1,56 @@
-import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
-import 'package:anime_app/data/models/kodik_result.dart';
+import 'package:anime_app/data/models/meta.dart';
+
+class HistoryData {
+  final List<History> history;
+  final Meta meta;
+
+  HistoryData({required this.history, required this.meta});
+
+  factory HistoryData.fromJson(Map<String, dynamic> json) {
+    return HistoryData(
+      history:
+          (json['data'] as List<dynamic>)
+              .map((e) => History.fromJson(e))
+              .toList(),
+      meta: Meta.fromJson(json['meta']),
+    );
+  }
+}
 
 class History {
-  final int animeId;
+  final String animeID;
   final int lastWatchedEpisode;
   final bool isWatched;
-  final KodikResult? kodikResult;
-
-  int get uniqueId {
-    if (animeId != -1) return animeId;
-    if (kodikResult != null) {
-      return int.parse('$kodikIdPattern${kodikResult!.shikimoriId}');
-    }
-    return -1;
-  }
 
   History({
-    required this.animeId,
+    required this.animeID,
     required this.lastWatchedEpisode,
     required this.isWatched,
-    this.kodikResult,
   });
 
   History copyWith({
-    int? animeId,
+    String? animeID,
     int? lastWatchedEpisode,
     bool? isWatched,
-    KodikResult? kodikResult,
   }) {
     return History(
-      animeId: animeId ?? this.animeId,
+      animeID: animeID ?? this.animeID,
       lastWatchedEpisode: lastWatchedEpisode ?? this.lastWatchedEpisode,
       isWatched: isWatched ?? this.isWatched,
-      kodikResult: kodikResult ?? this.kodikResult,
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'animeId': animeId,
-    'lastWatchedEpisode': lastWatchedEpisode,
-    'isWatched': isWatched,
-    'kodikResult': kodikResult?.toJson(),
-  };
-
   factory History.fromJson(Map<String, dynamic> json) => History(
-    animeId: json['animeId'] as int,
-    lastWatchedEpisode: json['lastWatchedEpisode'] as int,
-    isWatched: json['isWatched'] ?? false,
-    kodikResult:
-        json['kodikResult'] != null
-            ? KodikResult.fromJson(json['kodikResult'])
-            : null,
+    animeID: json['anime_id'],
+    lastWatchedEpisode: json['last_watched'],
+    isWatched: json['is_watched'] ?? false,
   );
 }
 
 class AnimeWithHistory {
+  final History history;
   final Anime anime;
-  final int lastWatchedEpisode;
-  final bool isWatched;
-  final KodikResult? kodikResult;
 
-  AnimeWithHistory({
-    required this.anime,
-    required this.lastWatchedEpisode,
-    required this.isWatched,
-    this.kodikResult,
-  });
-
-  static AnimeWithHistory combineWithHistory({
-    required Anime anime,
-    required History history,
-  }) {
-    return AnimeWithHistory(
-      anime: anime,
-      lastWatchedEpisode: history.lastWatchedEpisode,
-      isWatched: history.isWatched,
-      kodikResult: history.kodikResult,
-    );
-  }
+  AnimeWithHistory({required this.history, required this.anime});
 }

@@ -1,31 +1,23 @@
+import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/timecode.dart';
 import 'package:anime_app/data/repositories/timecode_repository.dart';
 import 'package:flutter/material.dart';
 
 class TimecodeProvider extends ChangeNotifier {
-  List<Timecode> _timecodes = [];
-  bool _hasFetched = false;
-  final Map<int, bool> _hasFetchedForRelease = {};
+  final List<Timecode> _timecodes = [];
   final _repository = TimecodeRepository();
 
   List<Timecode> get timecodes => _timecodes;
 
-  Future<void> fetchTimecodes() async {
-    if (!_hasFetched) {
-      _timecodes = await _repository.getTimecodes();
-      _hasFetched = true;
-      notifyListeners();
-    }
-  }
-
-  Future<int> getTimecodeForEpisode(String episodeId) async {
+  Future<int> getTimecodeForEpisode(String episodeID, Anime anime) async {
     try {
-      final timecode = _timecodes.firstWhere(
-        (t) => t.releaseEpisodeId == episodeId,
-      );
+      final timecode = _timecodes.firstWhere((t) => t.episodeID == episodeID);
       return timecode.time;
     } catch (e) {
-      final timecode = await _repository.getTimecodeForEpisode(episodeId);
+      final timecode = await _repository.getTimecodeForEpisode(
+        episodeID,
+        anime,
+      );
       if (timecode.time > 0) {
         _timecodes.add(timecode);
       }
@@ -33,20 +25,11 @@ class TimecodeProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchTimecodesForRelease(int releaseId) async {
-    if (!(_hasFetchedForRelease[releaseId] ?? false)) {
-      final timecodes = await _repository.getTimecodesForRelease(releaseId);
-      _timecodes.addAll(timecodes);
-      _hasFetchedForRelease[releaseId] = true;
-      notifyListeners();
-    }
-  }
-
-  Future<void> updateTimecode(Timecode timecode, {bool notify = true}) async {
+  Future<void> updateTimecode(Timecode timecode, {bool notify = false}) async {
     if (timecode.time > 0) {
-      _repository.updateTimecode([timecode]);
+      _repository.updateTimecode(timecode);
       final index = _timecodes.indexWhere(
-        (t) => t.releaseEpisodeId == timecode.releaseEpisodeId,
+        (t) => t.episodeID == timecode.episodeID,
       );
       if (index != -1) {
         _timecodes[index] = timecode;
@@ -59,7 +42,13 @@ class TimecodeProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> fetchTimecodesForAnime(String animeID) async {
+    final timecodes = await _repository.getTimecodesForAnime(animeID);
+    _timecodes.addAll(timecodes);
+    notifyListeners();
+  }
+
   bool isWatched(String episodeId) {
-    return _timecodes.any((el) => el.releaseEpisodeId == episodeId);
+    return _timecodes.any((el) => el.episodeID == episodeId);
   }
 }

@@ -1,14 +1,12 @@
-import 'package:anime_app/data/models/anime_release.dart';
-import 'package:anime_app/data/models/collection.dart';
-import 'package:anime_app/data/provider/collections_provider.dart';
-import 'package:anime_app/data/provider/favourites_provider.dart';
+import 'package:anime_app/data/models/mode.dart';
+import 'package:anime_app/data/models/search_anime.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
-import 'package:anime_app/data/repositories/user_repository.dart';
+import 'package:anime_app/data/storage/mode_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
+import 'package:anime_app/router/no_animation_route.dart';
 import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class AnimeListScreen extends StatefulWidget {
   const AnimeListScreen({super.key});
@@ -18,11 +16,11 @@ class AnimeListScreen extends StatefulWidget {
 }
 
 class _AnimeListScreenState extends State<AnimeListScreen> {
-  List<AnimeRelease>? _animeList;
-  List<AnimeRelease>? _weekSchedule;
-  List<Genre>? _genres;
+  List<SearchAnime>? _animeList;
+  List<SearchAnime>? _recommendedList;
+  Mode? mode;
   bool isLoading = true;
-  final repository = AnimeRepository();
+  late AnimeRepository repository;
 
   @override
   void dispose() {
@@ -32,37 +30,27 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchAnime();
-    _fetchGenres();
-    Provider.of<FavouritesProvider>(context, listen: false).fetchFavourites();
-    for (final type in CollectionType.values) {
-      Provider.of<CollectionsProvider>(
-        context,
-        listen: false,
-      ).fetchCollection(type, 1);
-    }
-    setState(() {
-      isLoading = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final m = await ModeStorage.getMode();
+
+      setState(() {
+        mode = m;
+        repository = AnimeRepository(mode: m);
+      });
+      _fetchAnime();
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 
   Future<void> _fetchAnime() async {
-    final animeList = await repository.getReleases(20);
-    final weekSchedule = await repository.getWeekSchedule();
+    final animeList = await repository.getLatestReleases();
+    final recommendedReleases = await repository.getRecommendedAnime();
     if (mounted) {
       setState(() {
         _animeList = animeList;
-        _weekSchedule = weekSchedule;
-      });
-    }
-  }
-
-  Future<void> _fetchGenres() async {
-    final genres = await repository.getGenres(8);
-
-    if (mounted) {
-      setState(() {
-        _genres = genres;
+        _recommendedList = recommendedReleases;
       });
     }
   }
@@ -82,7 +70,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
     return Scaffold(
       bottomNavigationBar: AnimeBar(isBlocked: isLoading),
       body:
-          _animeList == null
+          _animeList == null || _recommendedList == null || mode == null
               ? const Center(child: CircularProgressIndicator())
               : SafeArea(
                 child: Padding(
@@ -116,34 +104,75 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                                           l10n.app_title.toUpperCase(),
                                           style: TextStyle(
                                             fontSize: 32,
+                                            fontFamily: 'Allan',
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        PopupMenuButton<String>(
+                                        PopupMenuButton<void>(
                                           icon: const Icon(
                                             Icons.person,
                                             size: 32,
                                           ),
                                           itemBuilder:
                                               (BuildContext context) => [
-                                                PopupMenuItem<String>(
-                                                  value: 'exit',
-                                                  child: ListTile(
-                                                    leading: Icon(
-                                                      Icons.exit_to_app,
-                                                    ),
-                                                    title: Text(l10n.exit),
+                                                PopupMenuItem<void>(
+                                                  enabled: false,
+                                                  child: StatefulBuilder(
+                                                    builder: (
+                                                      context,
+                                                      setStatePopup,
+                                                    ) {
+                                                      return Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Text(l10n.anilibria),
+                                                          Switch(
+                                                            value:
+                                                                mode ==
+                                                                Mode.consumet,
+                                                            onChanged: (
+                                                              value,
+                                                            ) async {
+                                                              final newMode =
+                                                                  value
+                                                                      ? Mode
+                                                                          .consumet
+                                                                      : Mode
+                                                                          .anilibria;
+                                                              await ModeStorage.saveMode(
+                                                                newMode,
+                                                              );
+                                                              setStatePopup(
+                                                                () {},
+                                                              );
+                                                              setState(
+                                                                () =>
+                                                                    mode =
+                                                                        newMode,
+                                                              );
+                                                              Navigator.of(
+                                                                context,
+                                                              ).pushReplacement(
+                                                                NoAnimationPageRoute(
+                                                                  builder:
+                                                                      (
+                                                                        context,
+                                                                      ) =>
+                                                                          AnimeListScreen(),
+                                                                ),
+                                                              );
+                                                            },
+                                                          ),
+                                                          Text(l10n.subtitle),
+                                                        ],
+                                                      );
+                                                    },
                                                   ),
                                                 ),
                                               ],
-                                          onSelected: (String value) {
-                                            if (value == 'exit') {
-                                              UserRepository().logout();
-                                              Navigator.of(
-                                                context,
-                                              ).pushNamed('/');
-                                            }
-                                          },
+                                          onSelected: (_) {},
                                         ),
                                       ],
                                     ),
@@ -151,7 +180,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                                       l10n.app_name.toUpperCase(),
                                       style: TextStyle(
                                         fontSize: 72,
-
+                                        fontFamily: 'Allan',
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -177,25 +206,10 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                         ),
                       ),
                       ReleasesCarousel(releases: _animeList!),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          left: 10.0,
-                          top: 20.0,
-                          bottom: 10.0,
-                        ),
-                        child: Text(
-                          l10n.this_week.toUpperCase(),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 3,
-                          ),
-                        ),
-                      ),
-                      ReleasesCarousel(releases: _weekSchedule!),
                       SizedBox(height: 20),
                       Center(
                         child: Text(
-                          l10n.genres.toUpperCase(),
+                          l10n.recommended.toUpperCase(),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             letterSpacing: 3,
@@ -209,10 +223,11 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                           crossAxisCount: crossAxisCount,
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
+                          childAspectRatio: 2 / 3,
                         ),
-                        itemCount: _genres!.length,
+                        itemCount: _recommendedList!.length,
                         itemBuilder: (context, index) {
-                          return GenreCard(genre: _genres![index]);
+                          return AnimeCard(anime: _recommendedList![index]);
                         },
                       ),
                     ],

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:anime_app/data/models/kodik_result.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/core/ui/anime_player/widgets/player_controls.dart';
 import 'package:flutter/material.dart';
@@ -16,11 +15,9 @@ class FullscreenPlayer extends StatefulWidget {
     super.key,
     required this.provider,
     required this.anime,
-    required this.kodikResult,
   });
   final VideoControllerProvider provider;
   final Anime anime;
-  final KodikResult? kodikResult;
 
   @override
   State<FullscreenPlayer> createState() => _FullscreenPlayerState();
@@ -301,6 +298,84 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                                         ),
                                                   );
                                                   break;
+                                                case 'subtitles':
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (
+                                                          context,
+                                                        ) => AlertDialog(
+                                                          title: Text(
+                                                            l10n.subtitles,
+                                                          ),
+                                                          content: SizedBox(
+                                                            height: 350,
+                                                            width:
+                                                                double
+                                                                    .maxFinite,
+                                                            child: ListView.builder(
+                                                              shrinkWrap: true,
+                                                              itemCount:
+                                                                  provider
+                                                                      .subtitlesLanguages
+                                                                      .length +
+                                                                  1,
+                                                              itemBuilder: (
+                                                                context,
+                                                                index,
+                                                              ) {
+                                                                if (index ==
+                                                                    0) {
+                                                                  return ListTile(
+                                                                    leading:
+                                                                        const Icon(
+                                                                          Icons
+                                                                              .visibility_off_outlined,
+                                                                        ),
+                                                                    title: Text(
+                                                                      l10n.disable_subtitles,
+                                                                      style: const TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight.w600,
+                                                                      ),
+                                                                    ),
+                                                                    onTap: () {
+                                                                      provider.changeLanguage(
+                                                                        '',
+                                                                      ); // или "" — зависит от твоей логики
+                                                                      Navigator.pop(
+                                                                        context,
+                                                                      );
+                                                                    },
+                                                                  );
+                                                                }
+
+                                                                final language =
+                                                                    provider
+                                                                        .subtitlesLanguages[index -
+                                                                        1];
+                                                                return ListTile(
+                                                                  title: Text(
+                                                                    language,
+                                                                  ),
+                                                                  onTap: () {
+                                                                    provider
+                                                                        .changeLanguage(
+                                                                          language,
+                                                                        );
+                                                                    Navigator.pop(
+                                                                      context,
+                                                                    );
+                                                                  },
+                                                                );
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ),
+                                                  );
+
+                                                  break;
+
                                                 default:
                                                   break;
                                               }
@@ -318,6 +393,10 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                                   PopupMenuItem<String>(
                                                     value: 'quality',
                                                     child: Text(l10n.quality),
+                                                  ),
+                                                  PopupMenuItem<String>(
+                                                    value: 'subtitles',
+                                                    child: Text(l10n.subtitles),
                                                   ),
                                                 ],
                                           ),

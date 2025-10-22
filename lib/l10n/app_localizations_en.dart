@@ -18,7 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get skip_opening => 'Skip opening';
 
   @override
-  String get skip_ending => 'skip ending';
+  String get skip_ending => 'Skip ending';
 
   @override
   String episode_count(num count) {
@@ -206,4 +206,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get server_unavailable => 'Server is currently unavailable';
+
+  @override
+  String get subtitles => 'Subtitles';
+
+  @override
+  String get anilibria_mode => 'Continue with anilibria (Russian anime)';
+
+  @override
+  String get subtitle_mode => 'Continue with subtitles';
+
+  @override
+  String get recommended => 'Recommended';
+
+  @override
+  String get anilibria => 'Anilibria';
+
+  @override
+  String get subtitle => 'Subtitle';
+
+  @override
+  String get choose_mode => 'Choose your preferred mode';
+
+  @override
+  String get you_can_change_later => 'You can change this later';
+
+  @override
+  String get disable_subtitles => 'Disable subtitles';
 }

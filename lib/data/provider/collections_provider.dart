@@ -1,13 +1,22 @@
-import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
-import 'package:anime_app/data/models/kodik_result.dart';
+import 'package:anime_app/data/models/mode.dart';
+import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/repositories/collection_repository.dart';
 import 'package:flutter/material.dart';
 
 class CollectionsProvider extends ChangeNotifier {
-  final _repository = CollectionRepository();
-  final Map<CollectionType, Collection> _collections = {};
+  final Mode mode;
+
+  late final CollectionRepository _repository;
+  late final AnimeRepository _animeRepository;
+
+  CollectionsProvider({required this.mode}) {
+    _repository = CollectionRepository(mode: mode);
+    _animeRepository = AnimeRepository(mode: mode);
+  }
+  final Set<String> _existingIds = {};
+  final Map<CollectionType, List<Anime>> _collections = {};
   final Map<CollectionType, bool> _hasFetched = {
     for (final type in CollectionType.values) type: false,
   };
@@ -20,31 +29,34 @@ class CollectionsProvider extends ChangeNotifier {
   final Map<CollectionType, bool> _isLoadingMore = {
     for (final type in CollectionType.values) type: false,
   };
-  final int _limit = 15;
+  final int _limit = 5;
 
-  Map<CollectionType, Collection> get collections => _collections;
+  Map<CollectionType, List<Anime>> get collections => _collections;
 
   bool isLoadingMore(CollectionType type) => _isLoadingMore[type] ?? false;
   bool hasMore(CollectionType type) => _hasMore[type] ?? true;
 
   Future<void> fetchCollection(CollectionType type, [int page = 1]) async {
     if (!_hasFetched[type]! || page > 1) {
-      final collection = await _repository.getCollections(type, page, _limit);
-
+      final collection = await _repository.getCollection(type, page, _limit);
+      _hasFetched[type] = true;
       if (_collections[type] == null) {
-        _collections[type] = collection;
+        final futures = collection.animeIDs.map((id) {
+          _existingIds.add(id);
+          return _animeRepository.getAnimeById(id);
+        });
+        _collections[type] = await Future.wait(futures);
       } else {
-        final existingIds =
-            _collections[type]!.data.map((a) => a.uniqueId).toSet();
-        final newItems =
-            collection.data
-                .where((a) => !existingIds.contains(a.uniqueId))
-                .toList();
+        final futures = collection.animeIDs.map((id) {
+          _existingIds.add(id);
+          return _animeRepository.getAnimeById(id);
+        });
+        final newItems = await Future.wait(futures);
 
-        _collections[type]!.data.addAll(newItems);
+        _collections[type]!.addAll(newItems);
       }
 
-      if (collection.data.length < _limit) {
+      if (collection.animeIDs.length < _limit) {
         _hasMore[type] = false;
       }
       if (page == 1) {
@@ -68,39 +80,18 @@ class CollectionsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addToCollection(
-    CollectionType type,
-    Anime anime, [
-    KodikResult? kodikResult,
-  ]) async {
-    final uniqueId = anime.uniqueId;
-
+  Future<void> addToCollection(CollectionType type, Anime anime) async {
     for (final entry in _collections.entries) {
-      entry.value.data.removeWhere((a) => a.uniqueId == uniqueId);
+      entry.value.removeWhere((a) => a.id == anime.id);
     }
 
-    if (kodikResult != null &&
-        anime.release.shikimoriId != null &&
-        isTurnedKodik) {
-      await _repository.addToCollection(
-        type,
-        int.parse('$kodikIdPattern${anime.release.shikimoriId}'),
-      );
-    }
-    if (anime.release.id != -1) {
-      await _repository.addToCollection(type, anime.release.id);
-    }
-
-    final animeToAdd =
-        kodikResult != null
-            ? Anime.fromAnilibriaAndKodik(kodikResult, anime)
-            : anime;
+    await _repository.addToCollection(type, anime.id);
 
     if (_collections[type] == null) {
       await fetchCollection(type);
     } else {
-      if (!_collections[type]!.data.any((a) => a.uniqueId == uniqueId)) {
-        _collections[type]!.data.add(animeToAdd);
+      if (!_collections[type]!.any((a) => a.id == anime.id)) {
+        _collections[type]!.add(anime);
       }
     }
 
@@ -108,40 +99,23 @@ class CollectionsProvider extends ChangeNotifier {
   }
 
   CollectionType? getCollectionType(Anime anime) {
-    final uniqueId = anime.uniqueId;
     for (final entry in _collections.entries) {
-      if (entry.value.data.any((a) => a.uniqueId == uniqueId)) {
+      if (entry.value.any((a) => a.id == anime.id)) {
         return entry.key;
       }
     }
     return null;
   }
 
-  Future<void> removeFromCollection(
-    CollectionType type,
-    Anime anime, [
-    KodikResult? kodikResult,
-  ]) async {
-    final uniqueId = anime.uniqueId;
-
+  Future<void> removeFromCollection(CollectionType type, Anime anime) async {
     for (final entry in _collections.entries) {
-      entry.value.data.removeWhere((a) => a.uniqueId == uniqueId);
+      entry.value.removeWhere((a) => a.id == anime.id);
     }
 
-    if (kodikResult != null &&
-        anime.release.shikimoriId != null &&
-        isTurnedKodik) {
-      await _repository.removeFromCollection(
-        type,
-        int.parse('$kodikIdPattern${anime.release.shikimoriId}'),
-      );
-    }
-    if (anime.release.id != -1) {
-      await _repository.removeFromCollection(type, anime.release.id);
-    }
+    await _repository.removeFromCollection(type, anime.id);
 
     if (_collections[type] != null) {
-      _collections[type]!.data.removeWhere((a) => a.uniqueId == uniqueId);
+      _collections[type]!.removeWhere((a) => a.id == anime.id);
     }
 
     notifyListeners();

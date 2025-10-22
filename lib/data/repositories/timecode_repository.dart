@@ -1,58 +1,49 @@
+import 'dart:developer';
+
+import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/timecode.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
 
 class TimecodeRepository extends BaseRepository {
   TimecodeRepository() : super(DioClient().dio);
-  Future<void> updateTimecode(List<Timecode> timecodes) async {
+  Future<void> updateTimecode(Timecode timecode) async {
     try {
-      final body = timecodes.map((t) => t.toJson()).toList();
+      final body = {
+        'episode_id': timecode.episodeID,
+        'is_watched': timecode.isWatched,
+        'time': timecode.time,
+        'anime_id': timecode.animeID,
+      };
 
-      await dio.post('accounts/users/me/views/timecodes', data: body);
+      await dio.post('/timecode', data: body);
     } catch (e) {
-      rethrow;
+      log(e.toString());
     }
   }
 
-  Future<List<Timecode>> getTimecodesForRelease(int releaseId) async {
+  Future<Timecode> getTimecodeForEpisode(String episodeID, Anime anime) async {
     try {
-      final response = await dio.get(
-        'anime/releases/$releaseId/episodes/timecodes',
-      );
-      final data = response.data as List<dynamic>;
-
-      final timecodes =
-          data
-              .map((t) => Timecode.fromJsonMap(t as Map<String, dynamic>))
-              .toList();
-      return timecodes;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<List<Timecode>> getTimecodes() async {
-    try {
-      final response = await dio.get('accounts/users/me/views/timecodes');
-      final data = response.data as List<dynamic>;
-
-      final timecodes =
-          data.map((t) => Timecode.fromJsonList(t as List)).toList();
-      return timecodes;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<Timecode> getTimecodeForEpisode(String episodeId) async {
-    try {
-      final response = await dio.get(
-        'anime/releases/episodes/$episodeId/timecode',
-      );
+      final response = await dio.get('/timecode?episodeID=$episodeID');
       final data = response.data as Map<String, dynamic>;
-      return Timecode.fromJsonMap(data);
+      return Timecode.fromJson(data);
     } catch (e) {
-      return Timecode(releaseEpisodeId: episodeId, time: 0, isWatched: false);
+      return Timecode(
+        episodeID: episodeID,
+        time: 0,
+        isWatched: false,
+        animeID: anime.id,
+      );
+    }
+  }
+
+  Future<List<Timecode>> getTimecodesForAnime(String animeID) async {
+    try {
+      final response = await dio.get('/timecode/anime?animeID=$animeID');
+      final data = response.data;
+      return Timecode.fromJsonList(data);
+    } catch (e) {
+      return [];
     }
   }
 }

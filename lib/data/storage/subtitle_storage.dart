@@ -1,19 +1,19 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class TokenStorage {
-  static const _key = 'auth_token';
+class SubtitleStorage {
+  static const _key = 'subtitle_token';
 
-  static Future<void> saveToken(String token) async {
+  Future<void> saveLanguage(String language) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, token);
+    await prefs.setString(_key, language);
   }
 
-  static Future<String?> getToken() async {
+  Future<String?> getLanguage() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_key);
   }
 
-  static Future<void> clearToken() async {
+  Future<void> clearLanguage() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
   }

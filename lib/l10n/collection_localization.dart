@@ -12,8 +12,6 @@ extension CollectionTypeLocalization on CollectionType {
         return l10n.collection_watched;
       case CollectionType.watching:
         return l10n.collection_watching;
-      case CollectionType.postponed:
-        return l10n.collection_postponed;
       case CollectionType.abandoned:
         return l10n.collection_abandoned;
     }

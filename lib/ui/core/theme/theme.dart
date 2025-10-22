@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 final darkTheme = ThemeData(
-  fontFamily: 'Allan',
+  fontFamily: 'NotoSans',
   brightness: Brightness.dark,
   scaffoldBackgroundColor: const Color(0xFF121111),
   colorScheme: ColorScheme.fromSeed(

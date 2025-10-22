@@ -1,5 +1,7 @@
+import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/repositories/user_repository.dart';
-import 'package:anime_app/data/storage/token_storage.dart';
+import 'package:anime_app/data/storage/id_storage.dart';
+import 'package:anime_app/data/storage/mode_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -27,9 +29,10 @@ class _SplashScreenState extends State<SplashScreen> {
     });
 
     final userRepository = UserRepository();
-    final isAlive = await userRepository.checkServerStatus();
+    final isAlive = await userRepository.checkAnilibriaServerStatus();
+    final mode = await ModeStorage.getMode();
 
-    if (!isAlive) {
+    if (!isAlive && mode == Mode.anilibria) {
       setState(() {
         _serverAlive = false;
         _loading = false;
@@ -37,13 +40,14 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
-    final token = await TokenStorage.getToken();
+    final id = await IDStorage.getID();
 
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(
         context,
-        token != null ? '/anime/list' : '/',
+        id != null ? '/anime/list' : '/',
         (route) => false,
+        arguments: {'mode': mode},
       );
     }
   }

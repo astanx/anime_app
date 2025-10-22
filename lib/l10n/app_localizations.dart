@@ -116,7 +116,7 @@ abstract class AppLocalizations {
   /// No description provided for @skip_ending.
   ///
   /// In en, this message translates to:
-  /// **'skip ending'**
+  /// **'Skip ending'**
   String get skip_ending;
 
   /// No description provided for @episode_count.
@@ -442,6 +442,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Server is currently unavailable'**
   String get server_unavailable;
+
+  /// No description provided for @subtitles.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitles'**
+  String get subtitles;
+
+  /// No description provided for @anilibria_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with anilibria (Russian anime)'**
+  String get anilibria_mode;
+
+  /// No description provided for @subtitle_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with subtitles'**
+  String get subtitle_mode;
+
+  /// No description provided for @recommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get recommended;
+
+  /// No description provided for @anilibria.
+  ///
+  /// In en, this message translates to:
+  /// **'Anilibria'**
+  String get anilibria;
+
+  /// No description provided for @subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle'**
+  String get subtitle;
+
+  /// No description provided for @choose_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your preferred mode'**
+  String get choose_mode;
+
+  /// No description provided for @you_can_change_later.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change this later'**
+  String get you_can_change_later;
+
+  /// No description provided for @disable_subtitles.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable subtitles'**
+  String get disable_subtitles;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

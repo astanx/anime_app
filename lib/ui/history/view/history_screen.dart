@@ -1,26 +1,62 @@
+import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/provider/history_provider.dart';
+import 'package:anime_app/data/storage/mode_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:anime_app/ui/history/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
+
+  @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  Mode? _mode;
+  bool _isLoading = true;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    _init();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _init() async {
+    final historyProvider = context.read<HistoryProvider>();
+    final mode = await ModeStorage.getMode();
+    await historyProvider.fetchHistory();
+
+    setState(() {
+      _mode = mode;
+      _isLoading = false;
+    });
+  }
+
+  void _onScroll() {
+    final provider = context.read<HistoryProvider>();
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !provider.isLoadingMore &&
+        provider.hasMore) {
+      provider.fetchNextPage();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-
-    final historyProvider = Provider.of<HistoryProvider>(
-      context,
-      listen: false,
-    );
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await historyProvider.fetchHistory();
-    });
-
     return Scaffold(
       bottomNavigationBar: AnimeBar(),
       body: SafeArea(
@@ -28,25 +64,32 @@ class HistoryScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Consumer<HistoryProvider>(
             builder: (context, provider, child) {
-              if (provider.history == null) {
+              final history = provider.history;
+
+              if (history == null || _isLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
-              if (provider.history!.isEmpty) {
+              if (history.isEmpty) {
                 return Center(child: Text(l10n!.no_history_found));
               }
-              final history = provider.history!.reversed.toList();
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: history.length,
-                      itemBuilder: (context, index) {
-                        return HistoryCard(anime: history[index]);
-                      },
-                    ),
-                  ),
-                ],
+
+              final reversed = history.reversed.toList();
+              return ListView.builder(
+                controller: _scrollController,
+                itemCount: reversed.length + (provider.isLoadingMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == reversed.length) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  return HistoryCard(
+                    historyData: reversed[index],
+                    mode: _mode!,
+                  );
+                },
               );
             },
           ),

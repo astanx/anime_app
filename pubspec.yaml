@@ -23,6 +23,8 @@ dependencies:
   intl: ^0.20.2
   auto_size_text: ^3.0.0
   animated_flip_counter: ^0.3.4
+  flutter_html: ^3.0.0
+  http: ^1.5.0
 
 dev_dependencies:
   flutter_test:
@@ -37,6 +39,16 @@ flutter:
       fonts:
         - asset: assets/fonts/Allan-Regular.ttf
         - asset: assets/fonts/Allan-Bold.ttf
+    - family: NotoSans
+      fonts:
+        - asset: assets/fonts/NotoSans-Regular.ttf
+        - asset: assets/fonts/NotoSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/NotoSans-Italic.ttf
+          style: italic
+        - asset: assets/fonts/NotoSans-BoldItalic.ttf
+          weight: 700
+          style: italic
   generate: true
   uses-material-design: true
   assets:

@@ -1,6 +1,5 @@
-import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
-import 'package:anime_app/data/models/kodik_result.dart';
+import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/core/ui/anime_player/anime_player.dart';
@@ -15,16 +14,15 @@ class AnimeScreen extends StatelessWidget {
     final arguments =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final Anime anime = arguments['anime'] as Anime;
-    final KodikResult? kodikResult = arguments['kodikResult'] as KodikResult?;
     final int episodeIndex = arguments['episodeIndex'] as int;
-
+    final Mode mode = arguments['mode'];
     final theme = Theme.of(context);
 
     return ChangeNotifierProvider(
       create: (context) {
-        final provider = VideoControllerProvider();
+        final provider = VideoControllerProvider(mode: mode);
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          await provider.loadEpisode(anime, episodeIndex, context, kodikResult);
+          await provider.loadEpisode(anime, episodeIndex, context);
         });
         return provider;
       },
@@ -35,7 +33,7 @@ class AnimeScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  anime.release.names.main,
+                  anime.title,
                   overflow: TextOverflow.ellipsis,
                   softWrap: false,
                   style: theme.textTheme.titleLarge,
@@ -54,7 +52,7 @@ class AnimeScreen extends StatelessWidget {
         body: SafeArea(
           child: Consumer<VideoControllerProvider>(
             builder: (context, provider, _) {
-              return _buildBody(context, provider, anime, theme, kodikResult);
+              return _buildBody(context, provider, anime, theme);
             },
           ),
         ),
@@ -67,7 +65,6 @@ class AnimeScreen extends StatelessWidget {
     VideoControllerProvider provider,
     Anime anime,
     ThemeData theme,
-    KodikResult? kodikResult,
   ) {
     final episodeIndex = provider.episodeIndex;
     final l10n = AppLocalizations.of(context);
@@ -82,22 +79,22 @@ class AnimeScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   children: [
-                    Image.network(getImageUrl(anime), fit: BoxFit.cover),
+                    Image.network(anime.poster, fit: BoxFit.cover),
                     const SizedBox(height: 8),
                     Text(
-                      anime.release.names.main,
+                      anime.title,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    if (anime.release.description != null) ...[
+                    if (anime.description != '') ...[
                       const SizedBox(height: 8),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          anime.release.description!,
+                          anime.description,
                           style: theme.textTheme.bodySmall?.copyWith(
                             fontSize: 12,
                           ),
@@ -106,10 +103,9 @@ class AnimeScreen extends StatelessWidget {
                     ],
                     const SizedBox(height: 8),
                     Text(
-                      anime.episodes[episodeIndex].name != null ||
-                              anime.episodes[episodeIndex].nameEnglish != null
-                          ? '${l10n!.episode(0)} ${anime.episodes[episodeIndex].ordinalFormatted}: ${anime.episodes[episodeIndex].name ?? anime.episodes[episodeIndex].nameEnglish}'
-                          : '${l10n!.episode(0)} ${anime.episodes[episodeIndex].ordinalFormatted}',
+                      anime.previewEpisodes[episodeIndex].title != ''
+                          ? '${l10n!.episode(0)} ${anime.previewEpisodes[episodeIndex].ordinal}: ${anime.previewEpisodes[episodeIndex].title}'
+                          : '${l10n!.episode(0)} ${anime.previewEpisodes[episodeIndex].ordinal}',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 16,
@@ -117,7 +113,7 @@ class AnimeScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    AnimePlayer(anime: anime, kodikResult: kodikResult),
+                    AnimePlayer(anime: anime),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -127,15 +123,13 @@ class AnimeScreen extends StatelessWidget {
                             width: 150,
                             height: 50,
                             child: InkWell(
-                              onTap:
-                                  () => {
-                                    provider.loadEpisode(
-                                      anime,
-                                      episodeIndex - 1,
-                                      context,
-                                      kodikResult,
-                                    ),
-                                  },
+                              onTap: () async {
+                                provider.loadEpisode(
+                                  anime,
+                                  episodeIndex - 1,
+                                  context,
+                                );
+                              },
                               child: Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(
@@ -154,8 +148,16 @@ class AnimeScreen extends StatelessWidget {
                                     const Icon(Icons.skip_previous),
                                     Flexible(
                                       child: Text(
-                                        anime.episodes[episodeIndex - 1].name ??
-                                            l10n.prev_episode,
+                                        anime
+                                                    .previewEpisodes[episodeIndex -
+                                                        1]
+                                                    .title !=
+                                                ''
+                                            ? anime
+                                                .previewEpisodes[episodeIndex -
+                                                    1]
+                                                .title
+                                            : l10n.prev_episode,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                           fontSize: 8,
@@ -170,20 +172,18 @@ class AnimeScreen extends StatelessWidget {
                           )
                         else
                           const SizedBox(width: 150, height: 50),
-                        if (episodeIndex < anime.episodes.length - 1)
+                        if (episodeIndex < anime.previewEpisodes.length - 1)
                           SizedBox(
                             width: 150,
                             height: 50,
                             child: InkWell(
-                              onTap:
-                                  () => {
-                                    provider.loadEpisode(
-                                      anime,
-                                      episodeIndex + 1,
-                                      context,
-                                      kodikResult,
-                                    ),
-                                  },
+                              onTap: () async {
+                                provider.loadEpisode(
+                                  anime,
+                                  episodeIndex + 1,
+                                  context,
+                                );
+                              },
                               child: Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(
@@ -201,8 +201,16 @@ class AnimeScreen extends StatelessWidget {
                                   children: [
                                     Flexible(
                                       child: Text(
-                                        anime.episodes[episodeIndex + 1].name ??
-                                            l10n.next_episode,
+                                        anime
+                                                    .previewEpisodes[episodeIndex +
+                                                        1]
+                                                    .title !=
+                                                ''
+                                            ? anime
+                                                .previewEpisodes[episodeIndex +
+                                                    1]
+                                                .title
+                                            : l10n.next_episode,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                           fontSize: 8,

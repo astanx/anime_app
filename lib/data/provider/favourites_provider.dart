@@ -1,16 +1,27 @@
-import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/mode.dart';
+import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/repositories/favourite_repository.dart';
 import 'package:flutter/material.dart';
 
 class FavouritesProvider extends ChangeNotifier {
-  final _repository = FavouriteRepository();
+  final Mode mode;
+
+  late final FavouriteRepository _repository;
+  late final AnimeRepository _animeRepository;
+
+  FavouritesProvider({required this.mode}) {
+    _repository = FavouriteRepository(mode: mode);
+    _animeRepository = AnimeRepository(mode: mode);
+  }
+
   List<Anime> _favourites = [];
   bool _hasFetched = false;
   int _page = 1;
-  final int _limit = 15;
+  final int _limit = 5;
   bool _isLoadingMore = false;
   bool _hasMore = true;
+  final Set<String> _existingIds = {};
 
   List<Anime> get favourites => _favourites;
 
@@ -19,8 +30,17 @@ class FavouritesProvider extends ChangeNotifier {
 
   Future<void> fetchFavourites() async {
     if (!_hasFetched) {
-      _favourites = await _repository.getFavourites(_page, _limit);
+      final favourites = await _repository.getFavourites(_page, _limit);
+      final futures = favourites.animeIDs.map((id) {
+        _existingIds.add(id);
+
+        return _animeRepository.getAnimeById(id);
+      });
+
       _hasFetched = true;
+
+      _favourites = await Future.wait(futures);
+
       notifyListeners();
     }
   }
@@ -34,16 +54,21 @@ class FavouritesProvider extends ChangeNotifier {
     final nextPage = _page + 1;
     final newFavourites = await _repository.getFavourites(nextPage, _limit);
 
-    if (newFavourites.isEmpty) {
+    if (newFavourites.animeIDs.isEmpty) {
       _hasMore = false;
     } else {
-      final existingIds = _favourites.map((a) => a.uniqueId).toSet();
       final uniqueNew =
-          newFavourites
-              .where((a) => !existingIds.contains(a.uniqueId))
+          newFavourites.animeIDs
+              .where((id) => !_existingIds.contains(id))
               .toList();
 
-      _favourites.addAll(uniqueNew);
+      final futures = uniqueNew.map((id) {
+        _existingIds.add(id);
+        return _animeRepository.getAnimeById(id);
+      });
+
+      final uniqueAnime = await Future.wait(futures);
+      _favourites.addAll(uniqueAnime);
       _page = nextPage;
     }
 
@@ -52,43 +77,24 @@ class FavouritesProvider extends ChangeNotifier {
   }
 
   bool isFavourite(Anime anime) {
-    return _favourites.any((a) => a.uniqueId == anime.uniqueId);
+    return _favourites.any((a) => a.id == anime.id);
   }
 
   Future<void> addToFavourites(Anime anime) async {
-    final uniqueId = anime.uniqueId;
+    if (_favourites.any((a) => a.id == anime.id)) {
+      return;
+    }
+    await _repository.addToFavourite(anime.id);
 
-    if (anime.kodikResult != null &&
-        anime.release.shikimoriId != null &&
-        isTurnedKodik) {
-      await _repository.addToFavourite(
-        int.parse('$kodikIdPattern${anime.release.shikimoriId}'),
-      );
-    }
-    if (anime.release.id != -1) {
-      await _repository.addToFavourite(anime.release.id);
-    }
-
-    if (!_favourites.any((a) => a.uniqueId == uniqueId)) {
-      _favourites.add(anime);
-    }
+    _favourites.add(anime);
 
     notifyListeners();
   }
 
   Future<void> removeFromFavourites(Anime anime) async {
-    final uniqueId = anime.uniqueId;
-    if (anime.kodikResult != null &&
-        anime.release.shikimoriId != null &&
-        isTurnedKodik) {
-      await _repository.removeFromFavourites(
-        int.parse('$kodikIdPattern${anime.release.shikimoriId}'),
-      );
-    }
-    if (anime.release.id != -1) {
-      await _repository.removeFromFavourites(anime.release.id);
-    }
-    _favourites.removeWhere((a) => a.uniqueId == uniqueId);
+    await _repository.removeFromFavourites(anime.id);
+
+    _favourites.removeWhere((a) => a.id == anime.id);
     notifyListeners();
   }
 

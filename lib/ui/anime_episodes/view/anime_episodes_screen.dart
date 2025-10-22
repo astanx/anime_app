@@ -1,26 +1,19 @@
-import 'dart:async';
-import 'package:anime_app/core/constants.dart';
+import 'dart:math' as math;
 import 'package:anime_app/core/utils/is_ongoing.dart';
-import 'package:anime_app/core/utils/url_utils.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
-import 'package:anime_app/data/models/history.dart';
-import 'package:anime_app/data/models/kodik_result.dart';
+import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/provider/collections_provider.dart';
 import 'package:anime_app/data/provider/favourites_provider.dart';
-import 'package:anime_app/data/provider/history_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/data/storage/mode_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/l10n/collection_localization.dart';
 import 'package:anime_app/ui/anime_episodes/widgets/widgets.dart';
-import 'package:anime_app/ui/core/ui/anime_player/anime_player.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:animated_flip_counter/animated_flip_counter.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class AnimeEpisodesScreen extends StatefulWidget {
   const AnimeEpisodesScreen({super.key});
@@ -30,184 +23,91 @@ class AnimeEpisodesScreen extends StatefulWidget {
 }
 
 class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
-  bool _showKodikPlayer = false;
-  String? _kodikPlayerUrl;
-  final repository = AnimeRepository();
-  HistoryProvider? _historyProvider;
+  late AnimeRepository repository;
+  late Anime anime;
+  Mode? mode;
   TimecodeProvider? _timecodeProvider;
-  late WebViewController _webViewController;
-  int _lastWatchedEpisode = 0;
-  Timer? _historyUpdateTimer;
-  int? _episodeIndex;
+  late ScrollController _scrollController;
+  int _visibleEpisodes = 30;
+  bool _isLoading = true;
+
+  bool get hasMore => _visibleEpisodes < anime.previewEpisodes.length;
 
   @override
   void initState() {
     super.initState();
-    _webViewController =
-        WebViewController()
-          ..setJavaScriptMode(JavaScriptMode.unrestricted)
-          ..setNavigationDelegate(
-            NavigationDelegate(
-              onNavigationRequest: (request) => NavigationDecision.navigate,
-              onWebResourceError: (error) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('WebView error: ${error.description}'),
-                    backgroundColor: Theme.of(context).colorScheme.error,
-                  ),
-                );
-              },
-            ),
-          );
+    _scrollController = ScrollController()..addListener(_loadMore);
+  }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final arguments =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final animeID = arguments['animeID'];
+    final timecodeProvider = Provider.of<TimecodeProvider>(
+      context,
+      listen: false,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final arguments =
-          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-      final Anime anime = arguments['anime'] as Anime;
-      final KodikResult? kodikResult = arguments['kodikResult'] as KodikResult?;
-      final bool? showKodik = arguments['showKodik'] as bool?;
-      final int episodeIndex = arguments['episodeIndex'];
+      final m = await ModeStorage.getMode();
+      repository = AnimeRepository(mode: m);
 
-      final timecodeProvider = Provider.of<TimecodeProvider>(
-        context,
-        listen: false,
-      );
-      if (anime.release.id != -1) {
-        await timecodeProvider.fetchTimecodesForRelease(anime.release.id);
+      if (arguments['anime'] == null) {
+        anime = await repository.getAnimeById(animeID);
+      } else {
+        anime = arguments['anime'];
       }
+      await timecodeProvider.fetchTimecodesForAnime(anime.id);
       setState(() {
-        _historyProvider = Provider.of<HistoryProvider>(context, listen: false);
+        mode = m;
         _timecodeProvider = timecodeProvider;
+        _isLoading = false;
       });
-      if ((anime.release.id == -1 && kodikResult != null) ||
-          ((showKodik ?? false) && kodikResult != null)) {
-        setState(() {
-          _showKodikPlayer = true;
-          _kodikPlayerUrl = 'https:${kodikResult.link}';
-          _webViewController.loadHtmlString(getIframeHtml(_kodikPlayerUrl!));
-          _lastWatchedEpisode =
-              anime.release.id != -1
-                  ? anime.episodes[episodeIndex].ordinal.toInt()
-                  : episodeIndex;
-          _episodeIndex = anime.release.id != -1 ? episodeIndex : -1;
-        });
-      }
     });
   }
 
-  String getIframeHtml(String url) {
-    return '''
-  <html>
-    <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-      <style>
-        html, body {
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          height: 100%;
-          overflow: hidden;
-        }
-        iframe {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border: none;
-        }
-      </style>
-    </head>
-    <body>
-      <iframe src="$url" allowfullscreen></iframe>
-    </body>
-  </html>
-  ''';
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
-  void _debounceHistory(Anime anime, KodikResult kodikResult) {
-    if (_historyProvider == null) return;
-    _historyUpdateTimer?.cancel();
-    _historyUpdateTimer = Timer(Duration(seconds: 1), () {
-      final history = AnimeWithHistory(
-        anime: anime,
-        lastWatchedEpisode:
-            _episodeIndex != -1 && _episodeIndex != null
-                ? _episodeIndex!
-                : _lastWatchedEpisode,
-        isWatched: true,
-        kodikResult: kodikResult,
-      );
-      _historyProvider!.updateHistory(history);
-    });
-  }
-
-  void _incrementEpisode(Anime anime, KodikResult kodikResult) {
-    setState(() {
-      _lastWatchedEpisode =
-          _lastWatchedEpisode < anime.release.episodesTotal
-              ? _lastWatchedEpisode + 1
-              : 1;
-      _episodeIndex =
-          _episodeIndex != -1
-              ? _episodeIndex! < anime.episodes.length - 1
-                  ? _episodeIndex! + 1
-                  : 0
-              : -1;
-    });
-    _debounceHistory(anime, kodikResult);
-  }
-
-  void _decrementEpisode(Anime anime, KodikResult kodikResult) {
-    setState(() {
-      _lastWatchedEpisode =
-          _lastWatchedEpisode > 1
-              ? _lastWatchedEpisode - 1
-              : anime.release.episodesTotal;
-      _episodeIndex =
-          _episodeIndex != -1
-              ? _episodeIndex! > 0
-                  ? _episodeIndex! - 1
-                  : anime.episodes.length - 1
-              : -1;
-    });
-    _debounceHistory(anime, kodikResult);
-  }
-
-  Future<void> _downloadTorrent(int torrentId) async {
-    final uri = Uri.parse('$baseUrl/api/v1/anime/torrents/$torrentId/file');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
+  void _loadMore() {
+    if (_scrollController.offset >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !_scrollController.position.outOfRange) {
+      setState(() {
+        _visibleEpisodes += 30;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final arguments =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final Anime anime = arguments['anime'] as Anime;
-    final KodikResult? kodikResult = arguments['kodikResult'] as KodikResult?;
     final theme = Theme.of(context);
-
     double screenWidth = MediaQuery.of(context).size.width;
     int crossAxisCount = 2;
     if (screenWidth >= 600) crossAxisCount = 3;
     if (screenWidth >= 900) crossAxisCount = 4;
-
     final favouritesProvider = Provider.of<FavouritesProvider>(context);
     final collectionProvider = Provider.of<CollectionsProvider>(
       context,
       listen: false,
     );
     final l10n = AppLocalizations.of(context)!;
+    if (mode == null || _timecodeProvider == null || _isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final isFavourite = favouritesProvider.isFavourite(anime);
     final collection = collectionProvider.getCollectionType(anime);
+
     return ChangeNotifierProvider(
       create: (context) {
-        final provider = VideoControllerProvider();
-        if (!_showKodikPlayer && anime.release.episodesTotal == 0) {
+        final provider = VideoControllerProvider(mode: mode!);
+        if (anime.totalEpisodes == 0) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
-            await provider.loadEpisode(anime, 0, context, kodikResult);
+            await provider.loadEpisode(anime, 0, context);
           });
         }
         return provider;
@@ -217,49 +117,26 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
           return Scaffold(
             appBar: AppBar(
               title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Expanded(
                     child: Text(
-                      anime.release.names.main,
+                      anime.title,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.titleLarge,
                     ),
                   ),
-                  if ((anime.isMovie || anime.release.episodesTotal == 1) &&
-                      _showKodikPlayer &&
-                      kodikResult != null)
-                    IconButton(
-                      onPressed: () => _debounceHistory(anime, kodikResult),
-                      icon: Icon(Icons.history),
-                    ),
                   IconButton(
                     icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
                     color: isFavourite ? theme.colorScheme.secondary : null,
                     onPressed: () => favouritesProvider.toggleFavourite(anime),
                   ),
-                  if (kodikResult != null && anime.episodes.isNotEmpty)
-                    IconButton(
-                      icon: Icon(
-                        _showKodikPlayer ? Icons.movie : Icons.play_circle_fill,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _showKodikPlayer = !_showKodikPlayer;
-                          if (_showKodikPlayer) {
-                            _kodikPlayerUrl = 'https:${kodikResult.link}';
-                            _webViewController.loadHtmlString(
-                              getIframeHtml(_kodikPlayerUrl!),
-                            );
-                          } else {
-                            Provider.of<VideoControllerProvider>(
-                              context,
-                              listen: false,
-                            ).loadEpisode(anime, 0, context, kodikResult);
-                          }
-                        });
-                      },
-                    ),
+                  _buildCollectionsButton(
+                    theme,
+                    anime,
+                    collection,
+                    collectionProvider,
+                  ),
                   IconButton(
                     icon: const Icon(Icons.home),
                     onPressed:
@@ -270,6 +147,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
             ),
             body: SafeArea(
               child: ListView(
+                controller: _scrollController,
                 padding: const EdgeInsets.all(16),
                 children: [
                   Card(
@@ -281,14 +159,14 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              getImageUrl(anime),
+                              anime.poster,
                               fit: BoxFit.cover,
                               width: double.infinity,
                             ),
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            anime.release.names.main,
+                            anime.title,
                             style: theme.textTheme.bodyLarge?.copyWith(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -296,395 +174,79 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 6),
-                          if (anime.release.id != -1)
-                            Wrap(
-                              spacing: 8,
-                              children:
-                                  anime.release.genres
-                                      .map(
-                                        (g) => Chip(
-                                          label: Text(g.name),
-                                          backgroundColor:
-                                              theme.colorScheme.surface,
-                                          labelStyle:
-                                              theme.textTheme.labelSmall,
-                                        ),
-                                      )
-                                      .toList(),
-                            ),
+                          Wrap(
+                            spacing: 8,
+                            children:
+                                anime.genres
+                                    .map(
+                                      (g) => Chip(
+                                        label: Text(g),
+                                        backgroundColor:
+                                            theme.colorScheme.surface,
+                                        labelStyle: theme.textTheme.labelSmall,
+                                      ),
+                                    )
+                                    .toList(),
+                          ),
                           const SizedBox(height: 4),
-
+                          if (anime.totalEpisodes > 0)
+                            Text(
+                              '${l10n.episode_count(anime.totalEpisodes)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           Text(
-                            anime.release.episodesTotal > 0
-                                ? '${l10n.episode_count(anime.release.episodesTotal)} ${isOngoing(anime) ? '| ${l10n.ongoing}(${anime.release.publishDay.description})' : ''}'
-                                : anime.typeLabel(l10n),
+                            anime.type,
                             style: theme.textTheme.bodySmall?.copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            spacing: anime.release.id != -1 ? 30.0 : 0.0,
-                            children: [
-                              if (anime.release.id != -1)
-                                Column(
-                                  children: [
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            theme.colorScheme.primary,
-                                        foregroundColor:
-                                            theme.colorScheme.onPrimary,
-                                        shape: const CircleBorder(),
-                                        padding: const EdgeInsets.all(16),
-                                      ),
-                                      onPressed: () async {
-                                        final franchise =
-                                            await AnimeRepository()
-                                                .getFranchiseById(
-                                                  anime.release.id,
-                                                );
-                                        Navigator.pushNamed(
-                                          context,
-                                          '/anime/franchise',
-                                          arguments: {'franchise': franchise},
-                                        );
-                                      },
-                                      child: const Icon(
-                                        Icons.movie_filter_rounded,
-                                        size: 28,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      l10n.franchise,
-                                      style: theme.textTheme.labelSmall,
-                                    ),
-                                  ],
-                                ),
-                              const SizedBox(width: 8),
-                              if (anime.release.id != -1 &&
-                                  anime.torrents.isNotEmpty)
-                                Column(
-                                  children: [
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            theme.colorScheme.secondary,
-                                        foregroundColor:
-                                            theme.colorScheme.onSecondary,
-                                        shape: const CircleBorder(),
-                                        padding: const EdgeInsets.all(16),
-                                      ),
-                                      onPressed:
-                                          () => showDialog(
-                                            context: context,
-                                            builder:
-                                                (context) => AlertDialog(
-                                                  content: SizedBox(
-                                                    height: 300,
-                                                    width: double.maxFinite,
-                                                    child: ListView.builder(
-                                                      shrinkWrap: true,
-                                                      itemCount:
-                                                          anime.torrents.length,
-                                                      itemBuilder:
-                                                          (
-                                                            context,
-                                                            index,
-                                                          ) => ListTile(
-                                                            title: Text(
-                                                              anime
-                                                                  .torrents[index]
-                                                                  .label,
-                                                            ),
-                                                            onTap: () {
-                                                              Navigator.pop(
-                                                                context,
-                                                              );
-                                                              _downloadTorrent(
-                                                                anime
-                                                                    .torrents[index]
-                                                                    .id,
-                                                              );
-                                                            },
-                                                          ),
-                                                    ),
-                                                  ),
-                                                ),
-                                          ),
-                                      child: const Icon(
-                                        Icons.download_rounded,
-                                        size: 28,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      l10n.torrent,
-                                      style: theme.textTheme.labelSmall,
-                                    ),
-                                  ],
-                                ),
-                              const SizedBox(width: 8),
-                              Column(
-                                children: [
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          theme.colorScheme.primary,
-                                      foregroundColor:
-                                          theme.colorScheme.onPrimary,
-                                      shape: const CircleBorder(),
-                                      padding: const EdgeInsets.all(16),
-                                    ),
-                                    onPressed: () async {
-                                      await showModalBottomSheet(
-                                        context: context,
-                                        builder:
-                                            (context) => Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children:
-                                                  CollectionType.values
-                                                      .map(
-                                                        (type) => ListTile(
-                                                          leading: Icon(
-                                                            switch (type) {
-                                                              CollectionType
-                                                                  .watched =>
-                                                                Icons.check,
-                                                              CollectionType
-                                                                  .abandoned =>
-                                                                Icons.close,
-                                                              CollectionType
-                                                                  .postponed =>
-                                                                Icons.pause,
-                                                              CollectionType
-                                                                  .planned =>
-                                                                Icons
-                                                                    .calendar_month,
-                                                              CollectionType
-                                                                  .watching =>
-                                                                Icons
-                                                                    .play_arrow,
-                                                            },
-                                                          ),
-                                                          title: Text(
-                                                            type.localizedName(
-                                                              context,
-                                                            ),
-                                                          ),
-                                                          selected:
-                                                              collection ==
-                                                              type,
-                                                          onTap: () async {
-                                                            if (collection !=
-                                                                type) {
-                                                              await collectionProvider
-                                                                  .addToCollection(
-                                                                    type,
-                                                                    anime,
-                                                                    kodikResult,
-                                                                  );
-                                                            } else {
-                                                              await collectionProvider
-                                                                  .removeFromCollection(
-                                                                    type,
-                                                                    anime,
-                                                                    kodikResult,
-                                                                  );
-                                                            }
-                                                            Navigator.pop(
-                                                              context,
-                                                            );
-                                                          },
-                                                        ),
-                                                      )
-                                                      .toList(),
-                                            ),
-                                      );
-                                    },
-                                    child: switch (collection) {
-                                      CollectionType.watched => const Icon(
-                                        Icons.check,
-                                        size: 28,
-                                      ),
-                                      CollectionType.abandoned => const Icon(
-                                        Icons.close,
-                                        size: 28,
-                                      ),
-                                      CollectionType.postponed => const Icon(
-                                        Icons.pause,
-                                        size: 28,
-                                      ),
-                                      CollectionType.planned => const Icon(
-                                        Icons.calendar_month,
-                                        size: 28,
-                                      ),
-                                      CollectionType.watching => const Icon(
-                                        Icons.play_arrow,
-                                        size: 28,
-                                      ),
-                                      null => const Icon(
-                                        Icons.folder_open,
-                                        size: 28,
-                                      ),
-                                    },
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    collection?.localizedName(context) ??
-                                        l10n.collection,
-                                    style: theme.textTheme.labelSmall,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
                           const SizedBox(height: 24),
-                          if (anime.release.description != null)
+                          if (anime.description != '')
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                anime.release.description!,
+                                anime.description,
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   fontSize: 12,
                                 ),
                               ),
                             ),
-
-                          if (_showKodikPlayer &&
-                              _kodikPlayerUrl != null &&
-                              kodikResult != null) ...[
-                            if (anime.isSeries &&
-                                anime.release.episodesTotal != 1)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  AnimatedFlipCounter(
-                                    value: _lastWatchedEpisode,
-                                    prefix: l10n.last_watched_episode(''),
-                                    textStyle: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(width: 16),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          _incrementEpisode(anime, kodikResult);
-                                        },
-                                        child: Container(
-                                          width: 32,
-                                          height: 32,
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFFAD1CB4),
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                  0.3,
-                                                ),
-                                                offset: Offset(2, 2),
-                                                blurRadius: 4,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Icon(Icons.add, size: 18),
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      GestureDetector(
-                                        onTap: () {
-                                          _decrementEpisode(anime, kodikResult);
-                                        },
-                                        child: Container(
-                                          width: 32,
-                                          height: 32,
-                                          decoration: BoxDecoration(
-                                            color: Color(0xFFAD1CB4),
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                  0.3,
-                                                ),
-                                                offset: Offset(2, 2),
-                                                blurRadius: 4,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Icon(Icons.remove, size: 18),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                          Column(
+                            children: [
+                              Text(
+                                l10n.episode(1),
+                                style: theme.textTheme.titleMedium,
                               ),
-
-                            Column(
-                              children: [
-                                Text(
-                                  l10n.kodik_player,
-                                  style: theme.textTheme.titleMedium,
+                              const SizedBox(height: 16),
+                              GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: math.min(
+                                  _visibleEpisodes,
+                                  anime.previewEpisodes.length,
                                 ),
-                                const SizedBox(height: 16),
-                                SizedBox(
-                                  height: 300,
-                                  child: WebViewWidget(
-                                    controller: _webViewController,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                              ],
-                            ),
-                          ],
-                          if (!_showKodikPlayer &&
-                              anime.release.episodesTotal == 0)
-                            AnimePlayer(anime: anime, kodikResult: kodikResult)
-                          else if (anime.release.episodesTotal > 0 &&
-                              !_showKodikPlayer &&
-                              anime.release.id != -1)
-                            Column(
-                              children: [
-                                Text(
-                                  l10n.episode(1),
-                                  style: theme.textTheme.titleMedium,
-                                ),
-                                const SizedBox(height: 16),
-                                if (anime.release.id != -1 &&
-                                    _timecodeProvider != null)
-                                  GridView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: anime.episodes.length,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: crossAxisCount,
-                                          crossAxisSpacing: 16,
-                                          mainAxisSpacing: 16,
-                                          childAspectRatio: 3 / 1,
-                                        ),
-                                    itemBuilder:
-                                        (context, index) => EpisodeCard(
-                                          anime: anime,
-                                          episodeIndex: index,
-                                          timecodeProvider: _timecodeProvider!,
-                                          kodikResult: kodikResult,
-                                        ),
-                                  )
-                                else
-                                  const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                              ],
-                            ),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: crossAxisCount,
+                                      crossAxisSpacing: 16,
+                                      mainAxisSpacing: 16,
+                                      childAspectRatio: 3 / 1,
+                                    ),
+                                itemBuilder: (context, index) {
+                                  return EpisodeCard(
+                                    anime: anime,
+                                    episodeIndex: index,
+                                    timecodeProvider: _timecodeProvider!,
+                                    mode: mode!,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -695,6 +257,62 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildCollectionsButton(
+    ThemeData theme,
+    Anime anime,
+    CollectionType? collection,
+    CollectionsProvider collectionProvider,
+  ) {
+    return ElevatedButton(
+      onPressed: () async {
+        await showModalBottomSheet(
+          context: context,
+          builder:
+              (context) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children:
+                    CollectionType.values
+                        .map(
+                          (type) => ListTile(
+                            leading: Icon(switch (type) {
+                              CollectionType.watched => Icons.check,
+                              CollectionType.abandoned => Icons.close,
+                              CollectionType.planned => Icons.calendar_month,
+                              CollectionType.watching => Icons.play_arrow,
+                            }),
+                            title: Text(type.localizedName(context)),
+                            selected: collection == type,
+                            onTap: () async {
+                              if (collection != type) {
+                                await collectionProvider.addToCollection(
+                                  type,
+                                  anime,
+                                );
+                              } else {
+                                await collectionProvider.removeFromCollection(
+                                  type,
+                                  anime,
+                                );
+                              }
+                              Navigator.pop(context);
+                            },
+                          ),
+                        )
+                        .toList(),
+              ),
+        );
+      },
+      style: ElevatedButton.styleFrom(foregroundColor: Colors.white),
+      child: switch (collection) {
+        CollectionType.watched => const Icon(Icons.check, size: 28),
+        CollectionType.abandoned => const Icon(Icons.close, size: 28),
+        CollectionType.planned => const Icon(Icons.calendar_month, size: 28),
+        CollectionType.watching => const Icon(Icons.play_arrow, size: 28),
+        null => const Icon(Icons.folder_open, size: 28),
+      },
     );
   }
 }

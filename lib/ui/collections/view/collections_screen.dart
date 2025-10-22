@@ -1,5 +1,7 @@
 import 'package:anime_app/data/models/collection.dart';
+import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/provider/collections_provider.dart';
+import 'package:anime_app/data/storage/mode_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/l10n/collection_localization.dart';
 import 'package:anime_app/ui/collections/widgets/widgets.dart';
@@ -16,6 +18,7 @@ class CollectionsScreen extends StatefulWidget {
 
 class _CollectionsScreenState extends State<CollectionsScreen> {
   final ScrollController _scrollController = ScrollController();
+  Mode? mode;
   CollectionType _type = CollectionType.planned;
 
   @override
@@ -23,7 +26,11 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
     super.initState();
     final provider = Provider.of<CollectionsProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final m = await ModeStorage.getMode();
       await provider.fetchCollection(_type);
+      setState(() {
+        mode = m;
+      });
     });
 
     _scrollController.addListener(() {
@@ -132,7 +139,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                                 ],
                               ),
                             )
-                            : collections[_type]!.data.isEmpty &&
+                            : collections[_type]!.isEmpty &&
                                 !provider.isLoadingMore(_type)
                             ? Center(
                               child: Column(
@@ -154,13 +161,13 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                             : ListView.separated(
                               controller: _scrollController,
                               itemCount:
-                                  collections[_type]!.data.length +
+                                  collections[_type]!.length +
                                   (provider.hasMore(_type) ? 1 : 0),
                               separatorBuilder:
                                   (context, index) =>
                                       const SizedBox(height: 12),
                               itemBuilder: (context, index) {
-                                if (index < collections[_type]!.data.length) {
+                                if (index < collections[_type]!.length) {
                                   return Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(12),
@@ -173,7 +180,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                                       ],
                                     ),
                                     child: CollectionCard(
-                                      anime: collections[_type]!.data[index],
+                                      anime: collections[_type]![index],
                                     ),
                                   );
                                 } else {

@@ -1,296 +1,49 @@
 import 'dart:developer';
-import 'package:anime_app/core/constants.dart';
 import 'package:anime_app/data/models/anime.dart';
-import 'package:anime_app/data/models/anime_release.dart';
-import 'package:anime_app/data/models/franchise.dart';
-import 'package:anime_app/data/models/kodik_result.dart';
-import 'package:anime_app/data/models/shikimori_anime.dart';
+import 'package:anime_app/data/models/episode.dart';
+import 'package:anime_app/data/models/genre.dart';
+import 'package:anime_app/data/models/mode.dart';
+import 'package:anime_app/data/models/search_anime.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
-import 'package:dio/dio.dart';
 
 class AnimeRepository extends BaseRepository {
-  AnimeRepository() : super(DioClient().dio);
-  String _normalizeTitle(String? title) {
-    if (title == null) return '';
+  AnimeRepository({required this.mode}) : super(DioClient().dio);
+  Mode mode;
 
-    String noParentheses = title.replaceAll(RegExp(r'\([^)]*\)'), '');
-
-    List<String> words = noParentheses.toLowerCase().split(
-      RegExp(r'[^\wа-яё]+', caseSensitive: false),
-    );
-
-    const noiseWords = {
-      'tv',
-      'tb',
-      'ova',
-      'ona',
-      'special',
-      'movie',
-      'usj',
-      'bd',
-      'dvd',
-      'hd',
-      'sd',
-      'remastered',
-      'dc',
-      'se',
-      'edition',
-      'part',
-      'тв',
-      'тб',
-      'спешл',
-      'фильм',
-      'сезон',
-      'серия',
-      'озвучка',
-      'субтитры',
-      'ремастер',
-      'хд',
-      'сд',
-      'двд',
-      'бд',
-      's',
-      'season',
-    };
-
-    words =
-        words
-            .where((word) => word.isNotEmpty && !noiseWords.contains(word))
-            .toList();
-
-    return words.join();
-  }
-
-  Future<List<AnimeRelease>> getWeekSchedule() async {
+  Future<List<SearchAnime>> searchAnime(String query) async {
     try {
-      final response = await dio.get('anime/schedule/week');
-
-      final data = response.data as List<dynamic>;
-      final schedule =
-          data.map((json) => AnimeRelease.fromJson(json["release"])).toList();
-      return schedule;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<List<AnimeRelease>> searchAnime(String query) async {
-    try {
-      final anilibriaResponse = await dio.get(
-        'app/search/releases?query=$query',
-      );
-      final anilibriaData = anilibriaResponse.data as List<dynamic>;
-      final anilibriaReleases =
-          anilibriaData.map((json) => AnimeRelease.fromJson(json)).toList();
-
-      final kodikResultsRaw = await searchKodik(query);
-      final kodikResults = _deduplicateKodikByShikimori(kodikResultsRaw);
-
-      final matchedReleases = <AnimeRelease>[];
-      final matchedKodikIds = <String>{};
-
-      for (var release in anilibriaReleases) {
-        final names =
-            [
-                  release.names.main,
-                  release.names.english,
-                  release.names.alternative,
-                ]
-                .where((n) => n != null && n.isNotEmpty)
-                .map(_normalizeTitle)
-                .toList();
-
-        KodikResult? matchedKodik;
-        for (var k in kodikResults) {
-          final kodikTitles =
-              [
-                k.title,
-                k.titleOrig,
-                k.otherTitle,
-              ].where((t) => t.isNotEmpty).map(_normalizeTitle).toList();
-
-          final hasMatch = names.any((n) => kodikTitles.contains(n));
-          if (hasMatch) {
-            matchedKodik = k;
-            break;
-          }
-        }
-
-        if (matchedKodik != null) {
-          matchedReleases.add(
-            AnimeRelease.fromAnilibriaAndKodik(release, matchedKodik),
-          );
-          matchedKodikIds.add(matchedKodik.id);
-        } else {
-          matchedReleases.add(release);
-        }
-      }
-
-      final remainingKodik =
-          kodikResults.where((k) => !matchedKodikIds.contains(k.id)).toList();
-
-      final movieResults =
-          remainingKodik.where((k) => k.type == 'anime').toList();
-      final seriesResults =
-          remainingKodik.where((k) => k.type == 'anime-serial').toList();
-
-      final seriesGroups = <String, List<KodikResult>>{};
-      for (var k in seriesResults) {
-        if (k.shikimoriId != null) {
-          seriesGroups.putIfAbsent(k.shikimoriId!, () => []).add(k);
-        }
-      }
-
-      final movieReleases = <AnimeRelease>[];
-      for (var m in movieResults) {
-        if (m.shikimoriId != null) {
-          try {
-            final shikimoriAnime = await getShikimoriAnimeById(m.shikimoriId!);
-            movieReleases.add(
-              AnimeRelease.fromKodikAndShikimori(m, shikimoriAnime),
-            );
-          } catch (e) {
-            log('Error fetching Shikimori data for movie: $e');
-            movieReleases.add(AnimeRelease.fromKodik(m));
-          }
-        } else {
-          movieReleases.add(AnimeRelease.fromKodik(m));
-        }
-      }
-
-      final seriesReleases = <AnimeRelease>[];
-      for (var group in seriesGroups.values) {
-        final first = group.first;
-        try {
-          final shikimoriAnime = await getShikimoriAnimeById(
-            first.shikimoriId!,
-          );
-          seriesReleases.add(
-            AnimeRelease.fromKodikAndShikimori(first, shikimoriAnime),
-          );
-        } catch (e) {
-          log('Error fetching Shikimori data for series: $e');
-          seriesReleases.add(AnimeRelease.fromKodik(first));
-        }
-      }
-
-      return [...matchedReleases, ...movieReleases, ...seriesReleases];
+      final response = await dio.get('/anime/${mode.name}?query=$query');
+      final data = response.data;
+      final anime = SearchAnime.fromListJson(data);
+      return anime;
     } catch (e) {
       log('Error searching anime: $e');
       rethrow;
     }
   }
 
-  Future<KodikResult?> matchKodikWithAnilibria(Anime anime) async {
-    try {
-      final kodikAnimes = await searchKodik(anime.release.names.main);
-      final matched = matchAnimeWithKodik([anime], kodikAnimes);
-      return matched.matched.first.release.kodikResult;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<List<KodikResult>> searchKodik(String query) async {
-    if (!isTurnedKodik) {
-      return [];
-    }
+  Future<List<SearchAnime>> getRecommendedAnime() async {
     try {
       final response = await dio.get(
-        'https://kodikapi.com/search',
-        queryParameters: {
-          'token': '447d179e875efe44217f20d1ee2146be',
-          'title': query,
-        },
+        '/anime/${mode.name}/recommended?limit=14',
       );
-      final data = response.data['results'] as List<dynamic>;
-      return data.map((json) => KodikResult.fromJson(json)).toList();
-    } catch (e) {
-      log('Error searching Kodik: $e');
-      rethrow;
-    }
-  }
-
-  Future<List<KodikResult>> getAnimeByKodikId(int id) async {
-    if (!isTurnedKodik) {
-      return [];
-    }
-    try {
-      final response = await dio.get(
-        'https://kodikapi.com/search',
-        queryParameters: {
-          'token': '447d179e875efe44217f20d1ee2146be',
-          'shikimori_id': id,
-        },
-      );
-      final data = response.data['results'] as List<dynamic>;
-      return data.map((json) => KodikResult.fromJson(json)).toList();
-    } catch (e) {
-      log('Error searching Kodik: $e');
-      rethrow;
-    }
-  }
-
-  Future<ShikimoriAnime> getShikimoriAnimeById(String shikimoriId) async {
-    try {
-      final response = await Dio().get(
-        'https://shikimori.one/api/animes/$shikimoriId',
-      );
-      final data = response.data as Map<String, dynamic>;
-      final anime = ShikimoriAnime.fromJson(data);
-      return anime;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<Anime> getAnimeById(int id, [KodikResult? kodik]) async {
-    try {
-      final response = await dio.get('anime/releases/$id');
       final data = response.data;
 
-      log(data.toString());
+      final anime = SearchAnime.fromListJson(data);
 
-      final anime = Anime.fromJson(data);
-
-      if (kodik == null && isTurnedKodik) {
-        final kodikResults = await searchKodik(anime.release.names.main);
-        final matchResult = matchAnimeWithKodik([anime], kodikResults);
-        final matchedAnime = matchResult.matched.firstOrNull;
-        return matchedAnime ?? anime;
-      }
       return anime;
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<List<AnimeRelease>> getReleases(int? limit) async {
+  Future<List<Genre>> getGenres() async {
     try {
-      limit ??= 10;
-      final response = await dio.get('anime/releases/latest?limit=$limit');
-      final data = response.data as List<dynamic>;
+      final response = await dio.get('/anime/${mode.name}/genres');
+      final data = response.data;
 
-      log(data.toString());
-
-      final releases = data.map((json) => AnimeRelease.fromJson(json)).toList();
-
-      return releases;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<List<Genre>> getGenres(int? limit) async {
-    try {
-      limit ??= 8;
-      final response = await dio.get('anime/genres/random?limit=$limit');
-      final data = response.data as List<dynamic>;
-
-      log(data.toString());
-
-      final genres = data.map((g) => Genre.fromJson(g)).toList();
+      final genres = Genre.fromListJson(data);
 
       return genres;
     } catch (e) {
@@ -298,24 +51,45 @@ class AnimeRepository extends BaseRepository {
     }
   }
 
-  Future<List<AnimeRelease>> getGenresReleases(
-    int genreId,
-    int? page,
-    int? limit,
-  ) async {
+  Future<Anime> getAnimeById(String id) async {
     try {
-      page ??= 1;
-      limit ??= 16;
+      final isNumeric = int.tryParse(id) != null;
+
+      final endpoint =
+          isNumeric
+              ? '/anime/${Mode.anilibria.name}/$id'
+              : '/anime/${Mode.consumet.name}/$id';
+
+      final response = await dio.get(endpoint);
+      final data = response.data;
+      final anime = Anime.fromJsonPreview(data);
+      return anime;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<SearchAnime>> getLatestReleases() async {
+    try {
+      final response = await dio.get('/anime/${mode.name}/latest?limit=14');
+      final data = response.data;
+
+      final anime = SearchAnime.fromListJson(data);
+
+      return anime;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<SearchAnime>> getGenreReleases(String genre) async {
+    try {
       final response = await dio.get(
-        'anime/genres/$genreId/releases?page=$page&limit=$limit',
+        '/anime/${mode.name}/genre/releases?genre=$genre',
       );
-      final data = response.data as Map<String, dynamic>;
-      final releasesData = data['data'] as List<dynamic>;
+      final data = response.data;
 
-      log(data.toString());
-
-      final releases =
-          releasesData.map((r) => AnimeRelease.fromJson(r)).toList();
+      final releases = SearchAnime.fromListJson(data);
 
       return releases;
     } catch (e) {
@@ -323,92 +97,42 @@ class AnimeRepository extends BaseRepository {
     }
   }
 
-  Future<Franchise> getFranchiseById(int releaseId) async {
+  Future<Anime> getAnimeInfo(String id) async {
     try {
-      final response = await dio.get('anime/franchises/release/$releaseId');
-      final data = response.data as List<dynamic>;
+      final response = await dio.get('/anime/${mode.name}/$id');
+      final data = response.data;
 
-      log(data.toString());
+      final anime = Anime.fromJsonPreview(data);
 
-      final franchise = Franchise.fromJson(data[0]);
-
-      return franchise;
+      return anime;
     } catch (e) {
       rethrow;
     }
   }
 
-  List<KodikResult> _deduplicateKodikByShikimori(List<KodikResult> results) {
-    final uniqueByShikimori = <String, KodikResult>{};
-
-    for (var result in results) {
-      final id = result.shikimoriId;
-      if (id != null && !uniqueByShikimori.containsKey(id)) {
-        uniqueByShikimori[id] = result;
-      }
-    }
-
-    return uniqueByShikimori.values.toList();
-  }
-
-  MatchResult matchAnimeWithKodik(
-    List<Anime> anilibriaAnimes,
-    List<KodikResult> kodikResults,
-  ) {
-    final matchedReleases = <Anime>[];
-    final matchedKodikIds = <String>{};
-
-    final kodikTitleMap = <String, KodikResult>{};
-    for (var k in kodikResults) {
-      final kodikTitles =
-          [
-            k.title,
-            k.titleOrig,
-            k.otherTitle,
-          ].where((t) => t.isNotEmpty).map(_normalizeTitle).toList();
-
-      for (var title in kodikTitles) {
-        kodikTitleMap[title] = k;
-      }
-    }
-
-    for (var anime in anilibriaAnimes) {
-      final names =
-          [
-                anime.release.names.main,
-                anime.release.names.english,
-                anime.release.names.alternative,
-              ]
-              .where((n) => n != null && n.isNotEmpty)
-              .map(_normalizeTitle)
-              .toList();
-
-      KodikResult? matchedKodik;
-      for (var name in names) {
-        if (kodikTitleMap.containsKey(name)) {
-          matchedKodik = kodikTitleMap[name];
-          break;
+  Future<Episode> getEpisodeInfo(
+    PreviewEpisode episodeInfo, [
+    Anime? anime,
+  ]) async {
+    try {
+      if (anime != null) {
+        final episode =
+            anime.episodes.where((e) => e.id == episodeInfo.id).firstOrNull;
+        if (episode != null) {
+          return episode;
         }
       }
+      final response = await dio.get(
+        '/anime/${mode.name}/episode/${episodeInfo.id}?title=${episodeInfo.title}&ordinal=${episodeInfo.ordinal}',
+      );
+      final data = response.data;
 
-      if (matchedKodik != null) {
-        matchedReleases.add(Anime.fromAnilibriaAndKodik(matchedKodik, anime));
-        matchedKodikIds.add(matchedKodik.id);
-      } else {
-        matchedReleases.add(anime);
-      }
+      final episode = Episode.fromJson(data);
+      anime!.episodes.add(episode);
+
+      return episode;
+    } catch (e) {
+      rethrow;
     }
-
-    final remainingKodik =
-        kodikResults.where((k) => !matchedKodikIds.contains(k.id)).toList();
-
-    return MatchResult(matchedReleases, remainingKodik);
   }
-}
-
-class MatchResult {
-  final List<Anime> matched;
-  final List<KodikResult> unmatched;
-
-  MatchResult(this.matched, this.unmatched);
 }

@@ -1,21 +1,25 @@
-import 'package:anime_app/data/models/anime_release.dart';
+import 'package:anime_app/data/models/mode.dart';
+import 'package:anime_app/data/models/search_anime.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/data/storage/mode_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:flutter/material.dart';
 
-class GenreReleasesScreen extends StatefulWidget {
-  const GenreReleasesScreen({super.key});
+class AnimeReleasesScreen extends StatefulWidget {
+  const AnimeReleasesScreen({super.key});
 
   @override
-  State<GenreReleasesScreen> createState() => _GenreReleasesScreenState();
+  State<AnimeReleasesScreen> createState() => _AnimeReleasesScreenState();
 }
 
-class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
-  List<AnimeRelease>? _genreReleases;
+class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
+  List<SearchAnime>? _animeList;
   String? _query;
-  final repository = AnimeRepository();
+  late AnimeRepository repository;
+  Mode? mode;
+  bool _isLoading = false;
   final _textController = TextEditingController();
 
   @override
@@ -25,11 +29,15 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
   }
 
   Future<void> _fetchAnime() async {
-    final animeList = await repository.getReleases(20);
+    setState(() {
+      _isLoading = true;
+    });
+    final animeList = await repository.getLatestReleases();
 
     if (mounted) {
       setState(() {
-        _genreReleases = animeList;
+        _animeList = animeList;
+        _isLoading = false;
       });
     }
   }
@@ -41,20 +49,31 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final arguments =
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-      final List<AnimeRelease>? releases = arguments['genreReleases'];
+      final List<SearchAnime>? releases = arguments['genreReleases'];
+      final m = await ModeStorage.getMode();
+
+      repository = AnimeRepository(mode: m);
 
       final query = arguments['query'] as String?;
       if (query != null) {
+        setState(() {
+          _isLoading = true;
+        });
         final anime = await repository.searchAnime(query);
         setState(() {
-          _genreReleases = anime;
+          _animeList = anime;
           _query = query;
+          _isLoading = false;
         });
       } else {
         setState(() {
-          _genreReleases = releases;
+          _animeList = releases;
         });
       }
+
+      setState(() {
+        mode = m;
+      });
     });
   }
 
@@ -69,11 +88,10 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
     if (screenWidth >= 900) {
       crossAxisCount = 4;
     }
-
     return Scaffold(
       bottomNavigationBar: AnimeBar(),
       body:
-          _genreReleases == null
+          _animeList == null || _isLoading
               ? const Center(child: CircularProgressIndicator())
               : SafeArea(
                 child: Padding(
@@ -98,12 +116,16 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                             icon: const Icon(Icons.search, color: Colors.white),
                             onPressed: () async {
                               if (_textController.text.trim().isNotEmpty) {
+                                setState(() {
+                                  _isLoading = true;
+                                });
                                 final anime = await repository.searchAnime(
                                   _textController.text,
                                 );
                                 setState(() {
-                                  _genreReleases = anime;
+                                  _animeList = anime;
                                   _query = _textController.text;
+                                  _isLoading = false;
                                 });
                               } else {
                                 _fetchAnime();
@@ -115,10 +137,14 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                         textInputAction: TextInputAction.search,
                         onSubmitted: (value) async {
                           if (value.trim().isNotEmpty) {
+                            setState(() {
+                              _isLoading = true;
+                            });
                             final anime = await repository.searchAnime(value);
                             setState(() {
-                              _genreReleases = anime;
+                              _animeList = anime;
                               _query = value;
+                              _isLoading = false;
                             });
                           } else {
                             _fetchAnime();
@@ -128,7 +154,7 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                       const SizedBox(height: 16),
                       Expanded(
                         child:
-                            _genreReleases!.isEmpty
+                            _animeList!.isEmpty
                                 ? Center(
                                   child: Text(
                                     l10n.no_anime_found(_query ?? ''),
@@ -146,11 +172,9 @@ class _GenreReleasesScreenState extends State<GenreReleasesScreen> {
                                         mainAxisSpacing: 16,
                                         childAspectRatio: 2 / 4,
                                       ),
-                                  itemCount: _genreReleases!.length,
+                                  itemCount: _animeList!.length,
                                   itemBuilder: (context, index) {
-                                    return AnimeCard(
-                                      anime: _genreReleases![index],
-                                    );
+                                    return AnimeCard(anime: _animeList![index]);
                                   },
                                 ),
                       ),

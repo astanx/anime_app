@@ -54,7 +54,6 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
           child: Consumer<FavouritesProvider>(
             builder: (context, provider, _) {
               final favourites = provider.favourites;
-
               if (_isLoading) {
                 return const Center(child: CircularProgressIndicator());
               }

@@ -25,7 +25,7 @@ class SearchInput extends StatelessWidget {
             if (query.isNotEmpty) {
               Navigator.of(
                 context,
-              ).pushNamed('/genre/releases', arguments: {'query': query});
+              ).pushNamed('/anime/releases', arguments: {'query': query});
             }
           },
         ),
@@ -39,7 +39,7 @@ class SearchInput extends StatelessWidget {
         if (query.isNotEmpty) {
           Navigator.of(
             context,
-          ).pushNamed('/genre/releases', arguments: {'query': query});
+          ).pushNamed('/anime/releases', arguments: {'query': query});
         }
       },
     );

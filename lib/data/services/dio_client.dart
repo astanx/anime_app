@@ -1,21 +1,19 @@
 import 'dart:developer';
 import 'package:anime_app/core/constants.dart';
-import 'package:anime_app/data/storage/token_storage.dart';
+import 'package:anime_app/data/storage/id_storage.dart';
 import 'package:dio/dio.dart';
 
 class DioClient {
   Dio dio;
 
-  DioClient() : dio = Dio(BaseOptions(baseUrl: '$baseUrl/api/v1/')) {
+  DioClient() : dio = Dio(BaseOptions(baseUrl: '$baseUrl/api/v1')) {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final token = await TokenStorage.getToken();
-
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
+          final deviceID = await IDStorage.getID();
+          if (deviceID != null) {
+            options.headers['Authorization'] = 'Device $deviceID';
           }
-
           log('Request to: ${options.uri}');
           return handler.next(options);
         },

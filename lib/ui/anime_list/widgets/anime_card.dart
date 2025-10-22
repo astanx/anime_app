@@ -1,58 +1,20 @@
-import 'package:anime_app/core/utils/url_utils.dart';
-import 'package:anime_app/data/models/anime.dart';
-import 'package:anime_app/data/models/anime_release.dart';
-import 'package:anime_app/data/repositories/anime_repository.dart';
-import 'package:anime_app/data/storage/history_storage.dart';
+import 'package:anime_app/data/models/search_anime.dart';
 import 'package:flutter/material.dart';
 
 class AnimeCard extends StatelessWidget {
-  AnimeCard({super.key, required this.anime});
+  const AnimeCard({super.key, required this.anime});
 
-  final AnimeRelease anime;
-  final repository = AnimeRepository();
+  final SearchAnime anime;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return InkWell(
-      onTap: () async {
-        if (anime.id == -1 && anime.kodikResult != null) {
-          final kodikResult = anime.kodikResult!;
-          final kodikAnime = Anime(
-            release: anime,
-            episodes: [],
-            torrents: [],
-            members: [],
-          );
-          final episodeIndex = await HistoryStorage.getEpisodeIndex(
-            kodikAnime.uniqueId,
-          );
-          Navigator.of(context).pushNamed(
-            '/anime/episodes',
-            arguments: {
-              'anime': kodikAnime,
-              'kodikResult': kodikResult,
-              'episodeIndex': episodeIndex,
-            },
-          );
-        } else {
-          final animeTitle = await repository.getAnimeById(
-            anime.id,
-            anime.kodikResult,
-          );
-          final episodeIndex = await HistoryStorage.getEpisodeIndex(
-            animeTitle.uniqueId,
-          );
-          Navigator.of(context).pushNamed(
-            '/anime/episodes',
-            arguments: {
-              'anime': animeTitle,
-              'kodikResult':
-                  anime.kodikResult ?? animeTitle.release.kodikResult,
-              'episodeIndex': episodeIndex,
-            },
-          );
-        }
+      onTap: () {
+        Navigator.of(
+          context,
+        ).pushNamed('/anime/episodes', arguments: {'animeID': anime.id});
       },
 
       child: Padding(
@@ -64,7 +26,7 @@ class AnimeCard extends StatelessWidget {
               child: Image.network(
                 width: 200,
                 height: 300,
-                getImageUrl(anime),
+                anime.poster,
                 fit: BoxFit.cover,
               ),
             ),
@@ -83,7 +45,7 @@ class AnimeCard extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      anime.names.main,
+                      anime.title,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -92,15 +54,17 @@ class AnimeCard extends StatelessWidget {
                       maxLines: 4,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${anime.year}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                    if (anime.year != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        '${anime.year}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
+                      const SizedBox(height: 8),
+                    ],
                   ],
                 ),
               ),

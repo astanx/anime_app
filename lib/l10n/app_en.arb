@@ -3,7 +3,7 @@
   "prev_episode": "Previous episode",
   "next_episode": "Next episode",
   "skip_opening": "Skip opening",
-  "skip_ending": "skip ending",
+  "skip_ending": "Skip ending",
   "episode_count": "{count, plural, =0{No episodes} =1{1 episode} other{{count} episodes}}",
   "ongoing": "Ongoing",
   "movie": "Movie",
@@ -59,5 +59,15 @@
   "playback_speed": "Playback speed",
   "quality": "Quality",
   "retry": "Retry",
-  "server_unavailable": "Server is currently unavailable"
+  "server_unavailable": "Server is currently unavailable",
+
+  "subtitles": "Subtitles",
+  "anilibria_mode": "Continue with anilibria (Russian anime)",
+  "subtitle_mode": "Continue with subtitles",
+  "recommended": "Recommended",
+  "anilibria": "Anilibria",
+  "subtitle": "Subtitle",
+  "choose_mode": "Choose your preferred mode",
+  "you_can_change_later": "You can change this later",
+  "disable_subtitles": "Disable subtitles"
 }
