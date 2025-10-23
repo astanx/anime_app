@@ -93,6 +93,68 @@ class _PlayerControlsState extends State<PlayerControls> {
       alignment: Alignment.bottomCenter,
       clipBehavior: Clip.none,
       children: [
+        if (processedSubtitleText.isNotEmpty)
+          Positioned(
+            bottom: widget.showControls ? 60 : 20,
+            left: 0,
+            right: 0,
+            child: Html(
+              data: processedSubtitleText,
+              style: {
+                'body': Style(
+                  color: Colors.white,
+                  fontSize: widget.isFullscreen ? FontSize(18) : FontSize(14),
+                  textAlign: TextAlign.center,
+                  lineHeight: LineHeight(1.3),
+                  textShadow: [
+                    Shadow(
+                      blurRadius: 4.0,
+                      color: Colors.black,
+                      offset: const Offset(1.0, 1.0),
+                    ),
+                  ],
+                ),
+                'a': Style(
+                  color: Colors.white,
+                  textDecoration: TextDecoration.none,
+                ),
+              },
+              onLinkTap: (url, attributes, element) async {
+                if (provider.translationLanguage.isEmpty &&
+                    isSameSubtitleLanguage(
+                      provider.translationLanguage,
+                      provider.currentLanguage ?? '',
+                    )) {
+                  return;
+                }
+                if (url != null && url.startsWith('word:')) {
+                  final parts = url.split(':');
+                  if (parts.length == 3) {
+                    final index = int.parse(parts[1]);
+                    final word = parts[2];
+                    final translation = await _translate(
+                      word,
+                      provider.translationLanguage,
+                    );
+                    final words = subtitleText.split(' ');
+                    words[index] = translation;
+                    setState(() {
+                      subtitleText = words.join(' ');
+                      processedSubtitleText = words
+                          .asMap()
+                          .entries
+                          .map((entry) {
+                            final idx = entry.key;
+                            final w = entry.value;
+                            return '<a href="word:$idx:$w">$w</a>';
+                          })
+                          .join(' ');
+                    });
+                  }
+                }
+              },
+            ),
+          ),
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -155,15 +217,16 @@ class _PlayerControlsState extends State<PlayerControls> {
                         ),
                       ),
                       onPressed: () async {
-                        if (isLoading) return;
-                        setState(() => isLoading = true);
                         if (isAccurateEnding || isNearEnd) {
+                          if (isLoading) return;
+                          setState(() => isLoading = true);
                           provider.seek(duration);
                           await provider.loadEpisode(
                             anime,
                             episodeIndex + 1,
                             context,
                           );
+                          setState(() => isLoading = false);
                         } else {
                           provider.seek(
                             Duration(
@@ -171,7 +234,6 @@ class _PlayerControlsState extends State<PlayerControls> {
                             ),
                           );
                         }
-                        setState(() => isLoading = false);
                       },
                       child: Text(
                         isAccurateEnding || isNearEnd
@@ -250,68 +312,6 @@ class _PlayerControlsState extends State<PlayerControls> {
             ),
           ],
         ),
-        if (processedSubtitleText.isNotEmpty)
-          Positioned(
-            bottom: widget.showControls ? 60 : 20,
-            left: 0,
-            right: 0,
-            child: Html(
-              data: processedSubtitleText,
-              style: {
-                'body': Style(
-                  color: Colors.white,
-                  fontSize: widget.isFullscreen ? FontSize(18) : FontSize(14),
-                  textAlign: TextAlign.center,
-                  lineHeight: LineHeight(1.3),
-                  textShadow: [
-                    Shadow(
-                      blurRadius: 4.0,
-                      color: Colors.black,
-                      offset: const Offset(1.0, 1.0),
-                    ),
-                  ],
-                ),
-                'a': Style(
-                  color: Colors.white,
-                  textDecoration: TextDecoration.none,
-                ),
-              },
-              onLinkTap: (url, attributes, element) async {
-                if (provider.translationLanguage.isEmpty &&
-                    isSameSubtitleLanguage(
-                      provider.translationLanguage,
-                      provider.currentLanguage ?? '',
-                    )) {
-                  return;
-                }
-                if (url != null && url.startsWith('word:')) {
-                  final parts = url.split(':');
-                  if (parts.length == 3) {
-                    final index = int.parse(parts[1]);
-                    final word = parts[2];
-                    final translation = await _translate(
-                      word,
-                      provider.translationLanguage,
-                    );
-                    final words = subtitleText.split(' ');
-                    words[index] = translation;
-                    setState(() {
-                      subtitleText = words.join(' ');
-                      processedSubtitleText = words
-                          .asMap()
-                          .entries
-                          .map((entry) {
-                            final idx = entry.key;
-                            final w = entry.value;
-                            return '<a href="word:$idx:$w">$w</a>';
-                          })
-                          .join(' ');
-                    });
-                  }
-                }
-              },
-            ),
-          ),
       ],
     );
   }
