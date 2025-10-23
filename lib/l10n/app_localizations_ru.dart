@@ -233,4 +233,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get disable_subtitles => 'Отключить субтитры';
+
+  @override
+  String get subtitle_translate_language => 'Язык перевода субтитров';
 }

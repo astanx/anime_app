@@ -114,118 +114,108 @@ class AnimeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     AnimePlayer(anime: anime),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 16),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         if (episodeIndex > 0)
-                          SizedBox(
-                            width: 150,
-                            height: 50,
-                            child: InkWell(
-                              onTap: () async {
-                                provider.loadEpisode(
-                                  anime,
-                                  episodeIndex - 1,
-                                  context,
-                                );
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.grey,
-                                    width: 2,
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: ElevatedButton.icon(
+                                onPressed: () async {
+                                  provider.loadEpisode(
+                                    anime,
+                                    episodeIndex - 1,
+                                    context,
+                                  );
+                                },
+                                icon: const Icon(Icons.skip_previous, size: 20),
+                                label: Text(
+                                  anime
+                                              .previewEpisodes[episodeIndex - 1]
+                                              .title !=
+                                          ''
+                                      ? anime
+                                          .previewEpisodes[episodeIndex - 1]
+                                          .title
+                                      : l10n.prev_episode,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
                                   ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Icon(Icons.skip_previous),
-                                    Flexible(
-                                      child: Text(
-                                        anime
-                                                    .previewEpisodes[episodeIndex -
-                                                        1]
-                                                    .title !=
-                                                ''
-                                            ? anime
-                                                .previewEpisodes[episodeIndex -
-                                                    1]
-                                                .title
-                                            : l10n.prev_episode,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontSize: 8,
-                                          fontWeight: FontWeight.w900,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  backgroundColor:
+                                      theme.colorScheme.secondaryContainer,
+                                  foregroundColor:
+                                      theme.colorScheme.onSecondaryContainer,
+                                  elevation: 2,
                                 ),
                               ),
                             ),
                           )
                         else
-                          const SizedBox(width: 150, height: 50),
+                          const Spacer(),
                         if (episodeIndex < anime.previewEpisodes.length - 1)
-                          SizedBox(
-                            width: 150,
-                            height: 50,
-                            child: InkWell(
-                              onTap: () async {
-                                provider.loadEpisode(
-                                  anime,
-                                  episodeIndex + 1,
-                                  context,
-                                );
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.grey,
-                                    width: 2,
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  provider.loadEpisode(
+                                    anime,
+                                    episodeIndex + 1,
+                                    context,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
                                   ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  backgroundColor:
+                                      theme.colorScheme.secondaryContainer,
+                                  foregroundColor:
+                                      theme.colorScheme.onSecondaryContainer,
+                                  elevation: 2,
                                 ),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Flexible(
                                       child: Text(
                                         anime
-                                                    .previewEpisodes[episodeIndex +
-                                                        1]
-                                                    .title !=
-                                                ''
+                                                .previewEpisodes[episodeIndex +
+                                                    1]
+                                                .title
+                                                .isNotEmpty
                                             ? anime
                                                 .previewEpisodes[episodeIndex +
                                                     1]
                                                 .title
                                             : l10n.next_episode,
                                         overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontSize: 8,
-                                          fontWeight: FontWeight.w900,
-                                        ),
+                                        style: const TextStyle(fontSize: 14),
                                       ),
                                     ),
-                                    const Icon(Icons.skip_next),
+                                    const SizedBox(width: 8),
+                                    const Icon(Icons.skip_next, size: 20),
                                   ],
                                 ),
                               ),
                             ),
                           )
                         else
-                          const SizedBox(width: 150, height: 50),
+                          const Spacer(),
                       ],
                     ),
                   ],

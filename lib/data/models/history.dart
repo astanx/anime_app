@@ -22,29 +22,20 @@ class History {
   final String animeID;
   final int lastWatchedEpisode;
   final bool isWatched;
+  final DateTime? watchedAt;
 
   History({
     required this.animeID,
     required this.lastWatchedEpisode,
     required this.isWatched,
+    required this.watchedAt,
   });
-
-  History copyWith({
-    String? animeID,
-    int? lastWatchedEpisode,
-    bool? isWatched,
-  }) {
-    return History(
-      animeID: animeID ?? this.animeID,
-      lastWatchedEpisode: lastWatchedEpisode ?? this.lastWatchedEpisode,
-      isWatched: isWatched ?? this.isWatched,
-    );
-  }
 
   factory History.fromJson(Map<String, dynamic> json) => History(
     animeID: json['anime_id'],
     lastWatchedEpisode: json['last_watched'],
     isWatched: json['is_watched'] ?? false,
+    watchedAt: DateTime.parse(json['watched_at']),
   );
 }
 

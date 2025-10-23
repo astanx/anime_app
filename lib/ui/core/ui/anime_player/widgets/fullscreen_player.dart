@@ -281,7 +281,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                                                     index,
                                                                   ) => ListTile(
                                                                     title: Text(
-                                                                      '${provider.qualities[index]}p',
+                                                                      '${provider.qualities[index].startsWith('hls') ? provider.qualities[index].substring(3) : provider.qualities[index]}p',
                                                                     ),
                                                                     onTap: () {
                                                                       provider.changeQuality(
@@ -327,22 +327,34 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                                                 if (index ==
                                                                     0) {
                                                                   return ListTile(
-                                                                    leading:
-                                                                        const Icon(
-                                                                          Icons
-                                                                              .visibility_off_outlined,
-                                                                        ),
+                                                                    leading: Icon(
+                                                                      Icons
+                                                                          .visibility_off_outlined,
+                                                                      color:
+                                                                          provider.currentLanguage ==
+                                                                                  ''
+                                                                              ? Theme.of(
+                                                                                context,
+                                                                              ).colorScheme.primary
+                                                                              : null,
+                                                                    ),
                                                                     title: Text(
                                                                       l10n.disable_subtitles,
-                                                                      style: const TextStyle(
-                                                                        fontWeight:
-                                                                            FontWeight.w600,
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            provider.currentLanguage ==
+                                                                                    ''
+                                                                                ? Theme.of(
+                                                                                  context,
+                                                                                ).colorScheme.primary
+                                                                                : null,
                                                                       ),
                                                                     ),
                                                                     onTap: () {
-                                                                      provider.changeLanguage(
-                                                                        '',
-                                                                      ); // или "" — зависит от твоей логики
+                                                                      provider
+                                                                          .changeLanguage(
+                                                                            '',
+                                                                          );
                                                                       Navigator.pop(
                                                                         context,
                                                                       );
@@ -357,6 +369,15 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                                                 return ListTile(
                                                                   title: Text(
                                                                     language,
+                                                                    style: TextStyle(
+                                                                      color:
+                                                                          provider.currentLanguage ==
+                                                                                  language
+                                                                              ? Theme.of(
+                                                                                context,
+                                                                              ).colorScheme.primary
+                                                                              : null,
+                                                                    ),
                                                                   ),
                                                                   onTap: () {
                                                                     provider
@@ -390,14 +411,23 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                                       l10n.playback_speed,
                                                     ),
                                                   ),
-                                                  PopupMenuItem<String>(
-                                                    value: 'quality',
-                                                    child: Text(l10n.quality),
-                                                  ),
-                                                  PopupMenuItem<String>(
-                                                    value: 'subtitles',
-                                                    child: Text(l10n.subtitles),
-                                                  ),
+                                                  if (provider
+                                                          .qualities
+                                                          .length !=
+                                                      1)
+                                                    PopupMenuItem<String>(
+                                                      value: 'quality',
+                                                      child: Text(l10n.quality),
+                                                    ),
+                                                  if (provider
+                                                      .subtitlesLanguages
+                                                      .isNotEmpty)
+                                                    PopupMenuItem<String>(
+                                                      value: 'subtitles',
+                                                      child: Text(
+                                                        l10n.subtitles,
+                                                      ),
+                                                    ),
                                                 ],
                                           ),
                                         ],

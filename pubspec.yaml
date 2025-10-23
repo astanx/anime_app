@@ -25,6 +25,8 @@ dependencies:
   animated_flip_counter: ^0.3.4
   flutter_html: ^3.0.0
   http: ^1.5.0
+  charset_converter: ^2.3.0
+  translator: ^1.0.4+1
 
 dev_dependencies:
   flutter_test:

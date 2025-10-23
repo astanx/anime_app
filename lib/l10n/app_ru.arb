@@ -69,5 +69,6 @@
   "subtitle": "Субтитры",
   "choose_mode": "Выберите предпочитаемый режим",
   "you_can_change_later": "Вы можете изменить мод позже",
-  "disable_subtitles": "Отключить субтитры"
+  "disable_subtitles": "Отключить субтитры",
+  "subtitle_translate_language": "Язык перевода субтитров"
 }

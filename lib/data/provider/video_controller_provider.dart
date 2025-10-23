@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/episode.dart';
 import 'package:anime_app/data/models/mode.dart';
@@ -7,10 +9,12 @@ import 'package:anime_app/data/provider/history_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/storage/subtitle_storage.dart';
+import 'package:anime_app/data/storage/translate_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:http/http.dart' as http;
+import 'package:charset_converter/charset_converter.dart';
 
 class SubtitleCue {
   final Duration startTime;
@@ -116,6 +120,7 @@ class VideoControllerProvider extends ChangeNotifier {
   Future<void> loadEpisode(Anime anime, int index, BuildContext context) async {
     _saveTimecode();
     _anime = anime;
+    qualities = [];
     _episodeIndex = index;
     _wasStarted = false;
     isDragging = false;
@@ -277,6 +282,7 @@ class VideoControllerProvider extends ChangeNotifier {
         anime: _anime!,
         history: History(
           animeID: _anime!.id,
+          watchedAt: DateTime.now(),
           lastWatchedEpisode: _episodeIndex!,
           isWatched:
               (endingStart != null && time >= endingStart!) ||
@@ -295,6 +301,7 @@ class VideoControllerProvider extends ChangeNotifier {
 
   List<SubtitleCue> get subtitles => _subtitles;
   SubtitleStorage subtitleStorage = SubtitleStorage();
+  String translationLanguage = '';
 
   Future<void> loadSubtitles() async {
     if (vttUrls != null && vttUrls!.isEmpty) {
@@ -302,9 +309,11 @@ class VideoControllerProvider extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    if (translationLanguage.isEmpty) {
+      translationLanguage = await TranslateStorage().getLanguage() ?? '';
+    }
 
     currentLanguage ??= await subtitleStorage.getLanguage() ?? 'English';
-
     for (var vtt in vttUrls!) {
       if (vtt.language == 'thumbnails') continue;
       subtitlesLanguages.add(vtt.language);
@@ -316,13 +325,17 @@ class VideoControllerProvider extends ChangeNotifier {
           vttUrls!.firstWhere((vtt) => vtt.language == currentLanguage).vtt,
         ),
       );
-      if (response.statusCode == 200) {
-        _subtitles = _parseVtt(response.body);
-        notifyListeners();
-      } else {
-        _subtitles = [];
-        notifyListeners();
+      var body = '';
+      try {
+        body = utf8.decode(response.bodyBytes);
+      } catch (_) {
+        body = await CharsetConverter.decode(
+          'windows-1256',
+          response.bodyBytes,
+        ).catchError((_) => '');
       }
+      _subtitles = _parseVtt(body);
+      notifyListeners();
     } catch (e) {
       _subtitles = [];
       notifyListeners();
@@ -331,6 +344,7 @@ class VideoControllerProvider extends ChangeNotifier {
 
   Future<void> changeLanguage(String language) async {
     currentLanguage = language;
+    subtitlesLanguages = [];
     await loadSubtitles();
     await subtitleStorage.saveLanguage(language);
   }

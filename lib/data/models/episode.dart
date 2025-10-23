@@ -83,8 +83,8 @@ class Episode {
               .map((e) => Source.fromJson(e))
               .toList(),
       subtitles:
-          (result['subtitles'] as List<dynamic>)
-              .map((e) => Subtitle.fromJson(e))
+          (result['subtitles'] as List<dynamic>?)
+              ?.map((e) => Subtitle.fromJson(e))
               .toList(),
     );
   }

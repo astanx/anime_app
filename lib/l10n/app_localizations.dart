@@ -496,6 +496,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Disable subtitles'**
   String get disable_subtitles;
+
+  /// No description provided for @subtitle_translate_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle translate Language'**
+  String get subtitle_translate_language;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

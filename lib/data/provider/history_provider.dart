@@ -84,6 +84,7 @@ class HistoryProvider extends ChangeNotifier {
       animeID: historyAnime.anime.id,
       lastWatchedEpisode: historyAnime.history.lastWatchedEpisode,
       isWatched: historyAnime.history.isWatched,
+      watchedAt: historyAnime.history.watchedAt,
     );
 
     await _repository.addToHistory(history);

@@ -1,12 +1,17 @@
+import 'package:anime_app/data/models/collection.dart';
 import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/models/search_anime.dart';
+import 'package:anime_app/data/provider/collections_provider.dart';
+import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/storage/mode_storage.dart';
+import 'package:anime_app/data/storage/translate_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/router/no_animation_route.dart';
 import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AnimeListScreen extends StatefulWidget {
   const AnimeListScreen({super.key});
@@ -18,6 +23,7 @@ class AnimeListScreen extends StatefulWidget {
 class _AnimeListScreenState extends State<AnimeListScreen> {
   List<SearchAnime>? _animeList;
   List<SearchAnime>? _recommendedList;
+  late String translateLang;
   Mode? mode;
   bool isLoading = true;
   late AnimeRepository repository;
@@ -32,12 +38,19 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final m = await ModeStorage.getMode();
-
+      translateLang = await TranslateStorage().getLanguage() ?? '';
+      for (var type in CollectionType.values) {
+        Provider.of<CollectionsProvider>(
+          context,
+          listen: false,
+        ).fetchCollection(type);
+      }
+      Provider.of<FavouritesProvider>(context, listen: false).fetchFavourites();
       setState(() {
         mode = m;
         repository = AnimeRepository(mode: m);
       });
-      _fetchAnime();
+      await _fetchAnime();
       setState(() {
         isLoading = false;
       });
@@ -122,50 +135,113 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                                                       context,
                                                       setStatePopup,
                                                     ) {
-                                                      return Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
+                                                      final subtitleLanguages =
+                                                          [
+                                                            'en',
+                                                            'ru',
+                                                            'es',
+                                                            'fr',
+                                                            'de',
+                                                            'ja',
+                                                            'zh-cn',
+                                                            'ko',
+                                                            'it',
+                                                            'pt',
+                                                          ];
+
+                                                      return Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         children: [
-                                                          Text(l10n.anilibria),
-                                                          Switch(
-                                                            value:
-                                                                mode ==
-                                                                Mode.consumet,
-                                                            onChanged: (
-                                                              value,
-                                                            ) async {
-                                                              final newMode =
-                                                                  value
-                                                                      ? Mode
-                                                                          .consumet
-                                                                      : Mode
-                                                                          .anilibria;
-                                                              await ModeStorage.saveMode(
-                                                                newMode,
-                                                              );
-                                                              setStatePopup(
-                                                                () {},
-                                                              );
-                                                              setState(
-                                                                () =>
-                                                                    mode =
-                                                                        newMode,
-                                                              );
-                                                              Navigator.of(
-                                                                context,
-                                                              ).pushReplacement(
-                                                                NoAnimationPageRoute(
-                                                                  builder:
-                                                                      (
-                                                                        context,
-                                                                      ) =>
-                                                                          AnimeListScreen(),
-                                                                ),
-                                                              );
-                                                            },
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Text(
+                                                                l10n.anilibria,
+                                                              ),
+                                                              Switch(
+                                                                value:
+                                                                    mode ==
+                                                                    Mode.consumet,
+                                                                onChanged: (
+                                                                  value,
+                                                                ) async {
+                                                                  final newMode =
+                                                                      value
+                                                                          ? Mode
+                                                                              .consumet
+                                                                          : Mode
+                                                                              .anilibria;
+                                                                  await ModeStorage.saveMode(
+                                                                    newMode,
+                                                                  );
+                                                                  setStatePopup(
+                                                                    () {},
+                                                                  );
+                                                                  setState(
+                                                                    () =>
+                                                                        mode =
+                                                                            newMode,
+                                                                  );
+                                                                  Navigator.of(
+                                                                    context,
+                                                                  ).pushReplacement(
+                                                                    NoAnimationPageRoute(
+                                                                      builder:
+                                                                          (
+                                                                            context,
+                                                                          ) =>
+                                                                              AnimeListScreen(),
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              ),
+                                                              Text(
+                                                                l10n.subtitle,
+                                                              ),
+                                                            ],
                                                           ),
-                                                          Text(l10n.subtitle),
+                                                          const SizedBox(
+                                                            height: 8,
+                                                          ),
+                                                          Text(
+                                                            l10n.subtitle_translate_language,
+                                                          ),
+                                                          Wrap(
+                                                            spacing: 4,
+                                                            runSpacing: 4,
+                                                            children:
+                                                                subtitleLanguages.map((
+                                                                  lang,
+                                                                ) {
+                                                                  return ChoiceChip(
+                                                                    label: Text(
+                                                                      lang.toUpperCase(),
+                                                                    ),
+                                                                    selected:
+                                                                        translateLang ==
+                                                                        lang,
+                                                                    onSelected: (
+                                                                      _,
+                                                                    ) async {
+                                                                      await TranslateStorage()
+                                                                          .saveLanguage(
+                                                                            lang,
+                                                                          );
+                                                                      setStatePopup(
+                                                                        () {},
+                                                                      );
+                                                                      setState(() {
+                                                                        translateLang =
+                                                                            lang;
+                                                                      });
+                                                                    },
+                                                                  );
+                                                                }).toList(),
+                                                          ),
                                                         ],
                                                       );
                                                     },

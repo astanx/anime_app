@@ -233,4 +233,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get disable_subtitles => 'Disable subtitles';
+
+  @override
+  String get subtitle_translate_language => 'Subtitle translate Language';
 }

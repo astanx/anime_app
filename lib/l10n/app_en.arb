@@ -69,5 +69,6 @@
   "subtitle": "Subtitle",
   "choose_mode": "Choose your preferred mode",
   "you_can_change_later": "You can change this later",
-  "disable_subtitles": "Disable subtitles"
+  "disable_subtitles": "Disable subtitles",
+  "subtitle_translate_language": "Subtitle translate Language"
 }

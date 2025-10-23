@@ -12,6 +12,7 @@ An anime viewing app built with Flutter. It allows users to discover new anime, 
 - Detailed information about each anime
 - Track episodes watched
 - Localization (multiple language support)
+- Watch anime with customizable subtitles — choose your preferred language and instantly translate them into any other language
 
 ##  Screenshots
 

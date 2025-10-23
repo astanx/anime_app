@@ -43,6 +43,9 @@ class TimecodeProvider extends ChangeNotifier {
   }
 
   Future<void> fetchTimecodesForAnime(String animeID) async {
+    if (_timecodes.any((t) => t.animeID == animeID)) {
+      return;
+    }
     final timecodes = await _repository.getTimecodesForAnime(animeID);
     _timecodes.addAll(timecodes);
     notifyListeners();
