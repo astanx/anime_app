@@ -40,6 +40,7 @@ class VideoControllerProvider extends ChangeNotifier {
   VideoPlayerController? _controller;
   int? _episodeIndex;
   Anime? _anime;
+  String? episodeID;
   TimecodeProvider? _timecodeProvider;
   HistoryProvider? _historyProvider;
   double desiredPosition = 0.0;
@@ -125,14 +126,13 @@ class VideoControllerProvider extends ChangeNotifier {
     _wasStarted = false;
     isDragging = false;
     desiredPosition = 0.0;
-    _timecodeProvider = Provider.of<TimecodeProvider>(context, listen: false);
-    _historyProvider = Provider.of<HistoryProvider>(context, listen: false);
-
+    _timecodeProvider ??= Provider.of<TimecodeProvider>(context, listen: false);
+    _historyProvider ??= Provider.of<HistoryProvider>(context, listen: false);
+    _timecodeProvider!.fetchTimecodesForAnime(anime.id);
+    episodeID = anime.previewEpisodes[index].id;
     Episode episode;
     try {
-      episode = anime.episodes.firstWhere(
-        (e) => e.id == anime.previewEpisodes[index].id,
-      );
+      episode = anime.episodes.firstWhere((e) => e.id == episodeID);
     } catch (e) {
       episode = await _animeRepository.getEpisodeInfo(
         anime.previewEpisodes[index],
@@ -256,6 +256,7 @@ class VideoControllerProvider extends ChangeNotifier {
         _timecodeProvider == null ||
         _historyProvider == null ||
         _episodeIndex == null ||
+        episodeID == null ||
         !_wasStarted) {
       return;
     }
@@ -263,17 +264,15 @@ class VideoControllerProvider extends ChangeNotifier {
     final time = _controller!.value.position;
     final duration = _controller!.value.duration;
     if (time > Duration.zero) {
-      final episodeID = _anime!.episodes[_episodeIndex!].id;
+      final episode = _anime!.episodes.where((e) => e.id == episodeID!).first;
       final timecode = Timecode(
         animeID: _anime!.id,
         time: time.inSeconds,
-        episodeID: episodeID,
+        episodeID: episodeID!,
         isWatched:
             time >=
-            (_anime!.episodes[_episodeIndex!].ending.start != 0
-                ? Duration(
-                  seconds: _anime!.episodes[_episodeIndex!].ending.start,
-                )
+            (episode.ending.start != 0
+                ? Duration(seconds: episode.ending.start)
                 : controller!.value.duration - Duration(seconds: 60)),
       );
 

@@ -12,7 +12,7 @@ class UserRepository extends BaseRepository {
     try {
       if (await IDStorage.getID() != null) return;
 
-      final response = await dio.get('/users/device');
+      final response = await dio.get('/users/device?from=app');
       final data = response.data;
 
       final device = DeviceID.fromJson(data);

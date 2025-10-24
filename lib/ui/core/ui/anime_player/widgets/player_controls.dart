@@ -197,9 +197,7 @@ class _PlayerControlsState extends State<PlayerControls> {
                     )
                   else
                     const SizedBox.shrink(),
-                  if (isEnding &&
-                      provider.endingEnd != null &&
-                      provider.endingStart != null)
+                  if (isEnding)
                     TextButton(
                       style: TextButton.styleFrom(
                         backgroundColor: const Color.fromARGB(
@@ -230,7 +228,13 @@ class _PlayerControlsState extends State<PlayerControls> {
                         } else {
                           provider.seek(
                             Duration(
-                              seconds: anime.episodes[episodeIndex].ending.end,
+                              seconds:
+                                  anime.episodes
+                                      .firstWhere(
+                                        (e) => e.id == provider.episodeID,
+                                      )
+                                      .ending
+                                      .end,
                             ),
                           );
                         }

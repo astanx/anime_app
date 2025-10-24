@@ -9,7 +9,7 @@ class HistoryCard extends StatelessWidget {
   final AnimeWithHistory historyData;
   final Mode mode;
 
-  void _openNextEpisode(BuildContext context) {
+  void _openNextEpisode(BuildContext context) async {
     Navigator.of(context).pushNamed(
       '/anime',
       arguments: {

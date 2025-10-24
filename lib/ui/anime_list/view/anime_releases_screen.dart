@@ -33,7 +33,6 @@ class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
       _isLoading = true;
     });
     final animeList = await repository.getLatestReleases();
-
     if (mounted) {
       setState(() {
         _animeList = animeList;
@@ -45,15 +44,12 @@ class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final arguments =
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
       final List<SearchAnime>? releases = arguments['genreReleases'];
       final m = await ModeStorage.getMode();
-
       repository = AnimeRepository(mode: m);
-
       final query = arguments['query'] as String?;
       if (query != null) {
         setState(() {
@@ -70,7 +66,6 @@ class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
           _animeList = releases;
         });
       }
-
       setState(() {
         mode = m;
       });
@@ -156,12 +151,25 @@ class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
                         child:
                             _animeList!.isEmpty
                                 ? Center(
-                                  child: Text(
-                                    l10n.no_anime_found(_query ?? ''),
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.grey,
-                                    ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.search_off,
+                                        color: Colors.grey,
+                                        size: 48,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        l10n.no_anime_found(_query ?? ''),
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
                                   ),
                                 )
                                 : GridView.builder(
