@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:anime_app/core/utils/is_ongoing.dart';
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/collection.dart';
+import 'package:anime_app/data/models/favourite.dart';
 import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/provider/collections_provider.dart';
 import 'package:anime_app/data/provider/favourites_provider.dart';
@@ -26,11 +27,14 @@ class AnimeEpisodesScreen extends StatefulWidget {
 class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
   late AnimeRepository repository;
   late Anime anime;
+  CollectionType? collection;
+  Favourite? favourite;
   Mode? mode;
   TimecodeProvider? _timecodeProvider;
   late ScrollController _scrollController;
   int _visibleEpisodes = 30;
   bool _isLoading = true;
+  bool _isFetched = false;
 
   bool get hasMore => _visibleEpisodes < anime.previewEpisodes.length;
 
@@ -50,20 +54,32 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       context,
       listen: false,
     );
+    final collectionProvider = Provider.of<CollectionsProvider>(
+      context,
+      listen: false,
+    );
+    final favouritesProvider = Provider.of<FavouritesProvider>(
+      context,
+      listen: false,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final m = await ModeStorage.getMode();
       repository = AnimeRepository(mode: m);
 
       if (arguments['anime'] == null) {
+        if (_isFetched) return;
         anime = await repository.getAnimeById(animeID);
       } else {
         anime = arguments['anime'];
       }
+      collection = await collectionProvider.fetchCollectionForAnime(anime);
+      favourite = await favouritesProvider.fetchFavouriteForAnime(anime);
       await timecodeProvider.fetchTimecodesForAnime(anime.id);
       setState(() {
         mode = m;
         _timecodeProvider = timecodeProvider;
         _isLoading = false;
+        _isFetched = true;
       });
     });
   }
@@ -101,8 +117,8 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final isFavourite = favouritesProvider.isFavourite(anime);
-    final collection = collectionProvider.getCollectionType(anime);
+    final isFavourite = favourite != null;
+    collection ??= collectionProvider.getCollectionType(anime);
 
     return ChangeNotifierProvider(
       create: (context) {
@@ -191,7 +207,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                                     .toList(),
                           ),
                           const SizedBox(height: 4),
-                          if (anime.totalEpisodes > 0)
+                          if (anime.totalEpisodes > 0 && !anime.isMovie)
                             Text(
                               '${l10n.episode_count(anime.totalEpisodes)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}',
                               style: theme.textTheme.bodySmall?.copyWith(

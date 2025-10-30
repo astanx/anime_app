@@ -20,6 +20,7 @@ class CollectionsProvider extends ChangeNotifier {
   final Map<CollectionType, bool> _hasFetched = {
     for (final type in CollectionType.values) type: false,
   };
+  Map<CollectionType, bool> get hasFetched => _hasFetched;
   final Map<CollectionType, int> _page = {
     for (final type in CollectionType.values) type: 1,
   };
@@ -42,18 +43,25 @@ class CollectionsProvider extends ChangeNotifier {
       _hasFetched[type] = true;
       if (_collections[type] == null) {
         final futures = collection.animeIDs.map((id) {
+          if (_existingIds.contains(id)) {
+            return Future<Anime?>.value(null);
+          }
           _existingIds.add(id);
           return _animeRepository.getAnimeById(id);
         });
-        _collections[type] = await Future.wait(futures);
+        final anime = await Future.wait(futures);
+        _collections[type] = anime.whereType<Anime>().toList();
       } else {
         final futures = collection.animeIDs.map((id) {
+          if (_existingIds.contains(id)) {
+            return Future<Anime?>.value(null);
+          }
           _existingIds.add(id);
           return _animeRepository.getAnimeById(id);
         });
         final newItems = await Future.wait(futures);
 
-        _collections[type]!.addAll(newItems);
+        _collections[type]!.addAll(newItems.whereType<Anime>());
       }
 
       if (collection.animeIDs.length < _limit) {
@@ -119,5 +127,17 @@ class CollectionsProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  Future<CollectionType?> fetchCollectionForAnime(Anime anime) async {
+    if (_existingIds.contains(anime.id)) {
+      return getCollectionType(anime);
+    }
+    final collection = await _repository.getCollectionForAnime(anime.id);
+    if (collection == null) {
+      return null;
+    }
+
+    return collection.type;
   }
 }

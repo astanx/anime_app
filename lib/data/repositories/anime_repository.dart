@@ -111,23 +111,26 @@ class AnimeRepository extends BaseRepository {
   }
 
   Future<Episode> getEpisodeInfo(
-    PreviewEpisode episodeInfo, [
+    PreviewEpisode episodeInfo,
+    bool isDubbed, [
     Anime? anime,
   ]) async {
     try {
       if (anime != null) {
         final episode =
-            anime.episodes.where((e) => e.id == episodeInfo.id).firstOrNull;
+            anime.episodes
+                .where((e) => e.id == episodeInfo.id && e.isDubbed == isDubbed)
+                .firstOrNull;
         if (episode != null) {
           return episode;
         }
       }
       final response = await dio.get(
-        '/anime/${mode.name}/episode/${episodeInfo.id}?title=${episodeInfo.title}&ordinal=${episodeInfo.ordinal}',
+        '/anime/${mode.name}/episode/${episodeInfo.id}?title=${episodeInfo.title}&ordinal=${episodeInfo.ordinal}&dub=${isDubbed.toString()}',
       );
       final data = response.data;
 
-      final episode = Episode.fromJson(data);
+      final episode = Episode.fromJson(data, isDubbed);
       anime!.episodes.add(episode);
 
       return episode;

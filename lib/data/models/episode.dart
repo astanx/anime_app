@@ -1,17 +1,23 @@
 class PreviewEpisode {
   final String id;
   final int ordinal;
+  final bool isDubbed;
+  final bool isSubbed;
   final String title;
 
   PreviewEpisode({
     required this.id,
     required this.ordinal,
+    required this.isDubbed,
+    required this.isSubbed,
     required this.title,
   });
 
   factory PreviewEpisode.fromJson(Map<String, dynamic> json) {
     return PreviewEpisode(
       id: json['id'],
+      isDubbed: json['is_dubbed'],
+      isSubbed: json['is_subbed'],
       ordinal: json['ordinal'],
       title: json['title'],
     );
@@ -54,6 +60,7 @@ class Subtitle {
 class Episode {
   final String id;
   final int ordinal;
+  final bool isDubbed;
   final String title;
   final TimeSegment opening;
   final TimeSegment ending;
@@ -62,6 +69,7 @@ class Episode {
 
   Episode({
     required this.id,
+    required this.isDubbed,
     required this.ordinal,
     required this.title,
     required this.opening,
@@ -70,10 +78,11 @@ class Episode {
     this.subtitles,
   });
 
-  factory Episode.fromJson(Map<String, dynamic> json) {
+  factory Episode.fromJson(Map<String, dynamic> json, isDubbed) {
     var result = json['result'];
     return Episode(
       id: result['id'],
+      isDubbed: isDubbed,
       ordinal: result['ordinal'],
       title: result['title'],
       opening: TimeSegment.fromJson(result['opening']),

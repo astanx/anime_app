@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/anime_mode.dart';
 import 'package:anime_app/data/models/episode.dart';
 import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/models/history.dart';
@@ -8,6 +9,7 @@ import 'package:anime_app/data/models/timecode.dart';
 import 'package:anime_app/data/provider/history_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/data/storage/anime_mode_storage.dart';
 import 'package:anime_app/data/storage/subtitle_storage.dart';
 import 'package:anime_app/data/storage/translate_storage.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +61,8 @@ class VideoControllerProvider extends ChangeNotifier {
   get saveTimecode => _saveTimecode;
   List<String> qualities = [];
   List<double> playbackSpeeds = [0.5, 1.0, 1.25, 1.5, 2.0];
+  bool? _isDubbedMode;
+  bool get isDubbedMode => _isDubbedMode ?? false;
 
   void updateIsDragging(bool dragging) {
     isDragging = dragging;
@@ -118,6 +122,14 @@ class VideoControllerProvider extends ChangeNotifier {
     seek(seekPos);
   }
 
+  void toggleDubbed() {
+    _isDubbedMode = !(_isDubbedMode ?? true);
+    AnimeModeStorage.saveMode(
+      _isDubbedMode ?? false ? AnimeMode.dub : AnimeMode.sub,
+    );
+    notifyListeners();
+  }
+
   Future<void> loadEpisode(Anime anime, int index, BuildContext context) async {
     _saveTimecode();
     _anime = anime;
@@ -130,12 +142,17 @@ class VideoControllerProvider extends ChangeNotifier {
     _historyProvider ??= Provider.of<HistoryProvider>(context, listen: false);
     _timecodeProvider!.fetchTimecodesForAnime(anime.id);
     episodeID = anime.previewEpisodes[index].id;
+    _isDubbedMode ??= await AnimeModeStorage.getMode() == AnimeMode.dub;
     Episode episode;
+
     try {
-      episode = anime.episodes.firstWhere((e) => e.id == episodeID);
+      episode = anime.episodes.firstWhere(
+        (e) => e.id == episodeID && e.isDubbed == _isDubbedMode,
+      );
     } catch (e) {
       episode = await _animeRepository.getEpisodeInfo(
         anime.previewEpisodes[index],
+        _isDubbedMode!,
         anime,
       );
     }
@@ -144,7 +161,7 @@ class VideoControllerProvider extends ChangeNotifier {
       episode.id,
       anime,
     );
-    if (mode == Mode.consumet) {
+    if (anime.previewEpisodes[index].isSubbed) {
       subtitlesLanguages = [];
       vttUrls = episode.subtitles;
       await loadSubtitles();

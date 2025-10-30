@@ -22,11 +22,11 @@ class FavouriteRepository extends BaseRepository {
     }
   }
 
-  Future<Favourite> getFavourites(int page, int limit) async {
+  Future<FavouriteMeta> getFavourites(int page, int limit) async {
     try {
       final response = await dio.get('/favourite?page=$page&limit=$limit');
       final data = response.data;
-      final favourites = Favourite.fromJson(data);
+      final favourites = FavouriteMeta.fromJson(data);
 
       return favourites;
     } catch (e) {
@@ -39,6 +39,20 @@ class FavouriteRepository extends BaseRepository {
       final body = {'anime_id': animeID};
       await dio.delete('/favourite', data: body);
       return;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Favourite?> getFavouriteForAnime(String animeID) async {
+    try {
+      final response = await dio.get('/favourite/anime?animeID=$animeID');
+      final data = response.data;
+      if (data['anime_id'].isEmpty) {
+        return null;
+      }
+      final favourite = Favourite.fromJson(data);
+      return favourite;
     } catch (e) {
       rethrow;
     }

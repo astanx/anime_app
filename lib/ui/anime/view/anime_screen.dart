@@ -17,7 +17,6 @@ class AnimeScreen extends StatelessWidget {
     final int episodeIndex = arguments['episodeIndex'] as int;
     final Mode mode = arguments['mode'];
     final theme = Theme.of(context);
-
     return ChangeNotifierProvider(
       create: (context) {
         final provider = VideoControllerProvider(mode: mode);
@@ -26,36 +25,51 @@ class AnimeScreen extends StatelessWidget {
         });
         return provider;
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  anime.title,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: false,
-                  style: theme.textTheme.titleLarge,
-                ),
+      child: Consumer<VideoControllerProvider>(
+        builder: (context, provider, _) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      anime.title,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      style: theme.textTheme.titleLarge,
+                    ),
+                  ),
+                  if (anime.previewEpisodes[episodeIndex].isDubbed &&
+                      anime.previewEpisodes[episodeIndex].isSubbed)
+                    IconButton(
+                      icon: Icon(
+                        provider.isDubbedMode
+                            ? Icons.record_voice_over
+                            : Icons.subtitles,
+                      ),
+                      tooltip:
+                          provider.isDubbedMode
+                              ? 'Switch to Sub'
+                              : 'Switch to Dub',
+                      onPressed: () {
+                        provider.toggleDubbed();
+                        provider.loadEpisode(anime, episodeIndex, context);
+                      },
+                    ),
+                  IconButton(
+                    icon: const Icon(Icons.home),
+                    tooltip: 'Home',
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/anime/list');
+                    },
+                  ),
+                ],
               ),
-              IconButton(
-                icon: const Icon(Icons.home),
-                tooltip: 'Home',
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/anime/list');
-                },
-              ),
-            ],
-          ),
-        ),
-        body: SafeArea(
-          child: Consumer<VideoControllerProvider>(
-            builder: (context, provider, _) {
-              return _buildBody(context, provider, anime, theme);
-            },
-          ),
-        ),
+            ),
+            body: SafeArea(child: _buildBody(context, provider, anime, theme)),
+          );
+        },
       ),
     );
   }

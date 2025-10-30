@@ -1,4 +1,5 @@
 import 'package:anime_app/data/models/anime.dart';
+import 'package:anime_app/data/models/favourite.dart';
 import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/repositories/favourite_repository.dart';
@@ -104,5 +105,17 @@ class FavouritesProvider extends ChangeNotifier {
     } else {
       await addToFavourites(anime);
     }
+  }
+
+  Future<Favourite?> fetchFavouriteForAnime(Anime anime) async {
+    if (_existingIds.contains(anime.id)) {
+      return Favourite(animeID: anime.id);
+    }
+    final favourite = await _repository.getFavouriteForAnime(anime.id);
+    if (favourite == null || favourite.animeID.isEmpty) {
+      return null;
+    }
+
+    return favourite;
   }
 }

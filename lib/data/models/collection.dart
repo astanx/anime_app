@@ -1,20 +1,38 @@
 import 'package:anime_app/data/models/meta.dart';
 
-class Collection {
+class CollectionMeta {
   List<String> animeIDs;
   final CollectionType type;
   final Meta meta;
 
-  Collection({required this.animeIDs, required this.meta, required this.type});
+  CollectionMeta({
+    required this.animeIDs,
+    required this.meta,
+    required this.type,
+  });
 
-  factory Collection.fromJson(Map<String, dynamic> json, String type) {
-    return Collection(
+  factory CollectionMeta.fromJson(Map<String, dynamic> json, String type) {
+    return CollectionMeta(
       animeIDs:
           (json['data'] as List<dynamic>)
               .map((e) => e['anime_id'].toString())
               .toList(),
       type: CollectionType.fromString(type),
       meta: Meta.fromJson(json['meta']),
+    );
+  }
+}
+
+class Collection {
+  final String animeID;
+  final CollectionType type;
+
+  Collection({required this.animeID, required this.type});
+
+  factory Collection.fromJson(Map<String, dynamic> json) {
+    return Collection(
+      animeID: json['anime_id'].toString(),
+      type: CollectionType.fromString(json['type']),
     );
   }
 }

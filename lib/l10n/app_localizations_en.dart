@@ -214,7 +214,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get anilibria_mode => 'Continue with anilibria (Russian anime)';
 
   @override
-  String get subtitle_mode => 'Continue with subtitles';
+  String get subtitle_mode => 'Continue with subtitles or dub';
 
   @override
   String get recommended => 'Recommended';

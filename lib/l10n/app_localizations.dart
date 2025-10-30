@@ -458,7 +458,7 @@ abstract class AppLocalizations {
   /// No description provided for @subtitle_mode.
   ///
   /// In en, this message translates to:
-  /// **'Continue with subtitles'**
+  /// **'Continue with subtitles or dub'**
   String get subtitle_mode;
 
   /// No description provided for @recommended.

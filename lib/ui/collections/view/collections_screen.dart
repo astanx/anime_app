@@ -128,7 +128,8 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                   const SizedBox(height: 24),
                   Expanded(
                     child:
-                        collections[_type] == null
+                        collections[_type] == null &&
+                                provider.hasFetched[_type] == false
                             ? Center(
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,

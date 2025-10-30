@@ -1,8 +1,5 @@
-import 'package:anime_app/data/models/collection.dart';
 import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/models/search_anime.dart';
-import 'package:anime_app/data/provider/collections_provider.dart';
-import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/storage/mode_storage.dart';
 import 'package:anime_app/data/storage/translate_storage.dart';
@@ -11,7 +8,6 @@ import 'package:anime_app/router/no_animation_route.dart';
 import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class AnimeListScreen extends StatefulWidget {
   const AnimeListScreen({super.key});
@@ -39,13 +35,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final m = await ModeStorage.getMode();
       translateLang = await TranslateStorage().getLanguage() ?? '';
-      for (var type in CollectionType.values) {
-        Provider.of<CollectionsProvider>(
-          context,
-          listen: false,
-        ).fetchCollection(type);
-      }
-      Provider.of<FavouritesProvider>(context, listen: false).fetchFavourites();
+
       setState(() {
         mode = m;
         repository = AnimeRepository(mode: m);

@@ -73,22 +73,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 return Center(child: Text(l10n!.no_history_found));
               }
 
-              final reversed = history.reversed.toList();
               return ListView.builder(
                 controller: _scrollController,
-                itemCount: reversed.length + (provider.isLoadingMore ? 1 : 0),
+                itemCount: history.length + (provider.isLoadingMore ? 1 : 0),
                 itemBuilder: (context, index) {
-                  if (index == reversed.length) {
+                  if (index == history.length) {
                     return const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
                       child: Center(child: CircularProgressIndicator()),
                     );
                   }
 
-                  return HistoryCard(
-                    historyData: reversed[index],
-                    mode: _mode!,
-                  );
+                  return HistoryCard(historyData: history[index], mode: _mode!);
                 },
               );
             },

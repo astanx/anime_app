@@ -12,7 +12,7 @@ class CollectionRepository extends BaseRepository {
     : repository = AnimeRepository(mode: mode),
       super(DioClient().dio);
 
-  Future<Collection> getCollection(
+  Future<CollectionMeta> getCollection(
     CollectionType type,
     int page,
     int limit,
@@ -22,7 +22,7 @@ class CollectionRepository extends BaseRepository {
         '/collection?type=${type.name}&page=$page&limit=$limit',
       );
       final data = response.data as Map<String, dynamic>;
-      final collection = Collection.fromJson(data, type.name);
+      final collection = CollectionMeta.fromJson(data, type.name);
 
       return collection;
     } catch (e) {
@@ -45,6 +45,21 @@ class CollectionRepository extends BaseRepository {
       final body = {'anime_id': animeID, 'type': type.name};
       dio.delete('/collection', data: body);
       return;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Collection?> getCollectionForAnime(String animeID) async {
+    try {
+      final response = await dio.get('/collection/anime?animeID=$animeID');
+      final data = response.data as Map<String, dynamic>;
+      if (data['anime_id'].isEmpty) {
+        return null;
+      }
+      final collection = Collection.fromJson(data);
+
+      return collection;
     } catch (e) {
       rethrow;
     }

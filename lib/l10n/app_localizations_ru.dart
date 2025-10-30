@@ -214,7 +214,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get anilibria_mode => 'Продолжить с Anilibria (русская озвучка)';
 
   @override
-  String get subtitle_mode => 'Продолжить с субтитрами';
+  String get subtitle_mode => 'Продолжить с субтитрами или дубляжом';
 
   @override
   String get recommended => 'Рекомендация';
