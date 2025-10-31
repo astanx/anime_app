@@ -23,7 +23,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    _init();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final historyProvider = context.read<HistoryProvider>();
+      final mode = await ModeStorage.getMode();
+      await historyProvider.fetchHistory();
+
+      setState(() {
+        _mode = mode;
+        _isLoading = false;
+      });
+    });
   }
 
   @override
@@ -31,17 +40,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
-  }
-
-  Future<void> _init() async {
-    final historyProvider = context.read<HistoryProvider>();
-    final mode = await ModeStorage.getMode();
-    await historyProvider.fetchHistory();
-
-    setState(() {
-      _mode = mode;
-      _isLoading = false;
-    });
   }
 
   void _onScroll() {
@@ -64,12 +62,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Consumer<HistoryProvider>(
             builder: (context, provider, child) {
-              final history = provider.history;
-
-              if (history == null || _isLoading) {
+              if (_mode == null || _isLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
-              if (history.isEmpty) {
+              final history =
+                  provider.history?.where((h) {
+                    final canParse = int.tryParse(h.anime.id) != null;
+                    return _mode == Mode.anilibria ? canParse : !canParse;
+                  }).toList();
+
+              if (history == null || history.isEmpty) {
                 return Center(child: Text(l10n!.no_history_found));
               }
 
