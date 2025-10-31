@@ -53,14 +53,7 @@ class AnimeRepository extends BaseRepository {
 
   Future<Anime> getAnimeById(String id) async {
     try {
-      final isNumeric = int.tryParse(id) != null;
-
-      final endpoint =
-          isNumeric
-              ? '/anime/${Mode.anilibria.name}/$id'
-              : '/anime/${Mode.consumet.name}/$id';
-
-      final response = await dio.get(endpoint);
+      final response = await dio.get('/anime/$id');
       final data = response.data;
       final anime = Anime.fromJsonPreview(data);
       return anime;
@@ -126,7 +119,7 @@ class AnimeRepository extends BaseRepository {
         }
       }
       final response = await dio.get(
-        '/anime/${mode.name}/episode/${episodeInfo.id}?title=${episodeInfo.title}&ordinal=${episodeInfo.ordinal}&dub=${isDubbed.toString()}',
+        '/anime/episode/${episodeInfo.id}?title=${episodeInfo.title}&ordinal=${episodeInfo.ordinal}&dub=${isDubbed.toString()}',
       );
       final data = response.data;
 

@@ -62,16 +62,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Consumer<HistoryProvider>(
             builder: (context, provider, child) {
-              if (_mode == null || _isLoading) {
+              final history = provider.history;
+
+              if (history == null || _isLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
-              final history =
-                  provider.history?.where((h) {
-                    final canParse = int.tryParse(h.anime.id) != null;
-                    return _mode == Mode.anilibria ? canParse : !canParse;
-                  }).toList();
-
-              if (history == null || history.isEmpty) {
+              if (history.isEmpty) {
                 return Center(child: Text(l10n!.no_history_found));
               }
 

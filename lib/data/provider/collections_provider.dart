@@ -92,14 +92,18 @@ class CollectionsProvider extends ChangeNotifier {
     for (final entry in _collections.entries) {
       entry.value.removeWhere((a) => a.id == anime.id);
     }
+    if (!_existingIds.contains(anime.id)) {
+      _existingIds.add(anime.id);
+    }
 
     await _repository.addToCollection(type, anime.id);
 
     if (_collections[type] == null) {
       await fetchCollection(type);
+      _collections[type]!.insert(0, anime);
     } else {
       if (!_collections[type]!.any((a) => a.id == anime.id)) {
-        _collections[type]!.add(anime);
+        _collections[type]!.insert(0, anime);
       }
     }
 
@@ -120,6 +124,7 @@ class CollectionsProvider extends ChangeNotifier {
       entry.value.removeWhere((a) => a.id == anime.id);
     }
 
+    _existingIds.remove(anime.id);
     await _repository.removeFromCollection(type, anime.id);
 
     if (_collections[type] != null) {

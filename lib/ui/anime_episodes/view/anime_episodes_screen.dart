@@ -72,8 +72,11 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       } else {
         anime = arguments['anime'];
       }
-      collection = await collectionProvider.fetchCollectionForAnime(anime);
-      favourite = await favouritesProvider.fetchFavouriteForAnime(anime);
+      if (!_isFetched) {
+        collection = await collectionProvider.fetchCollectionForAnime(anime);
+        favourite = await favouritesProvider.fetchFavouriteForAnime(anime);
+      }
+
       await timecodeProvider.fetchTimecodesForAnime(anime.id);
       setState(() {
         mode = m;
@@ -117,8 +120,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final isFavourite = favourite != null;
-    collection ??= collectionProvider.getCollectionType(anime);
+    var isFavourite = favourite != null;
 
     return ChangeNotifierProvider(
       create: (context) {
@@ -147,13 +149,88 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                   IconButton(
                     icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
                     color: isFavourite ? theme.colorScheme.secondary : null,
-                    onPressed: () => favouritesProvider.toggleFavourite(anime),
+                    onPressed: () async {
+                      isFavourite = await favouritesProvider.toggleFavourite(
+                        anime,
+                      );
+                      setState(() {
+                        favourite =
+                            isFavourite ? Favourite(animeID: anime.id) : null;
+                      });
+                    },
                   ),
-                  _buildCollectionsButton(
-                    theme,
-                    anime,
-                    collection,
-                    collectionProvider,
+                  ElevatedButton(
+                    onPressed: () async {
+                      await showModalBottomSheet(
+                        context: context,
+                        builder:
+                            (context) => Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children:
+                                  CollectionType.values
+                                      .map(
+                                        (type) => ListTile(
+                                          leading: Icon(switch (type) {
+                                            CollectionType.watched =>
+                                              Icons.check,
+                                            CollectionType.abandoned =>
+                                              Icons.close,
+                                            CollectionType.planned =>
+                                              Icons.calendar_month,
+                                            CollectionType.watching =>
+                                              Icons.play_arrow,
+                                          }),
+                                          title: Text(
+                                            type.localizedName(context),
+                                          ),
+                                          selected: collection == type,
+                                          onTap: () async {
+                                            if (collection != type) {
+                                              await collectionProvider
+                                                  .addToCollection(type, anime);
+                                              setState(() {
+                                                collection = type;
+                                              });
+                                            } else {
+                                              await collectionProvider
+                                                  .removeFromCollection(
+                                                    type,
+                                                    anime,
+                                                  );
+                                              setState(() {
+                                                collection = null;
+                                              });
+                                            }
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      )
+                                      .toList(),
+                            ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                    ),
+                    child: switch (collection) {
+                      CollectionType.watched => const Icon(
+                        Icons.check,
+                        size: 28,
+                      ),
+                      CollectionType.abandoned => const Icon(
+                        Icons.close,
+                        size: 28,
+                      ),
+                      CollectionType.planned => const Icon(
+                        Icons.calendar_month,
+                        size: 28,
+                      ),
+                      CollectionType.watching => const Icon(
+                        Icons.play_arrow,
+                        size: 28,
+                      ),
+                      null => const Icon(Icons.folder_open, size: 28),
+                    },
                   ),
                   IconButton(
                     icon: const Icon(Icons.home),
@@ -278,62 +355,6 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
           );
         },
       ),
-    );
-  }
-
-  Widget _buildCollectionsButton(
-    ThemeData theme,
-    Anime anime,
-    CollectionType? collection,
-    CollectionsProvider collectionProvider,
-  ) {
-    return ElevatedButton(
-      onPressed: () async {
-        await showModalBottomSheet(
-          context: context,
-          builder:
-              (context) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children:
-                    CollectionType.values
-                        .map(
-                          (type) => ListTile(
-                            leading: Icon(switch (type) {
-                              CollectionType.watched => Icons.check,
-                              CollectionType.abandoned => Icons.close,
-                              CollectionType.planned => Icons.calendar_month,
-                              CollectionType.watching => Icons.play_arrow,
-                            }),
-                            title: Text(type.localizedName(context)),
-                            selected: collection == type,
-                            onTap: () async {
-                              if (collection != type) {
-                                await collectionProvider.addToCollection(
-                                  type,
-                                  anime,
-                                );
-                              } else {
-                                await collectionProvider.removeFromCollection(
-                                  type,
-                                  anime,
-                                );
-                              }
-                              Navigator.pop(context);
-                            },
-                          ),
-                        )
-                        .toList(),
-              ),
-        );
-      },
-      style: ElevatedButton.styleFrom(foregroundColor: Colors.white),
-      child: switch (collection) {
-        CollectionType.watched => const Icon(Icons.check, size: 28),
-        CollectionType.abandoned => const Icon(Icons.close, size: 28),
-        CollectionType.planned => const Icon(Icons.calendar_month, size: 28),
-        CollectionType.watching => const Icon(Icons.play_arrow, size: 28),
-        null => const Icon(Icons.folder_open, size: 28),
-      },
     );
   }
 }

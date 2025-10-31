@@ -85,25 +85,30 @@ class FavouritesProvider extends ChangeNotifier {
     if (_favourites.any((a) => a.id == anime.id)) {
       return;
     }
-    await _repository.addToFavourite(anime.id);
+    _existingIds.add(anime.id);
+    _favourites.insert(0, anime);
 
-    _favourites.add(anime);
+    await _repository.addToFavourite(anime.id);
 
     notifyListeners();
   }
 
   Future<void> removeFromFavourites(Anime anime) async {
+    _favourites.removeWhere((a) => a.id == anime.id);
+    _existingIds.remove(anime.id);
+
     await _repository.removeFromFavourites(anime.id);
 
-    _favourites.removeWhere((a) => a.id == anime.id);
     notifyListeners();
   }
 
-  Future<void> toggleFavourite(Anime anime) async {
+  Future<bool> toggleFavourite(Anime anime) async {
     if (isFavourite(anime)) {
       await removeFromFavourites(anime);
+      return false;
     } else {
       await addToFavourites(anime);
+      return true;
     }
   }
 
