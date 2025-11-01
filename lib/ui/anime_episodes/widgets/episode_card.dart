@@ -12,12 +12,14 @@ class EpisodeCard extends StatelessWidget {
     required this.episodeIndex,
     required this.timecodeProvider,
     required this.mode,
+    required this.isWide,
   });
 
   final Anime anime;
   final int episodeIndex;
   final TimecodeProvider timecodeProvider;
   final Mode mode;
+  final bool isWide;
 
   @override
   Widget build(BuildContext context) {
@@ -42,8 +44,7 @@ class EpisodeCard extends StatelessWidget {
         elevation: theme.cardTheme.elevation,
         shadowColor: theme.cardTheme.shadowColor,
         shape: theme.cardTheme.shape,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
+        child: Center(
           child: Text(
             '${l10n!.episode(0)} ${anime.previewEpisodes[episodeIndex].ordinal}',
             textAlign: TextAlign.center,
@@ -54,6 +55,7 @@ class EpisodeCard extends StatelessWidget {
                       )
                       ? Colors.grey
                       : Colors.white,
+              fontSize: isWide ? 24 : 14,
             ),
           ),
         ),

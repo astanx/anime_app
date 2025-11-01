@@ -58,35 +58,50 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       bottomNavigationBar: AnimeBar(),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Consumer<HistoryProvider>(
-            builder: (context, provider, child) {
-              final history = provider.history;
+        child: LayoutBuilder(
+          builder: (contex, constraints) {
+            final isWide = constraints.maxWidth > 600;
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Consumer<HistoryProvider>(
+                builder: (context, provider, child) {
+                  final history = provider.history;
 
-              if (history == null || _isLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (history.isEmpty) {
-                return Center(child: Text(l10n!.no_history_found));
-              }
-
-              return ListView.builder(
-                controller: _scrollController,
-                itemCount: history.length + (provider.isLoadingMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == history.length) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(child: CircularProgressIndicator()),
+                  if (history == null || _isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (history.isEmpty) {
+                    return Center(
+                      child: Text(
+                        l10n!.no_history_found,
+                        style: TextStyle(fontSize: isWide ? 32 : 16),
+                      ),
                     );
                   }
 
-                  return HistoryCard(historyData: history[index], mode: _mode!);
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemCount:
+                        history.length + (provider.isLoadingMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == history.length) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      return HistoryCard(
+                        historyData: history[index],
+                        mode: _mode!,
+                        isWide: isWide,
+                      );
+                    },
+                  );
                 },
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

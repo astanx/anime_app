@@ -37,7 +37,13 @@ class AnimeBar extends StatelessWidget {
       }
     }
 
-    Widget navItem(String route, IconData icon, String label) {
+    Widget navItem(
+      String route,
+      IconData icon,
+      String label,
+      double iconSize,
+      double fontSize,
+    ) {
       final isActive = currentRoute == route;
       final color = isActive ? activeColor : inactiveColor;
 
@@ -56,27 +62,65 @@ class AnimeBar extends StatelessWidget {
                 );
               }
             },
-            child: Icon(icon, color: color, size: 30),
+            child: Icon(icon, color: color, size: iconSize),
           ),
-          Text(label, style: TextStyle(fontSize: 10, color: color)),
+          SizedBox(height: fontSize * 0.25),
+          Text(label, style: TextStyle(fontSize: fontSize, color: color)),
         ],
       );
     }
 
-    return Container(
-      color: Theme.of(context).appBarTheme.backgroundColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      height: kToolbarHeight,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          navItem('/anime/list', Icons.home, l10n.home),
-          navItem('/favourites', Icons.star, l10n.favourites),
-          navItem('/collections', Icons.folder_open, l10n.collection),
-          navItem('/anime/search', Icons.search, l10n.search),
-          navItem('/history', Icons.history, l10n.history),
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final baseWidth = 360.0;
+        final width = constraints.maxWidth;
+        final scale = (width / baseWidth).clamp(1.0, 1.6);
+
+        final barHeight = kToolbarHeight * scale;
+        final iconSize = 30.0 * scale;
+        final fontSize = 10.0 * scale;
+        final horizontalPadding = 8.0 * scale;
+
+        return Container(
+          color: Theme.of(context).appBarTheme.backgroundColor,
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          height: barHeight,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              navItem('/anime/list', Icons.home, l10n.home, iconSize, fontSize),
+              navItem(
+                '/favourites',
+                Icons.star,
+                l10n.favourites,
+                iconSize,
+                fontSize,
+              ),
+              navItem(
+                '/collections',
+                Icons.folder_open,
+                l10n.collection,
+                iconSize,
+                fontSize,
+              ),
+              navItem(
+                '/anime/search',
+                Icons.search,
+                l10n.search,
+                iconSize,
+                fontSize,
+              ),
+              navItem(
+                '/history',
+                Icons.history,
+                l10n.history,
+                iconSize,
+                fontSize,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

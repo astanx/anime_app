@@ -3,9 +3,10 @@ import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
-class FavouritesCard extends StatelessWidget {
-  const FavouritesCard({super.key, required this.anime});
+class SavedAnimeCard extends StatelessWidget {
+  const SavedAnimeCard({super.key, required this.anime, required this.isWide});
   final Anime anime;
+  final bool isWide;
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +24,8 @@ class FavouritesCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
                 anime.poster,
-                width: 130,
-                height: 200,
+                width: isWide ? 280 : 130,
+                height: isWide ? 400 : 200,
                 fit: BoxFit.cover,
               ),
             ),
@@ -34,8 +35,8 @@ class FavouritesCard extends StatelessWidget {
                 children: [
                   Text(
                     anime.title,
-                    style: const TextStyle(
-                      fontSize: 12,
+                    style: TextStyle(
+                      fontSize: isWide ? 32 : 12,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 2,
@@ -46,24 +47,40 @@ class FavouritesCard extends StatelessWidget {
                   if (anime.year != null)
                     Text(
                       '${anime.year}',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: isWide ? 24 : 14,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   if (anime.totalEpisodes > 0)
                     Text(
-                      '${l10n.episode_count(anime.totalEpisodes)}${isOngoing(anime) ? ' | ${l10n.ongoing}' : ''}',
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                      '${l10n.episode_count(anime.totalEpisodes)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}',
+                      style: TextStyle(
+                        fontSize: isWide ? 18 : 10,
+                        color: Colors.grey[600],
+                      ),
                     ),
+                  Text(
+                    anime.type,
+                    style: TextStyle(
+                      fontSize: isWide ? 18 : 10,
+                      color: Colors.grey[600],
+                    ),
+                  ),
                   if (anime.description.isNotEmpty)
                     Text(
                       anime.description,
                       maxLines: 6,
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: isWide ? 18 : 10,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   SizedBox(height: 20),
                   SizedBox(
                     width: 500,
-                    height: 50,
+                    height: isWide ? 85 : 50,
                     child: TextButton(
                       onPressed: () {
                         Navigator.of(context).pushNamed(
@@ -74,11 +91,12 @@ class FavouritesCard extends StatelessWidget {
                       style: TextButton.styleFrom(
                         backgroundColor: const Color(0xFF6B5252),
                         foregroundColor: Colors.white,
+
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        textStyle: const TextStyle(
-                          fontSize: 14,
+                        textStyle: TextStyle(
+                          fontSize: isWide ? 30 : 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

@@ -1,7 +1,7 @@
 import 'package:anime_app/data/provider/favourites_provider.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/core/ui/app_bar.dart';
-import 'package:anime_app/ui/favourites/widgets/widgets.dart';
+import 'package:anime_app/ui/core/ui/card/view/view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -49,42 +49,58 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
     return Scaffold(
       bottomNavigationBar: AnimeBar(),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Consumer<FavouritesProvider>(
-            builder: (context, provider, _) {
-              final favourites = provider.favourites;
-              if (_isLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (favourites.isEmpty && !provider.isLoadingMore) {
-                return Center(child: Text(l10n.no_favourites_found));
-              }
+        child: LayoutBuilder(
+          builder: (contex, constraints) {
+            final isWide = constraints.maxWidth > 600;
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Consumer<FavouritesProvider>(
+                builder: (context, provider, _) {
+                  final favourites = provider.favourites;
+                  if (_isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (favourites.isEmpty && !provider.isLoadingMore) {
+                    return Center(
+                      child: Text(
+                        l10n.no_favourites_found,
+                        style: TextStyle(fontSize: isWide ? 32 : 16),
+                      ),
+                    );
+                  }
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      itemCount: favourites.length + (provider.hasMore ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index < favourites.length) {
-                          return FavouritesCard(anime: favourites[index]);
-                        } else if (_isLoading || provider.isLoadingMore) {
-                          return const Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          itemCount:
+                              favourites.length + (provider.hasMore ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index < favourites.length) {
+                              return SavedAnimeCard(
+                                anime: favourites[index],
+                                isWide: isWide,
+                              );
+                            } else if (_isLoading || provider.isLoadingMore) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            );
+          },
         ),
       ),
     );

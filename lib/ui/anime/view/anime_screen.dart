@@ -27,17 +27,22 @@ class AnimeScreen extends StatelessWidget {
       },
       child: Consumer<VideoControllerProvider>(
         builder: (context, provider, _) {
+          final screenWidth = MediaQuery.of(context).size.width;
+          final isWide = screenWidth >= 600;
           return Scaffold(
             appBar: AppBar(
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
                     child: Text(
                       anime.title,
                       overflow: TextOverflow.ellipsis,
                       softWrap: false,
-                      style: theme.textTheme.titleLarge,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontSize: isWide ? 32 : 18,
+                      ),
                     ),
                   ),
                   if (anime.previewEpisodes[episodeIndex].isDubbed &&
@@ -48,6 +53,7 @@ class AnimeScreen extends StatelessWidget {
                             ? Icons.record_voice_over
                             : Icons.subtitles,
                       ),
+                      iconSize: isWide ? 38 : 24,
                       tooltip:
                           provider.isDubbedMode
                               ? 'Switch to Sub'
@@ -57,9 +63,11 @@ class AnimeScreen extends StatelessWidget {
                         provider.loadEpisode(anime, episodeIndex, context);
                       },
                     ),
+                  if (isWide) SizedBox(width: 30),
                   IconButton(
                     icon: const Icon(Icons.home),
                     tooltip: 'Home',
+                    iconSize: isWide ? 38 : 24,
                     onPressed: () {
                       Navigator.of(context).pushNamed('/anime/list');
                     },
@@ -67,7 +75,14 @@ class AnimeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            body: SafeArea(child: _buildBody(context, provider, anime, theme)),
+            body: SafeArea(
+              child: LayoutBuilder(
+                builder: (contex, constraints) {
+                  final isWide = constraints.maxWidth > 600;
+                  return _buildBody(context, provider, anime, theme, isWide);
+                },
+              ),
+            ),
           );
         },
       ),
@@ -79,6 +94,7 @@ class AnimeScreen extends StatelessWidget {
     VideoControllerProvider provider,
     Anime anime,
     ThemeData theme,
+    bool isWide,
   ) {
     final episodeIndex = provider.episodeIndex;
     final l10n = AppLocalizations.of(context);
@@ -98,7 +114,7 @@ class AnimeScreen extends StatelessWidget {
                     Text(
                       anime.title,
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        fontSize: 20,
+                        fontSize: isWide ? 36 : 18,
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
@@ -110,7 +126,7 @@ class AnimeScreen extends StatelessWidget {
                         child: Text(
                           anime.description,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            fontSize: 12,
+                            fontSize: isWide ? 18 : 12,
                           ),
                         ),
                       ),
@@ -121,13 +137,13 @@ class AnimeScreen extends StatelessWidget {
                           ? '${l10n!.episode(0)} ${anime.previewEpisodes[episodeIndex].ordinal}: ${anime.previewEpisodes[episodeIndex].title}'
                           : '${l10n!.episode(0)} ${anime.previewEpisodes[episodeIndex].ordinal}',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: isWide ? 26 : 16,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    AnimePlayer(anime: anime),
+                    AnimePlayer(anime: anime, isWide: isWide),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -144,7 +160,10 @@ class AnimeScreen extends StatelessWidget {
                                     context,
                                   );
                                 },
-                                icon: const Icon(Icons.skip_previous, size: 20),
+                                icon: Icon(
+                                  Icons.skip_previous,
+                                  size: isWide ? 40 : 20,
+                                ),
                                 label: Text(
                                   anime
                                               .previewEpisodes[episodeIndex - 1]
@@ -155,12 +174,12 @@ class AnimeScreen extends StatelessWidget {
                                           .title
                                       : l10n.prev_episode,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 14),
+                                  style: TextStyle(fontSize: isWide ? 28 : 14),
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
+                                  padding: EdgeInsets.symmetric(
                                     horizontal: 16,
-                                    vertical: 12,
+                                    vertical: isWide ? 20 : 12,
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -189,9 +208,9 @@ class AnimeScreen extends StatelessWidget {
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
+                                  padding: EdgeInsets.symmetric(
                                     horizontal: 16,
-                                    vertical: 12,
+                                    vertical: isWide ? 20 : 12,
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -218,11 +237,16 @@ class AnimeScreen extends StatelessWidget {
                                                 .title
                                             : l10n.next_episode,
                                         overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontSize: 14),
+                                        style: TextStyle(
+                                          fontSize: isWide ? 28 : 14,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    const Icon(Icons.skip_next, size: 20),
+                                    Icon(
+                                      Icons.skip_next,
+                                      size: isWide ? 40 : 20,
+                                    ),
                                   ],
                                 ),
                               ),

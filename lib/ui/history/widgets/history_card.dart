@@ -1,13 +1,18 @@
 import 'package:anime_app/data/models/history.dart';
 import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class HistoryCard extends StatelessWidget {
-  const HistoryCard({super.key, required this.historyData, required this.mode});
+  const HistoryCard({
+    super.key,
+    required this.historyData,
+    required this.mode,
+    required this.isWide,
+  });
   final AnimeWithHistory historyData;
   final Mode mode;
+  final bool isWide;
 
   void _openNextEpisode(BuildContext context) async {
     Navigator.of(context).pushNamed(
@@ -52,8 +57,8 @@ class HistoryCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
                 historyData.anime.poster,
-                width: 130,
-                height: 200,
+                width: isWide ? 280 : 130,
+                height: isWide ? 400 : 200,
                 fit: BoxFit.cover,
               ),
             ),
@@ -65,8 +70,8 @@ class HistoryCard extends StatelessWidget {
                 children: [
                   Text(
                     historyData.anime.title,
-                    style: const TextStyle(
-                      fontSize: 12,
+                    style: TextStyle(
+                      fontSize: isWide ? 32 : 12,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 2,
@@ -74,14 +79,26 @@ class HistoryCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 2),
+                  if (historyData.anime.year != null)
+                    Text(
+                      '${historyData.anime.year}',
+                      style: TextStyle(
+                        fontSize: isWide ? 24 : 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  const SizedBox(height: 2),
                   Text(
                     historyData.anime.type,
-                    style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: isWide ? 18 : 10,
+                      color: Colors.grey[600],
+                    ),
                   ),
                   SizedBox(height: 20),
                   SizedBox(
                     width: 500,
-                    height: 50,
+                    height: isWide ? 85 : 50,
                     child: TextButton(
                       onPressed: () => _openAnime(context),
                       style: TextButton.styleFrom(
@@ -90,8 +107,8 @@ class HistoryCard extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        textStyle: const TextStyle(
-                          fontSize: 14,
+                        textStyle: TextStyle(
+                          fontSize: isWide ? 30 : 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -109,7 +126,7 @@ class HistoryCard extends StatelessWidget {
                       !historyData.history.isWatched) ...[
                     SizedBox(
                       width: 500,
-                      height: 50,
+                      height: isWide ? 85 : 50,
                       child: TextButton(
                         onPressed:
                             !historyData.anime.isMovie
@@ -121,12 +138,12 @@ class HistoryCard extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          textStyle: const TextStyle(
-                            fontSize: 14,
+                          textStyle: TextStyle(
+                            fontSize: isWide ? 30 : 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        child: AutoSizeText(
+                        child: Text(
                           !historyData.anime.isMovie
                               ? historyData.history.isWatched
                                   ? l10n.continue_with_episode(
@@ -147,10 +164,11 @@ class HistoryCard extends StatelessWidget {
                                         .ordinal,
                                   )
                               : l10n.continue_watching_movie,
-                          maxFontSize: 14,
-                          minFontSize: 10,
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: isWide ? 28 : 14,
+                          ),
                         ),
                       ),
                     ),
@@ -158,7 +176,7 @@ class HistoryCard extends StatelessWidget {
                   ] else if (!historyData.anime.isMovie) ...[
                     SizedBox(
                       width: 500,
-                      height: 50,
+                      height: isWide ? 85 : 50,
                       child: TextButton(
                         onPressed: () => {},
                         style: TextButton.styleFrom(
@@ -167,8 +185,8 @@ class HistoryCard extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          textStyle: const TextStyle(
-                            fontSize: 14,
+                          textStyle: TextStyle(
+                            fontSize: isWide ? 30 : 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -191,7 +209,10 @@ class HistoryCard extends StatelessWidget {
                       !historyData.anime.isMovie) ...[
                     Text(
                       '${historyData.anime.previewEpisodes[historyData.history.lastWatchedEpisode].ordinal} / ${l10n.episode_count(historyData.anime.totalEpisodes)}',
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: isWide ? 20 : 10,
+                        color: Colors.grey[600],
+                      ),
                     ),
                     const SizedBox(height: 4),
 

@@ -8,8 +8,9 @@ import 'package:video_player/video_player.dart';
 
 class AnimePlayer extends StatelessWidget {
   final Anime anime;
+  final bool isWide;
 
-  const AnimePlayer({super.key, required this.anime});
+  const AnimePlayer({super.key, required this.anime, required this.isWide});
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +49,7 @@ class AnimePlayer extends StatelessWidget {
                               Icons.replay_10,
                               color: Colors.white,
                             ),
+                            iconSize: isWide ? 38 : 20,
                             onPressed: () => provider.seekBackward(),
                           ),
                           IconButton(
@@ -57,6 +59,7 @@ class AnimePlayer extends StatelessWidget {
                                   : Icons.play_arrow,
                               color: Colors.white,
                             ),
+                            iconSize: isWide ? 38 : 20,
                             onPressed: provider.togglePlayPause,
                           ),
                           IconButton(
@@ -64,9 +67,11 @@ class AnimePlayer extends StatelessWidget {
                               Icons.forward_10,
                               color: Colors.white,
                             ),
+                            iconSize: isWide ? 38 : 20,
                             onPressed: () => provider.seekForward(),
                           ),
                           IconButton(
+                            iconSize: isWide ? 38 : 20,
                             icon: const Icon(
                               Icons.fullscreen,
                               color: Colors.white,
@@ -78,6 +83,7 @@ class AnimePlayer extends StatelessWidget {
                                     builder:
                                         (_) => FullscreenPlayer(
                                           provider: provider,
+                                          isWide: isWide,
                                           anime: anime,
                                         ),
                                   ),
@@ -86,7 +92,7 @@ class AnimePlayer extends StatelessWidget {
                         ],
                       ),
                     ),
-                    PlayerControls(provider: provider),
+                    PlayerControls(provider: provider, isWide: isWide),
                   ],
                 ),
               ),

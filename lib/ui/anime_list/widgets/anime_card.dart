@@ -2,8 +2,8 @@ import 'package:anime_app/data/models/search_anime.dart';
 import 'package:flutter/material.dart';
 
 class AnimeCard extends StatelessWidget {
-  const AnimeCard({super.key, required this.anime});
-
+  const AnimeCard({super.key, required this.anime, required this.isWide});
+  final bool isWide;
   final SearchAnime anime;
 
   @override
@@ -24,8 +24,8 @@ class AnimeCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
-                width: 200,
-                height: 300,
+                width: isWide ? 400 : 200,
+                height: isWide ? 500 : 300,
                 anime.poster,
                 fit: BoxFit.cover,
               ),
@@ -47,11 +47,11 @@ class AnimeCard extends StatelessWidget {
                     Text(
                       anime.title,
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        fontSize: 14,
+                        fontSize: isWide ? 26 : 14,
                         fontWeight: FontWeight.bold,
                       ),
                       overflow: TextOverflow.ellipsis,
-                      maxLines: 4,
+                      maxLines: isWide ? 2 : 4,
                       textAlign: TextAlign.center,
                     ),
                     if (anime.year != null) ...[
@@ -59,7 +59,7 @@ class AnimeCard extends StatelessWidget {
                       Text(
                         '${anime.year}',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
+                          fontSize: isWide ? 22 : 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

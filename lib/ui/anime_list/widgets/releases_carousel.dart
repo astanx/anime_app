@@ -3,16 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class ReleasesCarousel extends StatelessWidget {
-  const ReleasesCarousel({super.key, required this.releases});
+  const ReleasesCarousel({
+    super.key,
+    required this.releases,
+    required this.isWide,
+  });
+  final bool isWide;
   final List<SearchAnime> releases;
   @override
   Widget build(BuildContext context) {
     return CarouselSlider(
       options: CarouselOptions(
-        height: 200,
+        height: isWide ? 400 : 200,
         autoPlay: true,
         enlargeCenterPage: true,
-        viewportFraction: 1 / 3,
+        viewportFraction: isWide ? 1 / 3 : 1 / 2.5,
       ),
       items:
           releases.map((anime) {

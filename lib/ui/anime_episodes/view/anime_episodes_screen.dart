@@ -136,220 +136,297 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
         builder: (context) {
           return Scaffold(
             appBar: AppBar(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Text(
-                      anime.title,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleLarge,
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(isFavourite ? Icons.star : Icons.star_outline),
-                    color: isFavourite ? theme.colorScheme.secondary : null,
-                    onPressed: () async {
-                      isFavourite = await favouritesProvider.toggleFavourite(
-                        anime,
-                      );
-                      setState(() {
-                        favourite =
-                            isFavourite ? Favourite(animeID: anime.id) : null;
-                      });
-                    },
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await showModalBottomSheet(
-                        context: context,
-                        builder:
-                            (context) => Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children:
-                                  CollectionType.values
-                                      .map(
-                                        (type) => ListTile(
-                                          leading: Icon(switch (type) {
-                                            CollectionType.watched =>
-                                              Icons.check,
-                                            CollectionType.abandoned =>
-                                              Icons.close,
-                                            CollectionType.planned =>
-                                              Icons.calendar_month,
-                                            CollectionType.watching =>
-                                              Icons.play_arrow,
-                                          }),
-                                          title: Text(
-                                            type.localizedName(context),
-                                          ),
-                                          selected: collection == type,
-                                          onTap: () async {
-                                            if (collection != type) {
-                                              await collectionProvider
-                                                  .addToCollection(type, anime);
-                                              setState(() {
-                                                collection = type;
-                                              });
-                                            } else {
-                                              await collectionProvider
-                                                  .removeFromCollection(
-                                                    type,
-                                                    anime,
-                                                  );
-                                              setState(() {
-                                                collection = null;
-                                              });
-                                            }
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                      )
-                                      .toList(),
-                            ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                    ),
-                    child: switch (collection) {
-                      CollectionType.watched => const Icon(
-                        Icons.check,
-                        size: 28,
+              title: LayoutBuilder(
+                builder: (context, constraints) {
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  final isWide = screenWidth >= 600;
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          anime.title,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontSize: isWide ? 32 : 18,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          maxLines: 1,
+                        ),
                       ),
-                      CollectionType.abandoned => const Icon(
-                        Icons.close,
-                        size: 28,
-                      ),
-                      CollectionType.planned => const Icon(
-                        Icons.calendar_month,
-                        size: 28,
-                      ),
-                      CollectionType.watching => const Icon(
-                        Icons.play_arrow,
-                        size: 28,
-                      ),
-                      null => const Icon(Icons.folder_open, size: 28),
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.home),
-                    onPressed:
-                        () => Navigator.of(context).pushNamed('/anime/list'),
-                  ),
-                ],
-              ),
-            ),
-            body: SafeArea(
-              child: ListView(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Card(
-                    color: theme.cardTheme.color,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
+                      // Actions
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              anime.poster,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
+                          // Favorite Button
+                          IconButton(
+                            icon: Icon(
+                              isFavourite ? Icons.star : Icons.star_outline,
+                              size: isWide ? 38 : 24,
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            anime.title,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                            color:
+                                isFavourite
+                                    ? theme.colorScheme.secondary
+                                    : null,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isWide ? 8.0 : 4.0,
                             ),
-                            textAlign: TextAlign.center,
+                            constraints: const BoxConstraints(),
+                            onPressed: () async {
+                              isFavourite = await favouritesProvider
+                                  .toggleFavourite(anime);
+                              setState(() {
+                                favourite =
+                                    isFavourite
+                                        ? Favourite(animeID: anime.id)
+                                        : null;
+                              });
+                            },
                           ),
-                          const SizedBox(height: 6),
-                          Wrap(
-                            spacing: 8,
-                            children:
-                                anime.genres
-                                    .map(
-                                      (g) => Chip(
-                                        label: Text(g),
-                                        backgroundColor:
-                                            theme.colorScheme.surface,
-                                        labelStyle: theme.textTheme.labelSmall,
+                          // Collection Button
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isWide ? 8.0 : 4.0,
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                await showModalBottomSheet(
+                                  context: context,
+                                  builder:
+                                      (context) => Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children:
+                                            CollectionType.values
+                                                .map(
+                                                  (type) => ListTile(
+                                                    leading: Icon(
+                                                      switch (type) {
+                                                        CollectionType
+                                                            .watched =>
+                                                          Icons.check,
+                                                        CollectionType
+                                                            .abandoned =>
+                                                          Icons.close,
+                                                        CollectionType
+                                                            .planned =>
+                                                          Icons.calendar_month,
+                                                        CollectionType
+                                                            .watching =>
+                                                          Icons.play_arrow,
+                                                      },
+                                                      size: isWide ? 38 : 20,
+                                                    ),
+                                                    title: Text(
+                                                      type.localizedName(
+                                                        context,
+                                                      ),
+                                                      style: theme
+                                                          .textTheme
+                                                          .bodyMedium
+                                                          ?.copyWith(
+                                                            fontSize:
+                                                                isWide
+                                                                    ? 24
+                                                                    : 14,
+                                                          ),
+                                                    ),
+                                                    selected:
+                                                        collection == type,
+                                                    onTap: () async {
+                                                      if (collection != type) {
+                                                        await collectionProvider
+                                                            .addToCollection(
+                                                              type,
+                                                              anime,
+                                                            );
+                                                        setState(() {
+                                                          collection = type;
+                                                        });
+                                                      } else {
+                                                        await collectionProvider
+                                                            .removeFromCollection(
+                                                              type,
+                                                              anime,
+                                                            );
+                                                        setState(() {
+                                                          collection = null;
+                                                        });
+                                                      }
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                )
+                                                .toList(),
                                       ),
-                                    )
-                                    .toList(),
-                          ),
-                          const SizedBox(height: 4),
-                          if (anime.totalEpisodes > 0 && !anime.isMovie)
-                            Text(
-                              '${l10n.episode_count(anime.totalEpisodes)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          Text(
-                            anime.type,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          if (anime.description != '')
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                anime.description,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  fontSize: 12,
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isWide ? 12.0 : 8.0,
+                                  vertical: isWide ? 8.0 : 4.0,
+                                ),
+                                minimumSize: Size(
+                                  isWide ? 48 : 36,
+                                  isWide ? 48 : 36,
                                 ),
                               ),
+                              child: Icon(switch (collection) {
+                                CollectionType.watched => Icons.check,
+                                CollectionType.abandoned => Icons.close,
+                                CollectionType.planned => Icons.calendar_month,
+                                CollectionType.watching => Icons.play_arrow,
+                                null => Icons.folder_open,
+                              }, size: isWide ? 38 : 24),
                             ),
-                          if (!anime.isMovie)
-                            Column(
-                              children: [
-                                Text(
-                                  l10n.episode(1),
-                                  style: theme.textTheme.titleMedium,
-                                ),
-                                const SizedBox(height: 16),
-                                GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: math.min(
-                                    _visibleEpisodes,
-                                    anime.previewEpisodes.length,
-                                  ),
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: crossAxisCount,
-                                        crossAxisSpacing: 16,
-                                        mainAxisSpacing: 16,
-                                        childAspectRatio: 3 / 1,
-                                      ),
-                                  itemBuilder: (context, index) {
-                                    return EpisodeCard(
-                                      anime: anime,
-                                      episodeIndex: index,
-                                      timecodeProvider: _timecodeProvider!,
-                                      mode: mode!,
-                                    );
-                                  },
-                                ),
-                              ],
-                            )
-                          else
-                            AnimePlayer(anime: anime),
+                          ),
+                          // Home Button
+                          IconButton(
+                            icon: Icon(Icons.home, size: isWide ? 38 : 24),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isWide ? 8.0 : 4.0,
+                            ),
+                            constraints: const BoxConstraints(),
+                            onPressed:
+                                () => Navigator.of(
+                                  context,
+                                ).pushNamed('/anime/list'),
+                          ),
                         ],
                       ),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
+              ),
+              centerTitle: false,
+              elevation: 2,
+              toolbarHeight: MediaQuery.of(context).size.width >= 600 ? 72 : 56,
+            ),
+            body: SafeArea(
+              child: LayoutBuilder(
+                builder: (contex, constraints) {
+                  final isWide = constraints.maxWidth > 600;
+                  return ListView(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      Card(
+                        color: theme.cardTheme.color,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  anime.poster,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                anime.title,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  fontSize: isWide ? 48 : 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 6),
+                              Wrap(
+                                spacing: isWide ? 16 : 8,
+                                children:
+                                    anime.genres
+                                        .map(
+                                          (g) => Chip(
+                                            label: Text(g),
+                                            backgroundColor:
+                                                theme.colorScheme.surface,
+                                            labelStyle: theme
+                                                .textTheme
+                                                .labelSmall
+                                                ?.copyWith(
+                                                  fontSize: isWide ? 16 : 8,
+                                                ),
+                                          ),
+                                        )
+                                        .toList(),
+                              ),
+                              const SizedBox(height: 4),
+                              if (anime.totalEpisodes > 0 && !anime.isMovie)
+                                Text(
+                                  '${l10n.episode_count(anime.totalEpisodes)} ${isOngoing(anime) ? '| ${l10n.ongoing}' : ''}',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    fontSize: isWide ? 24 : 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              Text(
+                                anime.type,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontSize: isWide ? 24 : 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              if (anime.description != '')
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    anime.description,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      fontSize: isWide ? 20 : 12,
+                                    ),
+                                  ),
+                                ),
+                              if (!anime.isMovie)
+                                Column(
+                                  children: [
+                                    Text(
+                                      l10n.episode(1),
+                                      style: theme.textTheme.titleMedium
+                                          ?.copyWith(
+                                            fontSize: isWide ? 28 : 16,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    GridView.builder(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: math.min(
+                                        _visibleEpisodes,
+                                        anime.previewEpisodes.length,
+                                      ),
+                                      gridDelegate:
+                                          SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: crossAxisCount,
+                                            crossAxisSpacing: 16,
+                                            mainAxisSpacing: 16,
+                                            childAspectRatio: 3 / 1,
+                                          ),
+                                      itemBuilder: (context, index) {
+                                        return EpisodeCard(
+                                          anime: anime,
+                                          episodeIndex: index,
+                                          timecodeProvider: _timecodeProvider!,
+                                          mode: mode!,
+                                          isWide: isWide,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                )
+                              else
+                                AnimePlayer(anime: anime, isWide: isWide),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           );

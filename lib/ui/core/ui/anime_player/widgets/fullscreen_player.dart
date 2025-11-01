@@ -15,8 +15,10 @@ class FullscreenPlayer extends StatefulWidget {
     super.key,
     required this.provider,
     required this.anime,
+    required this.isWide,
   });
   final VideoControllerProvider provider;
+  final bool isWide;
   final Anime anime;
 
   @override
@@ -118,6 +120,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
       child: Consumer<VideoControllerProvider>(
         builder: (context, provider, _) {
           final controller = provider.controller;
+          final isWide = widget.isWide;
           final episodeIndex = provider.episodeIndex;
           final l10n = AppLocalizations.of(context)!;
 
@@ -184,10 +187,10 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       IconButton(
-                                        icon: const Icon(
+                                        icon: Icon(
                                           Icons.close,
                                           color: Colors.white,
-                                          size: 28,
+                                          size: isWide ? 40 : 28,
                                         ),
                                         onPressed: () => Navigator.pop(context),
                                       ),
@@ -195,6 +198,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                         children: [
                                           if (isPipAvailable)
                                             IconButton(
+                                              iconSize: isWide ? 40 : 28,
                                               onPressed:
                                                   () => _enablePip(provider),
                                               icon: const Icon(
@@ -202,233 +206,19 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                                 color: Colors.white,
                                               ),
                                             ),
-                                          PopupMenuButton<String>(
-                                            icon: const Icon(
+                                          IconButton(
+                                            icon: Icon(
                                               Icons.settings,
                                               color: Colors.white,
+                                              size: isWide ? 40 : 28,
                                             ),
-                                            onSelected: (String value) {
-                                              switch (value) {
-                                                case 'speed':
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (
-                                                          context,
-                                                        ) => AlertDialog(
-                                                          title: Text(
-                                                            l10n.select_playback_speed,
-                                                          ),
-                                                          content: SizedBox(
-                                                            height: 300,
-                                                            width:
-                                                                double
-                                                                    .maxFinite,
-                                                            child: ListView.builder(
-                                                              shrinkWrap: true,
-                                                              itemCount:
-                                                                  provider
-                                                                      .playbackSpeeds
-                                                                      .length,
-                                                              itemBuilder:
-                                                                  (
-                                                                    context,
-                                                                    index,
-                                                                  ) => ListTile(
-                                                                    title: Text(
-                                                                      '${provider.playbackSpeeds[index]}x',
-                                                                    ),
-                                                                    onTap: () {
-                                                                      provider
-                                                                          .controller
-                                                                          ?.setPlaybackSpeed(
-                                                                            provider.playbackSpeeds[index],
-                                                                          );
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                      );
-                                                                    },
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                  );
-                                                  break;
-                                                case 'quality':
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (
-                                                          context,
-                                                        ) => AlertDialog(
-                                                          title: Text(
-                                                            l10n.quality,
-                                                          ),
-                                                          content: SizedBox(
-                                                            height: 150,
-                                                            width:
-                                                                double
-                                                                    .maxFinite,
-                                                            child: ListView.builder(
-                                                              shrinkWrap: true,
-                                                              itemCount:
-                                                                  provider
-                                                                      .qualities
-                                                                      .length,
-                                                              itemBuilder:
-                                                                  (
-                                                                    context,
-                                                                    index,
-                                                                  ) => ListTile(
-                                                                    title: Text(
-                                                                      '${provider.qualities[index].startsWith('hls') ? provider.qualities[index].substring(3) : provider.qualities[index]}p',
-                                                                    ),
-                                                                    onTap: () {
-                                                                      provider.changeQuality(
-                                                                        provider
-                                                                            .qualities[index],
-                                                                      );
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                      );
-                                                                    },
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                  );
-                                                  break;
-                                                case 'subtitles':
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (
-                                                          context,
-                                                        ) => AlertDialog(
-                                                          title: Text(
-                                                            l10n.subtitles,
-                                                          ),
-                                                          content: SizedBox(
-                                                            height: 350,
-                                                            width:
-                                                                double
-                                                                    .maxFinite,
-                                                            child: ListView.builder(
-                                                              shrinkWrap: true,
-                                                              itemCount:
-                                                                  provider
-                                                                      .subtitlesLanguages
-                                                                      .length +
-                                                                  1,
-                                                              itemBuilder: (
-                                                                context,
-                                                                index,
-                                                              ) {
-                                                                if (index ==
-                                                                    0) {
-                                                                  return ListTile(
-                                                                    leading: Icon(
-                                                                      Icons
-                                                                          .visibility_off_outlined,
-                                                                      color:
-                                                                          provider.currentLanguage ==
-                                                                                  ''
-                                                                              ? Theme.of(
-                                                                                context,
-                                                                              ).colorScheme.primary
-                                                                              : null,
-                                                                    ),
-                                                                    title: Text(
-                                                                      l10n.disable_subtitles,
-                                                                      style: TextStyle(
-                                                                        color:
-                                                                            provider.currentLanguage ==
-                                                                                    ''
-                                                                                ? Theme.of(
-                                                                                  context,
-                                                                                ).colorScheme.primary
-                                                                                : null,
-                                                                      ),
-                                                                    ),
-                                                                    onTap: () {
-                                                                      provider
-                                                                          .changeLanguage(
-                                                                            '',
-                                                                          );
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                      );
-                                                                    },
-                                                                  );
-                                                                }
-
-                                                                final language =
-                                                                    provider
-                                                                        .subtitlesLanguages[index -
-                                                                        1];
-                                                                return ListTile(
-                                                                  title: Text(
-                                                                    language,
-                                                                    style: TextStyle(
-                                                                      color:
-                                                                          provider.currentLanguage ==
-                                                                                  language
-                                                                              ? Theme.of(
-                                                                                context,
-                                                                              ).colorScheme.primary
-                                                                              : null,
-                                                                    ),
-                                                                  ),
-                                                                  onTap: () {
-                                                                    provider
-                                                                        .changeLanguage(
-                                                                          language,
-                                                                        );
-                                                                    Navigator.pop(
-                                                                      context,
-                                                                    );
-                                                                  },
-                                                                );
-                                                              },
-                                                            ),
-                                                          ),
-                                                        ),
-                                                  );
-
-                                                  break;
-
-                                                default:
-                                                  break;
-                                              }
-                                            },
-                                            itemBuilder:
-                                                (
-                                                  BuildContext context,
-                                                ) => <PopupMenuEntry<String>>[
-                                                  PopupMenuItem<String>(
-                                                    value: 'speed',
-                                                    child: Text(
-                                                      l10n.playback_speed,
-                                                    ),
-                                                  ),
-                                                  if (provider
-                                                          .qualities
-                                                          .length !=
-                                                      1)
-                                                    PopupMenuItem<String>(
-                                                      value: 'quality',
-                                                      child: Text(l10n.quality),
-                                                    ),
-                                                  if (provider
-                                                      .subtitlesLanguages
-                                                      .isNotEmpty)
-                                                    PopupMenuItem<String>(
-                                                      value: 'subtitles',
-                                                      child: Text(
-                                                        l10n.subtitles,
-                                                      ),
-                                                    ),
-                                                ],
+                                            onPressed:
+                                                () => _showSettingsBottomSheet(
+                                                  context,
+                                                  provider,
+                                                  l10n,
+                                                  isWide,
+                                                ),
                                           ),
                                         ],
                                       ),
@@ -445,6 +235,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                           right: 16,
                           child: PlayerControls(
                             provider: provider,
+                            isWide: isWide,
                             isFullscreen: true,
                             showControls: _showControls,
                           ),
@@ -467,7 +258,10 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                 IgnorePointer(
                                   ignoring: !_showControls,
                                   child: IconButton(
-                                    icon: const Icon(Icons.replay_10, size: 40),
+                                    icon: Icon(
+                                      Icons.replay_10,
+                                      size: isWide ? 80 : 40,
+                                    ),
                                     color: Colors.white,
                                     onPressed: () {
                                       provider.seekBackward();
@@ -475,7 +269,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                     },
                                   ),
                                 ),
-                                const SizedBox(width: 48),
+                                SizedBox(width: isWide ? 128 : 48),
                                 Container(
                                   decoration: const BoxDecoration(
                                     color: Colors.black54,
@@ -486,7 +280,7 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                       controller?.value.isPlaying ?? false
                                           ? Icons.pause
                                           : Icons.play_arrow,
-                                      size: 44,
+                                      size: isWide ? 88 : 44,
                                     ),
                                     color: Colors.white,
                                     onPressed: () {
@@ -502,13 +296,13 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                     },
                                   ),
                                 ),
-                                const SizedBox(width: 48),
+                                SizedBox(width: isWide ? 128 : 48),
                                 IgnorePointer(
                                   ignoring: !_showControls,
                                   child: IconButton(
-                                    icon: const Icon(
+                                    icon: Icon(
                                       Icons.forward_10,
-                                      size: 40,
+                                      size: isWide ? 80 : 40,
                                     ),
                                     color: Colors.white,
                                     onPressed: () {
@@ -526,6 +320,218 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
           );
         },
       ),
+    );
+  }
+
+  void _showSettingsBottomSheet(
+    BuildContext context,
+    VideoControllerProvider provider,
+    AppLocalizations l10n,
+    bool isWide,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.black87,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder:
+          (context) => DraggableScrollableSheet(
+            initialChildSize: 0.5,
+            minChildSize: 0.3,
+            maxChildSize: 0.9,
+            expand: false,
+            builder:
+                (context, scrollController) => Container(
+                  padding: EdgeInsets.all(isWide ? 24.0 : 16.0),
+                  child: ListView(
+                    controller: scrollController,
+                    children: [
+                      ListTile(
+                        leading: Icon(
+                          Icons.speed,
+                          color: Colors.white,
+                          size: isWide ? 32 : 24,
+                        ),
+                        title: Text(
+                          l10n.playback_speed,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isWide ? 24 : 18,
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                          showDialog(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: Text(l10n.select_playback_speed),
+                                  content: SizedBox(
+                                    height: 300,
+                                    width: double.maxFinite,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: provider.playbackSpeeds.length,
+                                      itemBuilder:
+                                          (context, index) => ListTile(
+                                            title: Text(
+                                              '${provider.playbackSpeeds[index]}x',
+                                            ),
+                                            onTap: () {
+                                              provider.controller
+                                                  ?.setPlaybackSpeed(
+                                                    provider
+                                                        .playbackSpeeds[index],
+                                                  );
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                          );
+                        },
+                      ),
+                      if (provider.qualities.length != 1)
+                        ListTile(
+                          leading: Icon(
+                            Icons.hd,
+                            color: Colors.white,
+                            size: isWide ? 32 : 24,
+                          ),
+                          title: Text(
+                            l10n.quality,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: isWide ? 24 : 18,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pop(context);
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: Text(l10n.quality),
+                                    content: SizedBox(
+                                      height: 150,
+                                      width: double.maxFinite,
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: provider.qualities.length,
+                                        itemBuilder:
+                                            (context, index) => ListTile(
+                                              title: Text(
+                                                '${provider.qualities[index].startsWith('hls') ? provider.qualities[index].substring(3) : provider.qualities[index]}p',
+                                              ),
+                                              onTap: () {
+                                                provider.changeQuality(
+                                                  provider.qualities[index],
+                                                );
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                            );
+                          },
+                        ),
+                      if (provider.subtitlesLanguages.isNotEmpty)
+                        ListTile(
+                          leading: Icon(
+                            Icons.subtitles,
+                            color: Colors.white,
+                            size: isWide ? 32 : 24,
+                          ),
+                          title: Text(
+                            l10n.subtitles,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: isWide ? 24 : 18,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pop(context);
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: Text(l10n.subtitles),
+                                    content: SizedBox(
+                                      height: 350,
+                                      width: double.maxFinite,
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount:
+                                            provider.subtitlesLanguages.length +
+                                            1,
+                                        itemBuilder: (context, index) {
+                                          if (index == 0) {
+                                            return ListTile(
+                                              leading: Icon(
+                                                Icons.visibility_off_outlined,
+                                                color:
+                                                    provider.currentLanguage ==
+                                                            ''
+                                                        ? Theme.of(
+                                                          context,
+                                                        ).colorScheme.primary
+                                                        : null,
+                                              ),
+                                              title: Text(
+                                                l10n.disable_subtitles,
+                                                style: TextStyle(
+                                                  color:
+                                                      provider.currentLanguage ==
+                                                              ''
+                                                          ? Theme.of(
+                                                            context,
+                                                          ).colorScheme.primary
+                                                          : null,
+                                                ),
+                                              ),
+                                              onTap: () {
+                                                provider.changeLanguage('');
+                                                Navigator.pop(context);
+                                              },
+                                            );
+                                          }
+                                          final language =
+                                              provider
+                                                  .subtitlesLanguages[index -
+                                                  1];
+                                          return ListTile(
+                                            title: Text(
+                                              language,
+                                              style: TextStyle(
+                                                color:
+                                                    provider.currentLanguage ==
+                                                            language
+                                                        ? Theme.of(
+                                                          context,
+                                                        ).colorScheme.primary
+                                                        : null,
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              provider.changeLanguage(language);
+                                              Navigator.pop(context);
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+          ),
     );
   }
 }

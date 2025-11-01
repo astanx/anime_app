@@ -10,10 +10,12 @@ class PlayerControls extends StatefulWidget {
   final VideoControllerProvider provider;
   final bool isFullscreen;
   final bool showControls;
+  final bool isWide;
 
   const PlayerControls({
     super.key,
     required this.provider,
+    required this.isWide,
     this.isFullscreen = false,
     this.showControls = true,
   });
@@ -44,6 +46,7 @@ class _PlayerControlsState extends State<PlayerControls> {
 
     final l10n = AppLocalizations.of(context)!;
     final duration = controller.value.duration;
+    final isWide = widget.isWide;
     final isReversedTimer = provider.isReversedTimer;
     final isDragging = provider.isDragging;
     final desiredPosition = provider.desiredPosition;
@@ -103,7 +106,12 @@ class _PlayerControlsState extends State<PlayerControls> {
               style: {
                 'body': Style(
                   color: Colors.white,
-                  fontSize: widget.isFullscreen ? FontSize(18) : FontSize(14),
+                  fontSize:
+                      isWide
+                          ? FontSize(24)
+                          : widget.isFullscreen
+                          ? FontSize(18)
+                          : FontSize(14),
                   textAlign: TextAlign.center,
                   lineHeight: LineHeight(1.3),
                   textShadow: [
@@ -191,7 +199,12 @@ class _PlayerControlsState extends State<PlayerControls> {
                         l10n.skip_opening,
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: widget.isFullscreen ? 16 : 8,
+                          fontSize:
+                              isWide
+                                  ? 24
+                                  : widget.isFullscreen
+                                  ? 16
+                                  : 8,
                         ),
                       ),
                     )
@@ -245,7 +258,12 @@ class _PlayerControlsState extends State<PlayerControls> {
                             : l10n.skip_ending,
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: widget.isFullscreen ? 16 : 8,
+                          fontSize:
+                              isWide
+                                  ? 24
+                                  : widget.isFullscreen
+                                  ? 16
+                                  : 8,
                         ),
                       ),
                     ),
@@ -264,8 +282,8 @@ class _PlayerControlsState extends State<PlayerControls> {
                     children: [
                       Text(
                         formatDuration(position),
-                        style: const TextStyle(
-                          fontSize: 10,
+                        style: TextStyle(
+                          fontSize: isWide ? 24 : 10,
                           fontWeight: FontWeight.w300,
                           color: Colors.white,
                         ),
@@ -284,8 +302,8 @@ class _PlayerControlsState extends State<PlayerControls> {
                           isReversedTimer
                               ? '${position - duration < Duration.zero ? '-' : ''}${formatDuration(duration - position)}'
                               : formatDuration(duration),
-                          style: const TextStyle(
-                            fontSize: 10,
+                          style: TextStyle(
+                            fontSize: isWide ? 24 : 10,
                             fontWeight: FontWeight.w300,
                             color: Colors.white,
                           ),

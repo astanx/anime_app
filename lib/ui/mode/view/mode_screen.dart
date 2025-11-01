@@ -11,47 +11,78 @@ class ModeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Spacer(),
-              Text(
-                l10n.choose_mode,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth > 600;
+            final horizontalPadding = isWide ? 64.0 : 24.0;
+            final verticalSpacing = isWide ? 24.0 : 16.0;
+
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: 24,
               ),
-              const SizedBox(height: 24),
-              _buildModeCard(
-                context,
-                title: l10n.anilibria_mode,
-                icon: Icons.movie,
-                color: Colors.deepPurpleAccent,
-                onTap: () => _onPressed(context, Mode.anilibria),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  Text(
+                    l10n.choose_mode,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: isWide ? 32 : null,
+                    ),
+                  ),
+                  SizedBox(height: verticalSpacing * 1.5),
+
+                  Wrap(
+                    spacing: verticalSpacing,
+                    runSpacing: verticalSpacing,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: isWide ? 300 : double.infinity,
+                        child: _buildModeCard(
+                          context,
+                          title: l10n.anilibria_mode,
+                          icon: Icons.movie,
+                          color: Colors.deepPurpleAccent,
+                          onTap: () => _onPressed(context, Mode.anilibria),
+                        ),
+                      ),
+                      SizedBox(
+                        width: isWide ? 300 : double.infinity,
+                        child: _buildModeCard(
+                          context,
+                          title: l10n.subtitle_mode,
+                          icon: Icons.subtitles_rounded,
+                          color: Colors.orangeAccent,
+                          onTap: () => _onPressed(context, Mode.consumet),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const Spacer(),
+                  Text(
+                    l10n.you_can_change_later,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      fontSize: isWide ? 14 : 12,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ),
-              const SizedBox(height: 16),
-              _buildModeCard(
-                context,
-                title: l10n.subtitle_mode,
-                icon: Icons.subtitles_rounded,
-                color: Colors.orangeAccent,
-                onTap: () => _onPressed(context, Mode.consumet),
-              ),
-              const Spacer(),
-              Text(
-                l10n.you_can_change_later,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: Colors.grey),
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -59,8 +90,10 @@ class ModeScreen extends StatelessWidget {
 
   void _onPressed(BuildContext context, Mode mode) async {
     await repository.registerDevice();
-    ModeStorage.saveMode(mode);
-    Navigator.of(context).pushNamed('/anime/list');
+    await ModeStorage.saveMode(mode);
+    if (context.mounted) {
+      Navigator.of(context).pushNamed('/anime/list');
+    }
   }
 
   Widget _buildModeCard(
@@ -70,42 +103,42 @@ class ModeScreen extends StatelessWidget {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: onTap,
       child: Ink(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
+            if (!isDark)
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
           ],
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               CircleAvatar(
-                radius: 22,
+                radius: 24,
                 backgroundColor: color.withOpacity(0.15),
                 child: Icon(icon, color: color, size: 28),
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               const Icon(
