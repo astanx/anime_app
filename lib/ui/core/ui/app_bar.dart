@@ -38,13 +38,13 @@ class AnimeBar extends StatelessWidget {
     }
 
     Widget navItem(
-      String route,
+      List<String> routes,
       IconData icon,
       String label,
       double iconSize,
       double fontSize,
     ) {
-      final isActive = currentRoute == route;
+      final isActive = routes.contains(currentRoute);
       final color = isActive ? activeColor : inactiveColor;
 
       return Column(
@@ -56,8 +56,8 @@ class AnimeBar extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   NoAnimationPageRoute(
-                    builder: (context) => routeBuilder(context, route),
-                    settings: RouteSettings(name: route),
+                    builder: (context) => routeBuilder(context, routes.first),
+                    settings: RouteSettings(name: routes.first),
                   ),
                 );
               }
@@ -88,30 +88,36 @@ class AnimeBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              navItem('/anime/list', Icons.home, l10n.home, iconSize, fontSize),
               navItem(
-                '/favourites',
+                ['/anime/list'],
+                Icons.home,
+                l10n.home,
+                iconSize,
+                fontSize,
+              ),
+              navItem(
+                ['/favourites'],
                 Icons.star,
                 l10n.favourites,
                 iconSize,
                 fontSize,
               ),
               navItem(
-                '/collections',
+                ['/collections'],
                 Icons.folder_open,
                 l10n.collection,
                 iconSize,
                 fontSize,
               ),
               navItem(
-                '/anime/search',
+                ['/anime/search', '/anime/releases'],
                 Icons.search,
                 l10n.search,
                 iconSize,
                 fontSize,
               ),
               navItem(
-                '/history',
+                ['/history'],
                 Icons.history,
                 l10n.history,
                 iconSize,

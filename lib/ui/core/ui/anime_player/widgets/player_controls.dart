@@ -228,7 +228,9 @@ class _PlayerControlsState extends State<PlayerControls> {
                         ),
                       ),
                       onPressed: () async {
-                        if (isAccurateEnding || isNearEnd) {
+                        if ((isAccurateEnding || isNearEnd) &&
+                            episodeIndex + 1 <
+                                (provider.anime?.previewEpisodes.length ?? 0)) {
                           if (isLoading) return;
                           setState(() => isLoading = true);
                           provider.seek(duration);
@@ -253,7 +255,10 @@ class _PlayerControlsState extends State<PlayerControls> {
                         }
                       },
                       child: Text(
-                        isAccurateEnding || isNearEnd
+                        (isAccurateEnding || isNearEnd) &&
+                                episodeIndex + 1 <
+                                    (provider.anime?.previewEpisodes.length ??
+                                        0)
                             ? l10n.next_episode
                             : l10n.skip_ending,
                         style: TextStyle(

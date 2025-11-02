@@ -78,7 +78,7 @@ class HistoryProvider extends ChangeNotifier {
 
   Future<void> addOrUpdateHistory(AnimeWithHistory historyAnime) async {
     _history.removeWhere((h) => h.anime.id == historyAnime.anime.id);
-    _history.add(historyAnime);
+    _history.insert(0, historyAnime);
 
     final history = History(
       animeID: historyAnime.anime.id,

@@ -183,7 +183,7 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                               });
                             },
                           ),
-                          // Collection Button
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: isWide ? 8.0 : 4.0,
@@ -280,7 +280,29 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
                               }, size: isWide ? 38 : 24),
                             ),
                           ),
-                          // Home Button
+                          if (anime.isMovie &&
+                              anime.previewEpisodes.first.isDubbed &&
+                              anime.previewEpisodes.first.isSubbed)
+                            Consumer<VideoControllerProvider>(
+                              builder: (context, provider, _) {
+                                return IconButton(
+                                  icon: Icon(
+                                    provider.isDubbedMode
+                                        ? Icons.record_voice_over
+                                        : Icons.subtitles,
+                                  ),
+                                  iconSize: isWide ? 38 : 24,
+                                  tooltip:
+                                      provider.isDubbedMode
+                                          ? 'Switch to Sub'
+                                          : 'Switch to Dub',
+                                  onPressed: () {
+                                    provider.toggleDubbed();
+                                    provider.loadEpisode(anime, 0, context);
+                                  },
+                                );
+                              },
+                            ),
                           IconButton(
                             icon: Icon(Icons.home, size: isWide ? 38 : 24),
                             padding: EdgeInsets.symmetric(

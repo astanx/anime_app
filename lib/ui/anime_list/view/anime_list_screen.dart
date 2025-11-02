@@ -140,7 +140,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                                         Text(
                                           l10n.app_name.toUpperCase(),
                                           style: TextStyle(
-                                            fontSize: isWide ? 140 : 72,
+                                            fontSize: isWide ? 117 : 72,
                                             fontFamily: 'Allan',
                                             fontWeight: FontWeight.bold,
                                           ),

@@ -134,6 +134,7 @@ class VideoControllerProvider extends ChangeNotifier {
     _saveTimecode();
     _anime = anime;
     qualities = [];
+    subtitlesLanguages = {};
     _episodeIndex = index;
     _wasStarted = false;
     isDragging = false;
@@ -144,7 +145,6 @@ class VideoControllerProvider extends ChangeNotifier {
     episodeID = anime.previewEpisodes[index].id;
     _isDubbedMode ??= await AnimeModeStorage.getMode() == AnimeMode.dub;
     Episode episode;
-
     try {
       episode = anime.episodes.firstWhere(
         (e) => e.id == episodeID && e.isDubbed == _isDubbedMode,
@@ -152,7 +152,7 @@ class VideoControllerProvider extends ChangeNotifier {
     } catch (e) {
       episode = await _animeRepository.getEpisodeInfo(
         anime.previewEpisodes[index],
-        _isDubbedMode!,
+        anime.previewEpisodes[index].isDubbed ? _isDubbedMode! : false,
         anime,
       );
     }
@@ -162,7 +162,6 @@ class VideoControllerProvider extends ChangeNotifier {
       anime,
     );
     if (anime.previewEpisodes[index].isSubbed) {
-      subtitlesLanguages = [];
       vttUrls = episode.subtitles;
       await loadSubtitles();
     }
@@ -311,7 +310,7 @@ class VideoControllerProvider extends ChangeNotifier {
   }
 
   List<SubtitleCue> _subtitles = [];
-  List<String> subtitlesLanguages = [];
+  Set<String> subtitlesLanguages = {};
   String? currentLanguage;
   List<Subtitle>? vttUrls = [];
 
@@ -328,7 +327,6 @@ class VideoControllerProvider extends ChangeNotifier {
     if (translationLanguage.isEmpty) {
       translationLanguage = await TranslateStorage().getLanguage() ?? '';
     }
-
     currentLanguage ??= await subtitleStorage.getLanguage() ?? 'English';
     for (var vtt in vttUrls!) {
       if (vtt.language == 'thumbnails') continue;
@@ -360,7 +358,7 @@ class VideoControllerProvider extends ChangeNotifier {
 
   Future<void> changeLanguage(String language) async {
     currentLanguage = language;
-    subtitlesLanguages = [];
+    subtitlesLanguages = {};
     await loadSubtitles();
     await subtitleStorage.saveLanguage(language);
   }

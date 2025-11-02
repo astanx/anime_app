@@ -125,7 +125,6 @@ class AnimeRepository extends BaseRepository {
 
       final episode = Episode.fromJson(data, isDubbed);
       anime!.episodes.add(episode);
-
       return episode;
     } catch (e) {
       rethrow;

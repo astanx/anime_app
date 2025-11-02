@@ -499,10 +499,9 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
                                               },
                                             );
                                           }
-                                          final language =
-                                              provider
-                                                  .subtitlesLanguages[index -
-                                                  1];
+                                          final language = provider
+                                              .subtitlesLanguages
+                                              .elementAt(index - 1);
                                           return ListTile(
                                             title: Text(
                                               language,

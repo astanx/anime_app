@@ -4,9 +4,16 @@ import 'package:anime_app/data/storage/mode_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
-class ModeScreen extends StatelessWidget {
-  ModeScreen({super.key});
+class ModeScreen extends StatefulWidget {
+  const ModeScreen({super.key});
+
+  @override
+  State<ModeScreen> createState() => _ModeScreenState();
+}
+
+class _ModeScreenState extends State<ModeScreen> {
   final repository = UserRepository();
+  bool isRegistering = false;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +28,9 @@ class ModeScreen extends StatelessWidget {
             final isWide = constraints.maxWidth > 600;
             final horizontalPadding = isWide ? 64.0 : 24.0;
             final verticalSpacing = isWide ? 24.0 : 16.0;
-
+            if (isRegistering) {
+              return Center(child: CircularProgressIndicator());
+            }
             return Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: horizontalPadding,
@@ -40,7 +49,6 @@ class ModeScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: verticalSpacing * 1.5),
-
                   Wrap(
                     spacing: verticalSpacing,
                     runSpacing: verticalSpacing,
@@ -53,7 +61,7 @@ class ModeScreen extends StatelessWidget {
                           title: l10n.anilibria_mode,
                           icon: Icons.movie,
                           color: Colors.deepPurpleAccent,
-                          onTap: () => _onPressed(context, Mode.anilibria),
+                          onTap: () => _onPressed(Mode.anilibria),
                         ),
                       ),
                       SizedBox(
@@ -63,12 +71,11 @@ class ModeScreen extends StatelessWidget {
                           title: l10n.subtitle_mode,
                           icon: Icons.subtitles_rounded,
                           color: Colors.orangeAccent,
-                          onTap: () => _onPressed(context, Mode.consumet),
+                          onTap: () => _onPressed(Mode.consumet),
                         ),
                       ),
                     ],
                   ),
-
                   const Spacer(),
                   Text(
                     l10n.you_can_change_later,
@@ -88,10 +95,14 @@ class ModeScreen extends StatelessWidget {
     );
   }
 
-  void _onPressed(BuildContext context, Mode mode) async {
+  void _onPressed(Mode mode) async {
+    if (isRegistering) return;
+    setState(() {
+      isRegistering = true;
+    });
     await repository.registerDevice();
     await ModeStorage.saveMode(mode);
-    if (context.mounted) {
+    if (mounted) {
       Navigator.of(context).pushNamed('/anime/list');
     }
   }
