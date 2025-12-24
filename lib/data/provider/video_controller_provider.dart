@@ -98,9 +98,9 @@ class VideoControllerProvider extends ChangeNotifier {
 
     if (isDragging) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final isDragging = (currentPosition - desiredPosition).abs() > 2.0;
-        if (isDragging != isDragging) {
-          updateIsDragging(isDragging);
+        final draggingState = (currentPosition - desiredPosition).abs() > 2.0;
+        if (isDragging != draggingState) {
+          updateIsDragging(draggingState);
         }
 
         if (!isDragging) {
@@ -197,6 +197,7 @@ class VideoControllerProvider extends ChangeNotifier {
         episode.ending.end != 0 ? Duration(seconds: episode.ending.end) : null;
 
     _controller!.addListener(_notify);
+    _controller!.addListener(autoSaveTimecode);
     controller?.addListener(_updateDraggingState);
     notifyListeners();
   }
@@ -255,16 +256,25 @@ class VideoControllerProvider extends ChangeNotifier {
 
   void _notify() => notifyListeners();
 
+  void autoSaveTimecode() {
+    if (_controller!.value.isInitialized && _controller!.value.isPlaying) {
+      _saveTimecode();
+    }
+  }
+
   @override
   void dispose() {
     _isDisposing = true;
     _saveTimecode();
     _controller?.removeListener(_notify);
+    _controller?.removeListener(autoSaveTimecode);
     controller?.removeListener(_updateDraggingState);
 
     _controller?.dispose();
     super.dispose();
   }
+
+  Duration _lastSaved = Duration.zero;
 
   void _saveTimecode() {
     if (_controller == null ||
@@ -280,6 +290,9 @@ class VideoControllerProvider extends ChangeNotifier {
     final time = _controller!.value.position;
     final duration = _controller!.value.duration;
     if (time > Duration.zero) {
+      if ((time - _lastSaved).inSeconds < 10) return;
+      _lastSaved = time;
+
       final episode = _anime!.episodes.where((e) => e.id == episodeID!).first;
       final timecode = Timecode(
         animeID: _anime!.id,

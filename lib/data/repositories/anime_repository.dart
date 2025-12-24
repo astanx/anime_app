@@ -11,11 +11,13 @@ class AnimeRepository extends BaseRepository {
   AnimeRepository({required this.mode}) : super(DioClient().dio);
   Mode mode;
 
-  Future<List<SearchAnime>> searchAnime(String query) async {
+  Future<PaginatedSearchAnime> searchAnime(String query, [int page = 1]) async {
     try {
-      final response = await dio.get('/anime/${mode.name}?query=$query');
+      final response = await dio.get(
+        '/anime/${mode.name}?query=$query&page=$page',
+      );
       final data = response.data;
-      final anime = SearchAnime.fromListJson(data);
+      final anime = PaginatedSearchAnime.fromJson(data);
       return anime;
     } catch (e) {
       log('Error searching anime: $e');

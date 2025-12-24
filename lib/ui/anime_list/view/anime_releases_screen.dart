@@ -16,15 +16,46 @@ class AnimeReleasesScreen extends StatefulWidget {
 }
 
 class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
-  List<SearchAnime>? _animeList;
+  PaginatedSearchAnime? _animeList;
   String? _query;
+  String _lastQuery = '';
   final _textController = TextEditingController();
   late AnimeRepository repository;
   Mode? mode;
   bool _isLoading = false;
+  bool _isLoadingMore = false;
+  final ScrollController _scrollController = ScrollController();
+
+  void _onScroll() async {
+    if (!mounted) return;
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoadingMore &&
+        !_isLoading &&
+        _animeList?.hasNextPage == true) {
+      setState(() {
+        _isLoadingMore = true;
+      });
+
+      final newAnime = await repository.searchAnime(
+        _lastQuery,
+        _animeList!.currentPage + 1,
+      );
+
+      _animeList!.results.addAll(newAnime.results);
+      _animeList!.currentPage = newAnime.currentPage;
+      _animeList!.hasNextPage = newAnime.hasNextPage;
+      _animeList!.totalPages = newAnime.totalPages;
+      setState(() {
+        _isLoadingMore = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _textController.dispose();
     super.dispose();
   }
@@ -36,7 +67,7 @@ class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
     final animeList = await repository.getLatestReleases();
     if (mounted) {
       setState(() {
-        _animeList = animeList;
+        _animeList?.results = animeList;
         _isLoading = false;
       });
     }
@@ -45,6 +76,7 @@ class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final arguments =
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
@@ -58,13 +90,14 @@ class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
         });
         final anime = await repository.searchAnime(query);
         setState(() {
+          _lastQuery = query;
           _animeList = anime;
           _query = query;
           _isLoading = false;
         });
       } else {
         setState(() {
-          _animeList = releases;
+          _animeList?.results = releases ?? [];
         });
       }
       setState(() {
@@ -110,6 +143,7 @@ class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
                                   _textController.text,
                                 );
                                 setState(() {
+                                  _lastQuery = _textController.text;
                                   _animeList = anime;
                                   _query = _textController.text;
                                   _isLoading = false;
@@ -127,6 +161,7 @@ class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
                                   value,
                                 );
                                 setState(() {
+                                  _lastQuery = value;
                                   _animeList = anime;
                                   _query = value;
                                   _isLoading = false;
@@ -139,7 +174,7 @@ class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
                           const SizedBox(height: 16),
                           Expanded(
                             child:
-                                _animeList!.isEmpty
+                                _animeList!.results.isEmpty
                                     ? Center(
                                       child: Column(
                                         mainAxisAlignment:
@@ -163,21 +198,40 @@ class _AnimeReleasesScreenState extends State<AnimeReleasesScreen> {
                                         ],
                                       ),
                                     )
-                                    : GridView.builder(
-                                      gridDelegate:
-                                          SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: crossAxisCount,
-                                            crossAxisSpacing: 16,
-                                            mainAxisSpacing: 16,
-                                            childAspectRatio: 2 / 4,
+                                    : Column(
+                                      children: [
+                                        Expanded(
+                                          child: GridView.builder(
+                                            controller: _scrollController,
+                                            gridDelegate:
+                                                SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount:
+                                                      crossAxisCount,
+                                                  crossAxisSpacing: 16,
+                                                  mainAxisSpacing: 16,
+                                                  childAspectRatio: 2 / 4,
+                                                ),
+                                            itemCount:
+                                                _animeList!.results.length,
+                                            itemBuilder: (context, index) {
+                                              return AnimeCard(
+                                                anime:
+                                                    _animeList!.results[index],
+                                                isWide: isWide,
+                                              );
+                                            },
                                           ),
-                                      itemCount: _animeList!.length,
-                                      itemBuilder: (context, index) {
-                                        return AnimeCard(
-                                          anime: _animeList![index],
-                                          isWide: isWide,
-                                        );
-                                      },
+                                        ),
+                                        if (_isLoadingMore &&
+                                            _animeList!.hasNextPage)
+                                          const Padding(
+                                            padding: EdgeInsets.all(16.0),
+                                            child: Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                          ),
+                                      ],
                                     ),
                           ),
                         ],
