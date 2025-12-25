@@ -144,6 +144,7 @@ class _PlayerControlsState extends State<PlayerControls> {
                       word,
                       provider.translationLanguage,
                     );
+                    if (!mounted) return;
                     final words = subtitleText.split(' ');
                     words[index] = translation;
                     setState(() {

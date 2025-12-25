@@ -136,6 +136,7 @@ class VideoControllerProvider extends ChangeNotifier {
     qualities = [];
     subtitlesLanguages = {};
     _episodeIndex = index;
+    _lastSaved = Duration.zero;
     _wasStarted = false;
     isDragging = false;
     desiredPosition = 0.0;
