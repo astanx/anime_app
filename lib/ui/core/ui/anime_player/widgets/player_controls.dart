@@ -71,6 +71,16 @@ class _PlayerControlsState extends State<PlayerControls> {
           return position >= cue.startTime && position <= cue.endTime;
         }).toList();
 
+    if (activeCues.isEmpty) {
+      if (processedSubtitleText.isNotEmpty) {
+        setState(() {
+          processedSubtitleText = '';
+          subtitleText = '';
+          currentCueStartTime = null;
+        });
+      }
+    }
+
     Duration? newCueStartTime =
         activeCues.isNotEmpty ? activeCues.last.startTime : null;
 
