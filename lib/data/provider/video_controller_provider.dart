@@ -28,6 +28,14 @@ class SubtitleCue {
     required this.endTime,
     required this.text,
   });
+
+  SubtitleCue copyWith({String? text}) {
+    return SubtitleCue(
+      text: text ?? this.text,
+      startTime: startTime,
+      endTime: endTime,
+    );
+  }
 }
 
 class VideoControllerProvider extends ChangeNotifier {

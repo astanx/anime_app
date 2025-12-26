@@ -66,30 +66,39 @@ class _PlayerControlsState extends State<PlayerControls> {
         (episodeIndex < anime.previewEpisodes.length - 1 && isNearEnd) ||
         inEndingRange;
 
-    Duration? newCueStartTime;
-    String newSubtitleText = '';
+    final activeCues =
+        provider.subtitles.where((cue) {
+          return position >= cue.startTime && position <= cue.endTime;
+        }).toList();
 
-    for (var cue in provider.subtitles) {
-      if (position >= cue.startTime && position <= cue.endTime) {
-        newSubtitleText = cue.text;
-        newCueStartTime = cue.startTime;
-        break;
-      }
-    }
+    Duration? newCueStartTime =
+        activeCues.isNotEmpty ? activeCues.last.startTime : null;
 
-    if (newCueStartTime != currentCueStartTime || subtitleText.isEmpty) {
+    if (activeCues.isNotEmpty &&
+        (currentCueStartTime == null ||
+            newCueStartTime != currentCueStartTime ||
+            subtitleText.isEmpty)) {
       currentCueStartTime = newCueStartTime;
-      subtitleText = newSubtitleText;
-      final words = subtitleText.split(' ');
-      processedSubtitleText = words
-          .asMap()
-          .entries
-          .map((entry) {
-            final index = entry.key;
-            final word = entry.value;
-            return '<a href="word:$index:$word">$word</a>';
+
+      int cueIndex = 0;
+      processedSubtitleText = activeCues
+          .map((cue) {
+            final words = cue.text.split(' ');
+            final wordTags = words
+                .asMap()
+                .entries
+                .map((entry) {
+                  final wordIdx = entry.key;
+                  final word = entry.value;
+                  return '<a href="word:$cueIndex:$wordIdx:$word">$word</a>';
+                })
+                .join(' ');
+            cueIndex++;
+            return wordTags;
           })
-          .join(' ');
+          .join('<br>');
+
+      subtitleText = activeCues.map((c) => c.text).join(' ');
     }
 
     return Stack(
@@ -128,37 +137,64 @@ class _PlayerControlsState extends State<PlayerControls> {
                 ),
               },
               onLinkTap: (url, attributes, element) async {
-                if (provider.translationLanguage.isEmpty &&
+                if (provider.translationLanguage.isEmpty ||
                     isSameSubtitleLanguage(
                       provider.translationLanguage,
                       provider.currentLanguage ?? '',
                     )) {
                   return;
                 }
+
                 if (url != null && url.startsWith('word:')) {
                   final parts = url.split(':');
-                  if (parts.length == 3) {
-                    final index = int.parse(parts[1]);
-                    final word = parts[2];
-                    final translation = await _translate(
-                      word,
-                      provider.translationLanguage,
-                    );
-                    if (!mounted) return;
-                    final words = subtitleText.split(' ');
-                    words[index] = translation;
-                    setState(() {
-                      subtitleText = words.join(' ');
-                      processedSubtitleText = words
-                          .asMap()
-                          .entries
-                          .map((entry) {
-                            final idx = entry.key;
-                            final w = entry.value;
-                            return '<a href="word:$idx:$w">$w</a>';
-                          })
-                          .join(' ');
-                    });
+                  if (parts.length == 4) {
+                    final int cueIdx = int.parse(parts[1]);
+                    final int wordIdx = int.parse(parts[2]);
+                    final String originalWord = parts[3];
+
+                    if (cueIdx < activeCues.length) {
+                      final targetCue = activeCues[cueIdx];
+                      final words = targetCue.text.split(' ');
+
+                      if (wordIdx < words.length &&
+                          words[wordIdx] == originalWord) {
+                        final translation = await _translate(
+                          originalWord,
+                          provider.translationLanguage,
+                        );
+                        if (!mounted) return;
+
+                        words[wordIdx] = translation;
+
+                        activeCues[cueIdx] = targetCue.copyWith(
+                          text: words.join(' '),
+                        );
+
+                        setState(() {
+                          int currentCueIndex = 0;
+                          processedSubtitleText = activeCues
+                              .map((cue) {
+                                final cueWords = cue.text.split(' ');
+                                final wordTags = cueWords
+                                    .asMap()
+                                    .entries
+                                    .map((entry) {
+                                      final wIdx = entry.key;
+                                      final w = entry.value;
+                                      return '<a href="word:$currentCueIndex:$wIdx:$w">$w</a>';
+                                    })
+                                    .join(' ');
+                                currentCueIndex++;
+                                return wordTags;
+                              })
+                              .join('<br>');
+
+                          subtitleText = activeCues
+                              .map((c) => c.text)
+                              .join(' ');
+                        });
+                      }
+                    }
                   }
                 }
               },
