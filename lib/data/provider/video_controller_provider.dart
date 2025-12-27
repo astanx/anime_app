@@ -139,7 +139,7 @@ class VideoControllerProvider extends ChangeNotifier {
   }
 
   Future<void> loadEpisode(Anime anime, int index, BuildContext context) async {
-    _saveTimecode();
+    _saveTimecode(true);
     _anime = anime;
     qualities = [];
     subtitlesLanguages = {};
@@ -252,7 +252,7 @@ class VideoControllerProvider extends ChangeNotifier {
         _wasStarted = true;
       }
     }
-    _saveTimecode();
+    _saveTimecode(true);
     notifyListeners();
   }
 
@@ -274,7 +274,7 @@ class VideoControllerProvider extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposing = true;
-    _saveTimecode();
+    _saveTimecode(true);
     _controller?.removeListener(_notify);
     _controller?.removeListener(autoSaveTimecode);
     controller?.removeListener(_updateDraggingState);
@@ -285,7 +285,7 @@ class VideoControllerProvider extends ChangeNotifier {
 
   Duration _lastSaved = Duration.zero;
 
-  void _saveTimecode() {
+  void _saveTimecode([bool forceSave = false]) {
     if (_controller == null ||
         _anime == null ||
         _timecodeProvider == null ||
@@ -299,7 +299,11 @@ class VideoControllerProvider extends ChangeNotifier {
     final time = _controller!.value.position;
     final duration = _controller!.value.duration;
     if (time > Duration.zero) {
-      if ((time - _lastSaved).inSeconds < 10) return;
+      final isWatched =
+          (endingStart != null && time >= endingStart!) ||
+          (time >= duration - const Duration(seconds: 5));
+      if ((time - _lastSaved).inSeconds < 10 && !forceSave && !isWatched)
+        return;
       _lastSaved = time;
 
       final episode = _anime!.episodes.where((e) => e.id == episodeID!).first;
@@ -321,9 +325,7 @@ class VideoControllerProvider extends ChangeNotifier {
           animeID: _anime!.id,
           watchedAt: DateTime.now(),
           lastWatchedEpisode: _episodeIndex!,
-          isWatched:
-              (endingStart != null && time >= endingStart!) ||
-              (time >= duration - const Duration(seconds: 5)),
+          isWatched: isWatched,
         ),
       );
 
