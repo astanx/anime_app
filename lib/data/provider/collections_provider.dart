@@ -40,7 +40,6 @@ class CollectionsProvider extends ChangeNotifier {
   Future<void> fetchCollection(CollectionType type, [int page = 1]) async {
     if (!_hasFetched[type]! || page > 1) {
       final collection = await _repository.getCollection(type, page, _limit);
-      _hasFetched[type] = true;
       if (_collections[type] == null) {
         final futures = collection.animeIDs.map((id) {
           if (_existingIds.contains(id)) {
@@ -70,6 +69,7 @@ class CollectionsProvider extends ChangeNotifier {
       if (page == 1) {
         _hasFetched[type] = true;
       }
+
       _page[type] = page;
       notifyListeners();
     }

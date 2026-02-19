@@ -60,7 +60,9 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                   if (_isLoading) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  if (favourites.isEmpty && !provider.isLoadingMore) {
+                  if (favourites.isEmpty &&
+                      !provider.isLoadingMore &&
+                      !_isLoading) {
                     return Center(
                       child: Text(
                         l10n.no_favourites_found,

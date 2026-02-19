@@ -38,9 +38,9 @@ class FavouritesProvider extends ChangeNotifier {
         return _animeRepository.getAnimeById(id);
       });
 
-      _hasFetched = true;
-
       _favourites = await Future.wait(futures);
+
+      _hasFetched = true;
 
       notifyListeners();
     }

@@ -198,7 +198,8 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                                   ),
                                 )
                                 : collections[_type]!.isEmpty &&
-                                    !provider.isLoadingMore(_type)
+                                    !provider.isLoadingMore(_type) &&
+                                    provider.hasFetched[_type] == true
                                 ? Center(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,

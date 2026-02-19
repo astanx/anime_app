@@ -31,7 +31,6 @@ class HistoryProvider extends ChangeNotifier {
     if (_hasFetched) return;
 
     final historyPage = await _repository.getHistory(_page, _limit);
-    _hasFetched = true;
 
     if (historyPage.history.isEmpty) {
       _hasMore = false;

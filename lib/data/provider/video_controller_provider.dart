@@ -207,7 +207,8 @@ class VideoControllerProvider extends ChangeNotifier {
 
     _controller!.addListener(_notify);
     _controller!.addListener(autoSaveTimecode);
-    controller?.addListener(_updateDraggingState);
+    _controller?.addListener(_updateDraggingState);
+    _controller?.addListener(preventComplete);
     notifyListeners();
   }
 
@@ -240,6 +241,10 @@ class VideoControllerProvider extends ChangeNotifier {
       await _controller!.seekTo(Duration(seconds: timecode));
     }
     _controller!.addListener(_notify);
+    _controller!.addListener(autoSaveTimecode);
+    _controller?.addListener(_updateDraggingState);
+    _controller?.addListener(preventComplete);
+
     notifyListeners();
   }
 
@@ -256,10 +261,15 @@ class VideoControllerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void seek(Duration position) {
+  void seek(Duration position) async {
     updateIsDragging(true);
     updateDesiredPosition(position.inSeconds.toDouble());
-    _controller?.seekTo(position);
+
+    if (_controller!.value.duration - position < Duration(milliseconds: 500))
+      _controller?.seekTo(position - Duration(milliseconds: 500));
+    else
+      _controller?.seekTo(position);
+
     notifyListeners();
   }
 
@@ -271,6 +281,13 @@ class VideoControllerProvider extends ChangeNotifier {
     }
   }
 
+  void preventComplete() async {
+    if (_controller!.value.duration - _controller!.value.position <
+        Duration(milliseconds: 500)) {
+      await _controller!.pause();
+    }
+  }
+
   @override
   void dispose() {
     _isDisposing = true;
@@ -278,6 +295,7 @@ class VideoControllerProvider extends ChangeNotifier {
     _controller?.removeListener(_notify);
     _controller?.removeListener(autoSaveTimecode);
     controller?.removeListener(_updateDraggingState);
+    _controller?.removeListener(preventComplete);
 
     _controller?.dispose();
     super.dispose();

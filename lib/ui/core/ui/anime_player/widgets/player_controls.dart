@@ -93,18 +93,25 @@ class _PlayerControlsState extends State<PlayerControls> {
       int cueIndex = 0;
       processedSubtitleText = activeCues
           .map((cue) {
-            final words = cue.text.split(' ');
-            final wordTags = words
-                .asMap()
-                .entries
-                .map((entry) {
-                  final wordIdx = entry.key;
-                  final word = entry.value;
-                  return '<a href="word:$cueIndex:$wordIdx:$word">$word</a>';
+            int wordIdx = 0;
+
+            final reg = RegExp(r'(<[^>]+>|[^<>\s]+|\s+)');
+            return reg
+                .allMatches(cue.text)
+                .map((m) {
+                  final part = m.group(0)!;
+
+                  if (part.startsWith('<') && part.endsWith('>') ||
+                      part.trim().isEmpty) {
+                    return part;
+                  }
+
+                  final tag =
+                      '<a href="word:$cueIndex:$wordIdx:$part">$part</a>';
+                  wordIdx++;
+                  return tag;
                 })
-                .join(' ');
-            cueIndex++;
-            return wordTags;
+                .join('');
           })
           .join('<br>');
 

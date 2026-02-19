@@ -70,7 +70,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   if (history == null || _isLoading) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  if (history.isEmpty) {
+                  if (history.isEmpty && !_isLoading) {
                     return Center(
                       child: Text(
                         l10n!.no_history_found,
