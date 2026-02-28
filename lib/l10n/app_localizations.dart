@@ -248,7 +248,7 @@ abstract class AppLocalizations {
   /// No description provided for @favourites.
   ///
   /// In en, this message translates to:
-  /// **'Favoruties'**
+  /// **'Favourites'**
   String get favourites;
 
   /// No description provided for @no_history_found.
@@ -502,6 +502,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Subtitle translate Language'**
   String get subtitle_translate_language;
+
+  /// No description provided for @dubbed.
+  ///
+  /// In en, this message translates to:
+  /// **'Dubbed'**
+  String get dubbed;
+
+  /// No description provided for @subbed.
+  ///
+  /// In en, this message translates to:
+  /// **'Subbed'**
+  String get subbed;
+
+  /// No description provided for @new_sub_dub.
+  ///
+  /// In en, this message translates to:
+  /// **'New! Switch between Dub & Sub'**
+  String get new_sub_dub;
+
+  /// No description provided for @episode_supports_both.
+  ///
+  /// In en, this message translates to:
+  /// **'This episode supports both versions.'**
+  String get episode_supports_both;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

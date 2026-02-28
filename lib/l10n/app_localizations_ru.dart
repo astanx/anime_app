@@ -236,4 +236,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get subtitle_translate_language => 'Язык перевода субтитров';
+
+  @override
+  String get dubbed => 'Дублированный';
+
+  @override
+  String get subbed => 'Субтитры';
+
+  @override
+  String get new_sub_dub => 'Новое! Переключение между дубляжом и субтитрами';
+
+  @override
+  String get episode_supports_both => 'Этот эпизод поддерживает оба варианта.';
 }

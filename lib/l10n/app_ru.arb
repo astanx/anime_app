@@ -70,5 +70,12 @@
   "choose_mode": "Выберите предпочитаемый режим",
   "you_can_change_later": "Вы можете изменить мод позже",
   "disable_subtitles": "Отключить субтитры",
-  "subtitle_translate_language": "Язык перевода субтитров"
+  "subtitle_translate_language": "Язык перевода субтитров",
+
+
+  "dubbed": "Дублированный",
+  "subbed": "Субтитры",
+
+  "new_sub_dub": "Новое! Переключение между дубляжом и субтитрами",
+  "episode_supports_both": "Этот эпизод поддерживает оба варианта."
 }

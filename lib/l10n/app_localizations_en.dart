@@ -103,7 +103,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_favourites_found => 'No favourites found.';
 
   @override
-  String get favourites => 'Favoruties';
+  String get favourites => 'Favourites';
 
   @override
   String get no_history_found => 'No history found.';
@@ -236,4 +236,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subtitle_translate_language => 'Subtitle translate Language';
+
+  @override
+  String get dubbed => 'Dubbed';
+
+  @override
+  String get subbed => 'Subbed';
+
+  @override
+  String get new_sub_dub => 'New! Switch between Dub & Sub';
+
+  @override
+  String get episode_supports_both => 'This episode supports both versions.';
 }

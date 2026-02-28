@@ -1,6 +1,7 @@
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
+import 'package:anime_app/data/storage/anime_mode_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/core/ui/anime_player/anime_player.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,8 @@ class AnimeScreen extends StatelessWidget {
     final int episodeIndex = arguments['episodeIndex'] as int;
     final Mode mode = arguments['mode'];
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
     return ChangeNotifierProvider(
       create: (context) {
         final provider = VideoControllerProvider(mode: mode);
@@ -46,23 +49,94 @@ class AnimeScreen extends StatelessWidget {
                     ),
                   ),
                   if (anime.previewEpisodes[episodeIndex].isDubbed &&
-                      anime.previewEpisodes[episodeIndex].isSubbed)
-                    IconButton(
-                      icon: Icon(
-                        provider.isDubbedMode
-                            ? Icons.record_voice_over
-                            : Icons.subtitles,
-                      ),
-                      iconSize: isWide ? 38 : 24,
+                      anime.previewEpisodes[episodeIndex].isSubbed) ...[
+                    PopupMenuButton<int>(
                       tooltip:
                           provider.isDubbedMode
                               ? 'Switch to Sub'
                               : 'Switch to Dub',
-                      onPressed: () {
-                        provider.toggleDubbed();
-                        provider.loadEpisode(anime, episodeIndex, context);
+                      offset: const Offset(0, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      initialValue: provider.isDubbedMode ? 1 : 0,
+                      onSelected: (value) {
+                        if (value == 0 && provider.isDubbedMode) {
+                          provider.toggleDubbed();
+                          provider.loadEpisode(anime, episodeIndex, context);
+                        } else if (value == 1 && !provider.isDubbedMode) {
+                          provider.toggleDubbed();
+                          provider.loadEpisode(anime, episodeIndex, context);
+                        }
+                        if (!provider.sawDubSubTutorial) {
+                          AnimeModeStorage.setSawDubSubTutorial(true);
+                          provider.changeSubDubTutorial(true);
+                        }
                       },
+                      itemBuilder:
+                          (context) => [
+                            if (!provider.sawDubSubTutorial)
+                              PopupMenuItem<int>(
+                                value: -1,
+                                enabled: false,
+                                child: ListTile(
+                                  leading: Icon(
+                                    Icons.info_outline,
+                                    color: Colors.blue,
+                                  ),
+                                  title: Text(
+                                    l10n.new_sub_dub,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text(l10n.episode_supports_both),
+                                ),
+                              ),
+                            PopupMenuItem<int>(
+                              value: 0,
+                              child: ListTile(
+                                leading: Icon(Icons.subtitles),
+                                title: Text(l10n.subbed),
+                              ),
+                            ),
+                            PopupMenuItem<int>(
+                              value: 1,
+                              child: ListTile(
+                                leading: Icon(Icons.record_voice_over),
+                                title: Text(l10n.dubbed),
+                              ),
+                            ),
+                          ],
+                      child: Stack(
+                        children: [
+                          Icon(
+                            provider.isDubbedMode
+                                ? Icons.record_voice_over
+                                : Icons.subtitles,
+                            size: isWide ? 38 : 24,
+                          ),
+                          if (!provider.sawDubSubTutorial)
+                            Positioned(
+                              right: 0,
+                              top: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.circle,
+                                  size: 10,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
+                  ],
                   if (isWide) SizedBox(width: 30),
                   IconButton(
                     icon: const Icon(Icons.home),

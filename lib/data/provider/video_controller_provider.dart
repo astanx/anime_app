@@ -130,6 +130,14 @@ class VideoControllerProvider extends ChangeNotifier {
     seek(seekPos);
   }
 
+  bool _sawDubSubTutorial = true;
+  bool get sawDubSubTutorial => _sawDubSubTutorial;
+
+  void changeSubDubTutorial(bool value) {
+    _sawDubSubTutorial = value;
+    notifyListeners();
+  }
+
   void toggleDubbed() {
     _isDubbedMode = !(_isDubbedMode ?? true);
     AnimeModeStorage.saveMode(
@@ -205,6 +213,8 @@ class VideoControllerProvider extends ChangeNotifier {
     endingEnd =
         episode.ending.end != 0 ? Duration(seconds: episode.ending.end) : null;
 
+    _sawDubSubTutorial = await AnimeModeStorage.getSawDubSubTutorial();
+
     _controller!.addListener(_notify);
     _controller!.addListener(autoSaveTimecode);
     _controller?.addListener(_updateDraggingState);
@@ -275,8 +285,17 @@ class VideoControllerProvider extends ChangeNotifier {
 
   void _notify() => notifyListeners();
 
+  Timecode _previousTimecode = Timecode(
+    animeID: '',
+    episodeID: '',
+    time: 0,
+    isWatched: false,
+  );
+
   void autoSaveTimecode() {
-    if (_controller!.value.isInitialized && _controller!.value.isPlaying) {
+    if (_controller!.value.isInitialized &&
+        _controller!.value.isPlaying &&
+        !_isDisposing) {
       _saveTimecode();
     }
   }
@@ -311,6 +330,11 @@ class VideoControllerProvider extends ChangeNotifier {
         _episodeIndex == null ||
         episodeID == null ||
         !_wasStarted) {
+      return;
+    }
+
+    if (_previousTimecode.time >= _controller!.value.position.inSeconds - 1 &&
+        _previousTimecode.episodeID == episodeID) {
       return;
     }
 

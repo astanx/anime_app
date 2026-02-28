@@ -70,5 +70,11 @@
   "choose_mode": "Choose your preferred mode",
   "you_can_change_later": "You can change this later",
   "disable_subtitles": "Disable subtitles",
-  "subtitle_translate_language": "Subtitle translate Language"
+  "subtitle_translate_language": "Subtitle translate Language",
+
+  "dubbed": "Dubbed",
+  "subbed": "Subbed",
+
+  "new_sub_dub": "New! Switch between Dub & Sub",
+  "episode_supports_both": "This episode supports both versions."
 }
