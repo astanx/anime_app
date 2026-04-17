@@ -46,6 +46,7 @@ class HistoryProvider extends ChangeNotifier {
 
     _history = await Future.wait(futures);
     _hasFetched = true;
+
     notifyListeners();
   }
 

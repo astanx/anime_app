@@ -1,7 +1,7 @@
 import 'package:anime_app/data/models/anime.dart';
 import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/provider/video_controller_provider.dart';
-import 'package:anime_app/data/storage/anime_mode_storage.dart';
+import 'package:anime_app/data/storage/viewed_feature_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/ui/core/ui/anime_player/anime_player.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +69,7 @@ class AnimeScreen extends StatelessWidget {
                           provider.loadEpisode(anime, episodeIndex, context);
                         }
                         if (!provider.sawDubSubTutorial) {
-                          AnimeModeStorage.setSawDubSubTutorial(true);
+                          ViewedFeatureStorage.setSawDubSubTutorial(true);
                           provider.changeSubDubTutorial(true);
                         }
                       },
@@ -144,6 +144,7 @@ class AnimeScreen extends StatelessWidget {
                     iconSize: isWide ? 38 : 24,
                     onPressed: () {
                       Navigator.of(context).pushNamed('/anime/list');
+                      provider.dispose();
                     },
                   ),
                 ],

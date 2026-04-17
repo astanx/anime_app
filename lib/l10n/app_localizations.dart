@@ -476,7 +476,7 @@ abstract class AppLocalizations {
   /// No description provided for @subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Subtitle'**
+  /// **'Subtitles and English dub'**
   String get subtitle;
 
   /// No description provided for @choose_mode.
@@ -526,6 +526,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This episode supports both versions.'**
   String get episode_supports_both;
+
+  /// No description provided for @mal_sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync with MyAnimeList'**
+  String get mal_sync;
+
+  /// No description provided for @mal_import.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from MyAnimeList'**
+  String get mal_import;
+
+  /// No description provided for @mal_export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export to MyAnimeList'**
+  String get mal_export;
+
+  /// No description provided for @exporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Exporting...'**
+  String get exporting;
+
+  /// No description provided for @importing.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing...'**
+  String get importing;
+
+  /// No description provided for @new_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'New! Customize your anime experience'**
+  String get new_settings;
+
+  /// No description provided for @settings_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch between dub & sub, translate subtitles, and sync your MyAnimeList — all in one place.'**
+  String get settings_desc;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1,8 +1,10 @@
 import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/models/search_anime.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
+import 'package:anime_app/data/repositories/mal_repository.dart';
 import 'package:anime_app/data/storage/mode_storage.dart';
 import 'package:anime_app/data/storage/translate_storage.dart';
+import 'package:anime_app/data/storage/viewed_feature_storage.dart';
 import 'package:anime_app/l10n/app_localizations.dart';
 import 'package:anime_app/router/no_animation_route.dart';
 import 'package:anime_app/ui/anime_list/widgets/widgets.dart';
@@ -23,6 +25,12 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
   Mode? mode;
   bool isLoading = true;
   late AnimeRepository repository;
+  final MALRepository malRepository = MALRepository();
+
+  bool isExporting = false;
+  bool isImporting = false;
+
+  late bool sawSettings;
 
   @override
   void dispose() {
@@ -35,6 +43,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final m = await ModeStorage.getMode();
       translateLang = await TranslateStorage().getLanguage() ?? '';
+      sawSettings = await ViewedFeatureStorage.getSawSettingsTutorial();
 
       setState(() {
         mode = m;
@@ -63,7 +72,10 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
     return Scaffold(
       bottomNavigationBar: AnimeBar(isBlocked: isLoading),
       body:
-          _animeList == null || _recommendedList == null || mode == null
+          _animeList == null ||
+                  _recommendedList == null ||
+                  mode == null ||
+                  isLoading
               ? const Center(child: CircularProgressIndicator())
               : SafeArea(
                 child: LayoutBuilder(
@@ -122,17 +134,56 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                                               ),
                                             ),
                                             GestureDetector(
-                                              onTap:
-                                                  () => _showSettingsMenu(
-                                                    context,
-                                                    isWide,
-                                                    screenWidth,
-                                                    verticalSpacing,
+                                              onTap: () {
+                                                _showSettingsMenu(
+                                                  context,
+                                                  isWide,
+                                                  screenWidth,
+                                                  verticalSpacing,
+                                                  sawSettings,
+                                                );
+
+                                                if (!sawSettings) {
+                                                  ViewedFeatureStorage.setSawSettingsTutorial(
+                                                    true,
+                                                  );
+                                                  setState(() {
+                                                    sawSettings = true;
+                                                  });
+                                                }
+                                              },
+                                              child: Stack(
+                                                children: [
+                                                  Icon(
+                                                    Icons.person,
+                                                    size:
+                                                        isWide ? 30 * 1.75 : 30,
+                                                    color: Colors.white,
                                                   ),
-                                              child: Icon(
-                                                Icons.person,
-                                                size: isWide ? 30 * 1.75 : 30,
-                                                color: Colors.white,
+                                                  if (!sawSettings)
+                                                    Positioned(
+                                                      right: 0,
+                                                      top: 0,
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                              2,
+                                                            ),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                              color: Colors.red,
+                                                              shape:
+                                                                  BoxShape
+                                                                      .circle,
+                                                            ),
+                                                        child: const Icon(
+                                                          Icons.circle,
+                                                          size: 10,
+                                                          color: Colors.red,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
                                               ),
                                             ),
                                           ],
@@ -214,6 +265,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
     bool isWide,
     double screenWidth,
     double verticalSpacing,
+    bool sawSettings,
   ) {
     final l10n = AppLocalizations.of(context)!;
     final subtitleLanguages = [
@@ -241,7 +293,8 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
       elevation: 8,
       color: Theme.of(context).colorScheme.surface,
       constraints: BoxConstraints(
-        maxWidth: isWide ? screenWidth * 0.7 : screenWidth * 0.85,
+        // POMENAYA
+        maxWidth: isWide ? screenWidth * 0.7 : screenWidth * 0.75,
         minWidth: isWide ? 400 : 280,
       ),
       items: [
@@ -257,14 +310,28 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (!sawSettings)
+                      ListTile(
+                        leading: Icon(Icons.info_outline, color: Colors.blue),
+                        title: Text(
+                          l10n.new_settings,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(l10n.settings_desc),
+                      ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          l10n.anilibria,
-                          style: TextStyle(
-                            fontSize: isWide ? 48 : 16,
-                            fontWeight: FontWeight.w600,
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              l10n.anilibria,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: isWide ? 42 : 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                         Switch(
@@ -282,11 +349,16 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                             );
                           },
                         ),
-                        Text(
-                          l10n.subtitle,
-                          style: TextStyle(
-                            fontSize: isWide ? 48 : 16,
-                            fontWeight: FontWeight.w600,
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              l10n.subtitle,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: isWide ? 42 : 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -348,6 +420,129 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
                               },
                             );
                           }).toList(),
+                    ),
+                    SizedBox(height: verticalSpacing * 0.8),
+                    Text(
+                      l10n.mal_sync,
+                      style: TextStyle(
+                        fontSize: isWide ? 30 : 15,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white70,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  onPressed: () async {
+                                    if (isImporting) return;
+                                    setState(() {
+                                      isImporting = true;
+                                    });
+                                    setStatePopup(() {});
+
+                                    final message =
+                                        await malRepository.importMAL();
+
+                                    setState(() {
+                                      isImporting = false;
+                                    });
+                                    setStatePopup(() {});
+
+                                    if (!context.mounted) return;
+
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text('Import result'),
+                                          content: Text(message),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () =>
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pop(),
+                                              child: const Text('Close'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                  icon: Icon(Icons.import_export_rounded),
+                                ),
+                                const SizedBox(height: 10),
+                                Center(
+                                  child: Text(
+                                    isImporting
+                                        ? l10n.importing
+                                        : l10n.mal_import,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: isWide ? 20 : 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  onPressed: () async {
+                                    if (isExporting) return;
+                                    setState(() {
+                                      isExporting = true;
+                                    });
+                                    setStatePopup(() {});
+
+                                    await malRepository.exportMAL();
+
+                                    setState(() {
+                                      isExporting = false;
+                                    });
+                                    setStatePopup(() {});
+                                  },
+                                  icon: Icon(Icons.import_export_rounded),
+                                ),
+                                const SizedBox(height: 10),
+
+                                Center(
+                                  child: Text(
+                                    isExporting
+                                        ? l10n.exporting
+                                        : l10n.mal_export,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: isWide ? 20 : 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 );

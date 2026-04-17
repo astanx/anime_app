@@ -10,6 +10,7 @@ import 'package:anime_app/data/provider/history_provider.dart';
 import 'package:anime_app/data/provider/timecode_provider.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/storage/anime_mode_storage.dart';
+import 'package:anime_app/data/storage/viewed_feature_storage.dart';
 import 'package:anime_app/data/storage/subtitle_storage.dart';
 import 'package:anime_app/data/storage/translate_storage.dart';
 import 'package:flutter/material.dart';
@@ -105,16 +106,11 @@ class VideoControllerProvider extends ChangeNotifier {
     final currentPosition = _controller!.value.position.inSeconds.toDouble();
 
     if (isDragging) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final draggingState = (currentPosition - desiredPosition).abs() > 2.0;
-        if (isDragging != draggingState) {
-          updateIsDragging(draggingState);
-        }
+      final draggingState = (currentPosition - desiredPosition).abs() > 2.0;
 
-        if (!isDragging) {
-          updateDesiredPosition(currentPosition);
-        }
-      });
+      if (draggingState != isDragging) {
+        updateIsDragging(draggingState);
+      }
     }
   }
 
@@ -147,6 +143,7 @@ class VideoControllerProvider extends ChangeNotifier {
   }
 
   Future<void> loadEpisode(Anime anime, int index, BuildContext context) async {
+    _removeAllControllerListeners();
     _saveTimecode(true);
     _anime = anime;
     qualities = [];
@@ -161,6 +158,7 @@ class VideoControllerProvider extends ChangeNotifier {
     _timecodeProvider!.fetchTimecodesForAnime(anime.id);
     episodeID = anime.previewEpisodes[index].id;
     _isDubbedMode ??= await AnimeModeStorage.getMode() == AnimeMode.dub;
+    _sawDubSubTutorial = await ViewedFeatureStorage.getSawDubSubTutorial();
     Episode episode;
     try {
       episode = anime.episodes.firstWhere(
@@ -213,8 +211,6 @@ class VideoControllerProvider extends ChangeNotifier {
     endingEnd =
         episode.ending.end != 0 ? Duration(seconds: episode.ending.end) : null;
 
-    _sawDubSubTutorial = await AnimeModeStorage.getSawDubSubTutorial();
-
     _controller!.addListener(_notify);
     _controller!.addListener(autoSaveTimecode);
     _controller?.addListener(_updateDraggingState);
@@ -231,6 +227,7 @@ class VideoControllerProvider extends ChangeNotifier {
       return;
     }
     Uri videoUrl;
+
     _saveTimecode();
     await _controller?.dispose();
     final episode = anime!.episodes[_episodeIndex!];
@@ -250,6 +247,7 @@ class VideoControllerProvider extends ChangeNotifier {
     if (timecode > 0) {
       await _controller!.seekTo(Duration(seconds: timecode));
     }
+    _removeAllControllerListeners();
     _controller!.addListener(_notify);
     _controller!.addListener(autoSaveTimecode);
     _controller?.addListener(_updateDraggingState);
@@ -285,17 +283,17 @@ class VideoControllerProvider extends ChangeNotifier {
 
   void _notify() => notifyListeners();
 
-  Timecode _previousTimecode = Timecode(
-    animeID: '',
-    episodeID: '',
-    time: 0,
-    isWatched: false,
-  );
+  Duration _lastSavedTimecode = Duration.zero;
 
   void autoSaveTimecode() {
     if (_controller!.value.isInitialized &&
         _controller!.value.isPlaying &&
         !_isDisposing) {
+      final now = _controller!.value.position;
+      if ((now - _lastSavedTimecode).inMilliseconds < 3500) return;
+
+      _lastSavedTimecode = now;
+
       _saveTimecode();
     }
   }
@@ -311,16 +309,20 @@ class VideoControllerProvider extends ChangeNotifier {
   void dispose() {
     _isDisposing = true;
     _saveTimecode(true);
-    _controller?.removeListener(_notify);
-    _controller?.removeListener(autoSaveTimecode);
-    controller?.removeListener(_updateDraggingState);
-    _controller?.removeListener(preventComplete);
+    _removeAllControllerListeners();
 
     _controller?.dispose();
     super.dispose();
   }
 
   Duration _lastSaved = Duration.zero;
+
+  void _removeAllControllerListeners() {
+    _controller?.removeListener(_notify);
+    _controller?.removeListener(autoSaveTimecode);
+    _controller?.removeListener(_updateDraggingState);
+    _controller?.removeListener(preventComplete);
+  }
 
   void _saveTimecode([bool forceSave = false]) {
     if (_controller == null ||
@@ -330,11 +332,6 @@ class VideoControllerProvider extends ChangeNotifier {
         _episodeIndex == null ||
         episodeID == null ||
         !_wasStarted) {
-      return;
-    }
-
-    if (_previousTimecode.time >= _controller!.value.position.inSeconds - 1 &&
-        _previousTimecode.episodeID == episodeID) {
       return;
     }
 
@@ -450,10 +447,11 @@ class VideoControllerProvider extends ChangeNotifier {
       }
 
       if (line.contains('-->')) {
+        final meta = line.split(' ');
+
         isCue = true;
-        final times = line.split('-->');
-        startTime = _parseDuration(times[0].trim());
-        endTime = _parseDuration(times[1].trim());
+        startTime = _parseDuration(meta[0].trim());
+        endTime = _parseDuration(meta[2].trim());
       } else if (isCue && line != 'WEBVTT') {
         text += (text.isEmpty ? '' : '\n') + line;
       }

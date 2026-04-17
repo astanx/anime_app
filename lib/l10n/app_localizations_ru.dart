@@ -223,7 +223,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get anilibria => 'Anilibria';
 
   @override
-  String get subtitle => 'Субтитры';
+  String get subtitle => 'Субтитры и Английский дубляж';
 
   @override
   String get choose_mode => 'Выберите предпочитаемый режим';
@@ -248,4 +248,25 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get episode_supports_both => 'Этот эпизод поддерживает оба варианта.';
+
+  @override
+  String get mal_sync => 'Синхронизация с MyAnimeList';
+
+  @override
+  String get mal_import => 'Импорт из MyAnimeList';
+
+  @override
+  String get mal_export => 'Экспорт в MyAnimeList';
+
+  @override
+  String get exporting => 'Экспорт...';
+
+  @override
+  String get importing => 'Импорт...';
+
+  @override
+  String get new_settings => 'Новое! Настройте просмотр аниме под себя';
+
+  @override
+  String get settings_desc => 'Переключайтесь между озвучкой и субтитрами, переводите субтитры и синхронизируйте MyAnimeList — всё в одном месте.';
 }

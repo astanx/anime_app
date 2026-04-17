@@ -66,7 +66,7 @@
   "subtitle_mode": "Продолжить с субтитрами или дубляжом",
   "recommended": "Рекомендация",
   "anilibria": "Anilibria",
-  "subtitle": "Субтитры",
+  "subtitle": "Субтитры и Английский дубляж",
   "choose_mode": "Выберите предпочитаемый режим",
   "you_can_change_later": "Вы можете изменить мод позже",
   "disable_subtitles": "Отключить субтитры",
@@ -77,5 +77,15 @@
   "subbed": "Субтитры",
 
   "new_sub_dub": "Новое! Переключение между дубляжом и субтитрами",
-  "episode_supports_both": "Этот эпизод поддерживает оба варианта."
+  "episode_supports_both": "Этот эпизод поддерживает оба варианта.",
+
+  "mal_sync": "Синхронизация с MyAnimeList",
+  "mal_import": "Импорт из MyAnimeList",
+  "mal_export": "Экспорт в MyAnimeList",
+
+  "exporting": "Экспорт...",
+  "importing": "Импорт...",
+
+  "new_settings": "Новое! Настройте просмотр аниме под себя",
+  "settings_desc": "Переключайтесь между озвучкой и субтитрами, переводите субтитры и синхронизируйте MyAnimeList — всё в одном месте."
 }

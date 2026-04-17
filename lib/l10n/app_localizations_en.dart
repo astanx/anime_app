@@ -223,7 +223,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get anilibria => 'Anilibria';
 
   @override
-  String get subtitle => 'Subtitle';
+  String get subtitle => 'Subtitles and English dub';
 
   @override
   String get choose_mode => 'Choose your preferred mode';
@@ -248,4 +248,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get episode_supports_both => 'This episode supports both versions.';
+
+  @override
+  String get mal_sync => 'Sync with MyAnimeList';
+
+  @override
+  String get mal_import => 'Import from MyAnimeList';
+
+  @override
+  String get mal_export => 'Export to MyAnimeList';
+
+  @override
+  String get exporting => 'Exporting...';
+
+  @override
+  String get importing => 'Importing...';
+
+  @override
+  String get new_settings => 'New! Customize your anime experience';
+
+  @override
+  String get settings_desc => 'Switch between dub & sub, translate subtitles, and sync your MyAnimeList — all in one place.';
 }

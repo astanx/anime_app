@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AnimeModeStorage {
   static const _key = 'anime_mode_token';
-  static const _tutorialKey = 'saw_dub_sub_tutorial';
 
   static Future<void> saveMode(AnimeMode mode) async {
     final prefs = await SharedPreferences.getInstance();
@@ -19,15 +18,5 @@ class AnimeModeStorage {
   static Future<void> clearMode() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
-  }
-
-  static Future<void> setSawDubSubTutorial(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_tutorialKey, value);
-  }
-
-  static Future<bool> getSawDubSubTutorial() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_tutorialKey) ?? false;
   }
 }

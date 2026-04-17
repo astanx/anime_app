@@ -66,7 +66,7 @@
   "subtitle_mode": "Continue with subtitles or dub",
   "recommended": "Recommended",
   "anilibria": "Anilibria",
-  "subtitle": "Subtitle",
+  "subtitle": "Subtitles and English dub",
   "choose_mode": "Choose your preferred mode",
   "you_can_change_later": "You can change this later",
   "disable_subtitles": "Disable subtitles",
@@ -76,5 +76,15 @@
   "subbed": "Subbed",
 
   "new_sub_dub": "New! Switch between Dub & Sub",
-  "episode_supports_both": "This episode supports both versions."
+  "episode_supports_both": "This episode supports both versions.",
+
+  "mal_sync": "Sync with MyAnimeList",
+  "mal_import": "Import from MyAnimeList",
+  "mal_export": "Export to MyAnimeList",
+
+  "exporting": "Exporting...",
+  "importing": "Importing...",
+
+  "new_settings": "New! Customize your anime experience",
+  "settings_desc": "Switch between dub & sub, translate subtitles, and sync your MyAnimeList — all in one place."
 }
