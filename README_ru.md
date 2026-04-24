@@ -40,8 +40,6 @@
 - **Локализация**: intl
 - **Сетевое взаимодействие**: Dio
 - **Кэширование**: SharedPreferences
-- **API**: 
-  - [Anime API](https://github.com/astanx/anime_api)
 
 ## 🛠 Установка
 
