@@ -40,8 +40,6 @@ An anime viewing app built with Flutter. It allows users to discover new anime, 
 - **Localization**: intl
 - **Networking**: Dio
 - **Caching**: SharedPreferences
-- **API**:
-  - [Anime API](https://github.com/astanx/anime_api)
 
 ##  Download
 
