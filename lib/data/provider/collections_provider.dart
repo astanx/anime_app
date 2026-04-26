@@ -138,6 +138,7 @@ class CollectionsProvider extends ChangeNotifier {
     if (_existingIds.contains(anime.id)) {
       return getCollectionType(anime);
     }
+
     final collection = await _repository.getCollectionForAnime(anime.id);
     if (collection == null) {
       return null;

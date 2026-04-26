@@ -38,13 +38,14 @@ class HistoryProvider extends ChangeNotifier {
       return;
     }
 
-    final futures = historyPage.history.map((h) async {
-      _existingIds.add(h.animeID);
+    for (var h in historyPage.history) {
       final anime = await _animeRepository.getAnimeById(h.animeID);
-      return AnimeWithHistory(anime: anime, history: h);
-    });
+      if (anime != null) {
+        _existingIds.add(h.animeID);
+        _history.add(AnimeWithHistory(anime: anime, history: h));
+      }
+    }
 
-    _history = await Future.wait(futures);
     _hasFetched = true;
 
     notifyListeners();
@@ -61,14 +62,14 @@ class HistoryProvider extends ChangeNotifier {
     if (historyPage.history.isEmpty) {
       _hasMore = false;
     } else {
-      final futures = historyPage.history.map((h) async {
-        _existingIds.add(h.animeID);
+      for (var h in historyPage.history) {
         final anime = await _animeRepository.getAnimeById(h.animeID);
-        return AnimeWithHistory(anime: anime, history: h);
-      });
+        if (anime != null) {
+          _existingIds.add(h.animeID);
+          _history.add(AnimeWithHistory(anime: anime, history: h));
+        }
+      }
 
-      final newHistory = await Future.wait(futures);
-      _history.addAll(newHistory);
       _page += 1;
     }
 

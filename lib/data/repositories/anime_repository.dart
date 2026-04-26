@@ -53,14 +53,15 @@ class AnimeRepository extends BaseRepository {
     }
   }
 
-  Future<Anime> getAnimeById(String id) async {
+  Future<Anime?> getAnimeById(String id) async {
     try {
       final response = await dio.get('/anime/$id');
       final data = response.data;
       final anime = Anime.fromJsonPreview(data);
       return anime;
     } catch (e) {
-      rethrow;
+      log('Error fetching anime by ID: $e');
+      return null;
     }
   }
 
@@ -73,7 +74,8 @@ class AnimeRepository extends BaseRepository {
 
       return anime;
     } catch (e) {
-      rethrow;
+      log('Error fetching latest releases: $e');
+      throw Exception('Failed to fetch latest releases');
     }
   }
 
@@ -88,7 +90,8 @@ class AnimeRepository extends BaseRepository {
 
       return releases;
     } catch (e) {
-      rethrow;
+      log('Error fetching genre releases: $e');
+      throw Exception('Failed to fetch genre releases');
     }
   }
 
@@ -109,6 +112,7 @@ class AnimeRepository extends BaseRepository {
     PreviewEpisode episodeInfo,
     bool isDubbed, [
     Anime? anime,
+    Mode? mode,
   ]) async {
     try {
       if (anime != null) {

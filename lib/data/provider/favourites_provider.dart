@@ -32,13 +32,14 @@ class FavouritesProvider extends ChangeNotifier {
   Future<void> fetchFavourites() async {
     if (!_hasFetched) {
       final favourites = await _repository.getFavourites(_page, _limit);
-      final futures = favourites.animeIDs.map((id) {
-        _existingIds.add(id);
 
-        return _animeRepository.getAnimeById(id);
-      });
-
-      _favourites = await Future.wait(futures);
+      for (var id in favourites.animeIDs) {
+        var a = await _animeRepository.getAnimeById(id);
+        if (a != null) {
+          _existingIds.add(id);
+          _favourites.add(a);
+        }
+      }
 
       _hasFetched = true;
 
@@ -63,13 +64,14 @@ class FavouritesProvider extends ChangeNotifier {
               .where((id) => !_existingIds.contains(id))
               .toList();
 
-      final futures = uniqueNew.map((id) {
-        _existingIds.add(id);
-        return _animeRepository.getAnimeById(id);
-      });
+      for (var id in uniqueNew) {
+        var a = await _animeRepository.getAnimeById(id);
+        if (a != null) {
+          _existingIds.add(id);
+          _favourites.add(a);
+        }
+      }
 
-      final uniqueAnime = await Future.wait(futures);
-      _favourites.addAll(uniqueAnime);
       _page = nextPage;
     }
 

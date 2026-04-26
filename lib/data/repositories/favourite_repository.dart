@@ -3,6 +3,7 @@ import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
+import 'dart:developer';
 
 class FavouriteRepository extends BaseRepository {
   final Mode mode;
@@ -54,7 +55,8 @@ class FavouriteRepository extends BaseRepository {
       final favourite = Favourite.fromJson(data);
       return favourite;
     } catch (e) {
-      rethrow;
+      log('Error fetching favourite for anime: $e');
+      throw Exception('Failed to fetch favourite for anime');
     }
   }
 }

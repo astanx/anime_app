@@ -68,7 +68,9 @@ class _AnimeEpisodesScreenState extends State<AnimeEpisodesScreen> {
 
       if (arguments['anime'] == null) {
         if (_isFetched) return;
-        anime = await repository.getAnimeById(animeID);
+        var a = await repository.getAnimeById(animeID);
+        if (a == null) return;
+        anime = a;
       } else {
         anime = arguments['anime'];
       }

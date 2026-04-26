@@ -64,6 +64,7 @@ class VideoControllerProvider extends ChangeNotifier {
   Duration? endingStart;
   Duration? endingEnd;
   String? currentQuality;
+  Episode? currentEpisode;
   VideoPlayerController? get controller => _controller;
   int? get episodeIndex => _episodeIndex;
   Anime? get anime => _anime;
@@ -159,34 +160,39 @@ class VideoControllerProvider extends ChangeNotifier {
     episodeID = anime.previewEpisodes[index].id;
     _isDubbedMode ??= await AnimeModeStorage.getMode() == AnimeMode.dub;
     _sawDubSubTutorial = await ViewedFeatureStorage.getSawDubSubTutorial();
-    Episode episode;
+
     try {
-      episode = anime.episodes.firstWhere(
+      currentEpisode = anime.episodes.firstWhere(
         (e) => e.id == episodeID && e.isDubbed == _isDubbedMode,
       );
     } catch (e) {
-      episode = await _animeRepository.getEpisodeInfo(
+      currentEpisode = await _animeRepository.getEpisodeInfo(
         anime.previewEpisodes[index],
         anime.previewEpisodes[index].isDubbed ? _isDubbedMode! : false,
         anime,
       );
     }
 
+    if (currentEpisode!.sources.first.url.contains('megaplay.buzz')) {
+      notifyListeners();
+      return;
+    }
+
     final timecode = await _timecodeProvider!.getTimecodeForEpisode(
-      episode.id,
+      currentEpisode!.id,
       anime,
     );
     if (anime.previewEpisodes[index].isSubbed) {
-      vttUrls = episode.subtitles;
+      vttUrls = currentEpisode!.subtitles;
       await loadSubtitles();
     }
 
-    for (var source in episode.sources) {
+    for (var source in currentEpisode!.sources) {
       qualities.add(source.type);
     }
 
-    final videoUrl = Uri.parse(episode.sources.first.url);
-    currentQuality = episode.sources.first.type;
+    final videoUrl = Uri.parse(currentEpisode!.sources.first.url);
+    currentQuality = currentEpisode!.sources.first.type;
     await _controller?.dispose();
     _controller = VideoPlayerController.networkUrl(
       videoUrl,
@@ -198,18 +204,20 @@ class VideoControllerProvider extends ChangeNotifier {
       await _controller!.seekTo(Duration(seconds: timecode));
     }
 
-    openingStart = Duration(seconds: episode.opening.start);
+    openingStart = Duration(seconds: currentEpisode!.opening.start);
     endingStart =
-        episode.ending.start != 0
-            ? Duration(seconds: episode.ending.start)
+        currentEpisode!.ending.start != 0
+            ? Duration(seconds: currentEpisode!.ending.start)
             : null;
 
     openingEnd =
-        episode.opening.end != 0
-            ? Duration(seconds: episode.opening.end)
+        currentEpisode!.opening.end != 0
+            ? Duration(seconds: currentEpisode!.opening.end)
             : null;
     endingEnd =
-        episode.ending.end != 0 ? Duration(seconds: episode.ending.end) : null;
+        currentEpisode!.ending.end != 0
+            ? Duration(seconds: currentEpisode!.ending.end)
+            : null;
 
     _controller!.addListener(_notify);
     _controller!.addListener(autoSaveTimecode);

@@ -3,6 +3,7 @@ import 'package:anime_app/data/models/mode.dart';
 import 'package:anime_app/data/repositories/anime_repository.dart';
 import 'package:anime_app/data/repositories/base_repository.dart';
 import 'package:anime_app/data/services/dio_client.dart';
+import 'dart:developer';
 
 class CollectionRepository extends BaseRepository {
   final Mode mode;
@@ -61,7 +62,8 @@ class CollectionRepository extends BaseRepository {
 
       return collection;
     } catch (e) {
-      rethrow;
+      log('Error fetching collection for anime: $e');
+      throw Exception('Failed to fetch collection for anime');
     }
   }
 }

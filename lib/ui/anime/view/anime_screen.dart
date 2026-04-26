@@ -173,6 +173,7 @@ class AnimeScreen extends StatelessWidget {
   ) {
     final episodeIndex = provider.episodeIndex;
     final l10n = AppLocalizations.of(context);
+
     return episodeIndex == null
         ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(

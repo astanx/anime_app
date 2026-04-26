@@ -293,8 +293,7 @@ class _AnimeListScreenState extends State<AnimeListScreen> {
       elevation: 8,
       color: Theme.of(context).colorScheme.surface,
       constraints: BoxConstraints(
-        // POMENAYA
-        maxWidth: isWide ? screenWidth * 0.7 : screenWidth * 0.75,
+        maxWidth: isWide ? screenWidth * 0.7 : screenWidth * 0.85,
         minWidth: isWide ? 400 : 280,
       ),
       items: [
