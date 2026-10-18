@@ -332,6 +332,46 @@ class VideoControllerProvider extends ChangeNotifier {
     _controller?.removeListener(preventComplete);
   }
 
+  void saveTimecodeFromTime(Duration time, Duration duration) {
+    if (_anime == null ||
+        _timecodeProvider == null ||
+        _historyProvider == null ||
+        _episodeIndex == null ||
+        episodeID == null) {
+      return;
+    }
+    if (time > Duration.zero) {
+      final isWatched =
+          (endingStart != null && time >= endingStart!) ||
+          (time >= duration - const Duration(seconds: 5));
+
+      if ((time - _lastSaved).inSeconds < 10 && !isWatched) return;
+      _lastSaved = time;
+
+      final timecode = Timecode(
+        animeID: _anime!.id,
+        time: time.inSeconds,
+        episodeID: episodeID!,
+        isWatched: isWatched,
+      );
+
+      _timecodeProvider!.updateTimecode(timecode, notify: !_isDisposing);
+      final history = AnimeWithHistory(
+        anime: _anime!,
+        history: History(
+          animeID: _anime!.id,
+          watchedAt: DateTime.now(),
+          lastWatchedEpisode: _episodeIndex!,
+          isWatched:
+              (endingStart != null && time >= endingStart!) ||
+              (time >= duration - const Duration(seconds: 60)),
+        ),
+      );
+
+      _historyProvider!.addOrUpdateHistory(history);
+    }
+  }
+
   void _saveTimecode([bool forceSave = false]) {
     if (_controller == null ||
         _anime == null ||
@@ -342,6 +382,8 @@ class VideoControllerProvider extends ChangeNotifier {
         !_wasStarted) {
       return;
     }
+
+    print("SAVING");
 
     final time = _controller!.value.position;
     final duration = _controller!.value.duration;

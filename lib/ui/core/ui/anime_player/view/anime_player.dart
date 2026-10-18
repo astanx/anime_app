@@ -29,111 +29,9 @@ class AnimePlayer extends StatelessWidget {
         if (!isIframe && !(controller?.value.isInitialized ?? false)) {
           return const Center(child: CircularProgressIndicator());
         }
-
         if (isIframe) {
-          return AspectRatio(
-            aspectRatio: 16 / 9,
-            child: InAppWebView(
-              key: ValueKey(sourceUrl),
-              initialData: InAppWebViewInitialData(
-                data: '''
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    background: black;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .player-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
-
-  iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-</style>
-</head>
-
-<body>
-  <div class="player-container">
-    <iframe 
-      src="$sourceUrl"
-      frameborder="0"
-      allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-      allowfullscreen>
-    </iframe>
-  </div>
-
-<script>
-  window.addEventListener("message", function (event) {
-    let data = event.data;
-
-    if (typeof data === "string") {
-      try {
-        data = JSON.parse(data);
-      } catch (e) {
-        return;
-      }
-    }
-
-    if (data.channel === "megacloud") {
-      window.flutter_inappwebview.callHandler('messageHandler', data);
-    }
-
-    if (data.type === "watching-log") {
-      window.flutter_inappwebview.callHandler('messageHandler', data);
-    }
-
-    // SEND TO FLUTTER
-    if (window.flutter_inappwebview) {
-      window.flutter_inappwebview.callHandler('messageHandler', data);
-    }
-  });
-</script>
-
-</body>
-</html>
-                ''',
-                mimeType: 'text/html',
-                encoding: 'utf-8',
-                baseUrl: WebUri("https://anime.local"),
-              ),
-              initialSettings: InAppWebViewSettings(
-                javaScriptEnabled: true,
-                mediaPlaybackRequiresUserGesture: false,
-                allowsInlineMediaPlayback: true,
-                useHybridComposition: true,
-                supportZoom: false,
-                transparentBackground: true,
-                javaScriptCanOpenWindowsAutomatically: true,
-                iframeAllowFullscreen: true,
-              ),
-              onWebViewCreated: (webController) {
-                webController.addJavaScriptHandler(
-                  handlerName: 'messageHandler',
-                  callback: (args) {
-                    print('Received message from iframe: ${args.first}');
-                  },
-                );
-              },
-              onReceivedError: (controller, request, error) {},
-            ),
-          );
+          print("Using IframePlayer for URL: $sourceUrl");
+          return IframePlayer(sourceUrl: sourceUrl, provider: provider);
         }
 
         return AspectRatio(
@@ -218,6 +116,220 @@ class AnimePlayer extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class IframePlayer extends StatefulWidget {
+  final String sourceUrl;
+  final VideoControllerProvider provider;
+  const IframePlayer({
+    super.key,
+    required this.sourceUrl,
+    required this.provider,
+  });
+
+  @override
+  State<IframePlayer> createState() => _IframePlayerState();
+}
+
+class _IframePlayerState extends State<IframePlayer> {
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: InAppWebView(
+        key: ValueKey(widget.sourceUrl),
+        initialData: InAppWebViewInitialData(
+          data: '''
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 100vw; height: 100vh; overflow: hidden; background: #000; }
+iframe { width: 100%; height: 100%; border: none; display: block; }
+</style>
+</head>
+
+<body>
+
+<iframe
+  id="player"
+  src="${widget.sourceUrl}"
+  width="100%"
+  height="100%"
+  allow="
+    picture-in-picture;
+    fullscreen
+  "
+  allowfullscreen
+  webkitallowfullscreen
+  mozallowfullscreen
+  frameborder="0"
+  scrolling="no"
+></iframe>
+<script>
+function sendToFlutter(data) {
+  try {
+    window.flutter_inappwebview.callHandler('messageHandler', data);
+  } catch (e) {}
+}
+
+window.addEventListener("message", function(event) {
+  let data = event.data;
+
+  if (typeof data === "string") {
+    try {
+      data = JSON.parse(data);
+    } catch (_) {}
+  }
+
+  sendToFlutter(data);
+});
+
+window.addEventListener("load", () => {
+    sendToFlutter({ type: "iframe-loaded" });
+  });
+
+setInterval(() => {
+  sendToFlutter({
+    type: "heartbeat",
+    time: Date.now()
+  });
+}, 15000);
+</script>
+
+</body>
+</html>
+''',
+
+          baseUrl: WebUri("https://megaplay.buzz"),
+        ),
+        initialSettings: InAppWebViewSettings(
+          javaScriptEnabled: true,
+
+          javaScriptCanOpenWindowsAutomatically: true,
+
+          mediaPlaybackRequiresUserGesture: false,
+
+          allowsInlineMediaPlayback: true,
+
+          allowsPictureInPictureMediaPlayback: true,
+
+          iframeAllowFullscreen: true,
+
+          isElementFullscreenEnabled: true,
+
+          useHybridComposition: true,
+          hardwareAcceleration: true,
+
+          domStorageEnabled: true,
+          databaseEnabled: true,
+
+          thirdPartyCookiesEnabled: true,
+
+          mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
+
+          transparentBackground: false,
+
+          supportZoom: false,
+
+          allowsBackForwardNavigationGestures: false,
+
+          preferredContentMode: UserPreferredContentMode.MOBILE,
+
+          disableVerticalScroll: true,
+          disableHorizontalScroll: true,
+
+          cacheEnabled: true,
+
+          incognito: false,
+
+          algorithmicDarkeningAllowed: false,
+        ),
+        onWebViewCreated: (webController) {
+          webController.addJavaScriptHandler(
+            handlerName: 'messageHandler',
+            callback: (args) {
+              print("ARGS: $args");
+              final isWatchingLog = args.first["type"] == "watching-log";
+              final isMegacloud = args.first["channel"] == "megacloud";
+              if (isWatchingLog || isMegacloud) {
+                int seconds =
+                    ((isWatchingLog
+                                ? args.first["currentTime"]
+                                : args.first["time"])
+                            as num)
+                        .toInt();
+
+                Duration time = Duration(seconds: seconds);
+
+                Duration duration = Duration(
+                  seconds: (args.first["duration"] as num).toInt(),
+                );
+
+                widget.provider.saveTimecodeFromTime(time, duration);
+              }
+            },
+          );
+        },
+        onConsoleMessage: (controller, consoleMessage) {
+          if (consoleMessage.messageLevel == ConsoleMessageLevel.ERROR) {
+            print('WebView Error: ${consoleMessage.message}');
+          }
+        },
+        onReceivedError: (controller, request, error) {
+          print('WebView Error: $error');
+        },
+        onLoadStart: (controller, url) {
+          print('Load started: $url');
+        },
+
+        onLoadStop: (controller, url) {
+          print('Load stopped: $url');
+        },
+
+        onProgressChanged: (controller, progress) {
+          print('Progress: $progress%');
+        },
+        onReceivedHttpError: (controller, request, errorResponse) {
+          print('${errorResponse.statusCode} | ${request.url}');
+        },
+        shouldOverrideUrlLoading: (controller, navigationAction) async {
+          final url = navigationAction.request.url;
+
+          if (url == null) {
+            return NavigationActionPolicy.CANCEL;
+          }
+
+          final host = url.host.toLowerCase();
+          final fullUrl = url.toString();
+
+          final isAllowed =
+              host == 'megaplay.buzz' ||
+              host.endsWith('.megaplay.buzz') ||
+              fullUrl.startsWith('https://megaplay.buzz');
+
+          if (isAllowed) {
+            print('Allowed navigation $fullUrl');
+            return NavigationActionPolicy.ALLOW;
+          }
+
+          print('Blocked navigation $fullUrl');
+          return NavigationActionPolicy.CANCEL;
+        },
+      ),
     );
   }
 }
